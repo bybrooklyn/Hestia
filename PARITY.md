@@ -1,261 +1,348 @@
 # PARITY.md
 
-The fork's working list for reaching **capability parity** with jellyfin-web. See `CONTEXT.md` for the vocabulary and `docs/adr/0001-*` for the decision behind this effort.
+The fork's working list for reaching **capability parity** with jellyfin-web. See `CONTEXT.md` for vocabulary and `docs/adr/0001-*` for the decision.
 
-**Baseline:** jellyfin-web `10.11.8` — `apps/stable` + `apps/dashboard` + `apps/wizard` (`apps/experimental` excluded). Re-baselining is a deliberate, separate step.
+**Baseline:** jellyfin-web `10.11.8` — `apps/stable` + `apps/dashboard` + `apps/wizard` (`apps/experimental` excluded).
 
 ## How to read this
 
-- Each row is **one capability** ≈ one PR-sized chunk.
-- **Type** — `Surfaced` (UI exists in jellyfin-vue but disabled/stub/nonfunctional) or `Absent` (no UI at all).
-- **Status** — `not started` / `in progress` / `done`. A row is `done` when the capability is fully usable through jellyfin-vue's own UI, verified against a real Jellyfin server; done rows are struck through, not deleted.
-- **Tiers** — work order. T1 playback → T2 core client → T3 extended client → T4 admin dashboard. Within a tier, **Surfaced gaps before Absent gaps**.
-- Parity = this list empty. UI parity is *not* a goal (except the admin dashboard's information architecture — see `CONTEXT.md`).
+Each entry is **one capability** ≈ one PR, with a stable **ID** (used as the commit scope and dependency reference):
 
-> **Verification note:** jellyfin-web was enumerated exhaustively from source; jellyfin-vue was only spot-checked during discovery. Rows marked **`?`** in Type are unverified against current jellyfin-vue source and must be confirmed before work starts. Do not assume — confirm.
+> **`ID` — Capability** · `Type` · `status` · seq N · depends: …
+> **Design:** approach — files to touch/create, SDK endpoint.
+> **Done when:** acceptance criterion.
+
+- **Type** — `Surfaced` (UI exists but disabled/stub) · `Absent` (no UI) · `Partial` (works, incomplete).
+- **status** — `not started` / `in progress` / `done`.
+- **seq** — implementation order *within the tier*. Tiers run 1→4. Lower seq first.
+- **depends** — IDs that must land first.
+- Verified against jellyfin-vue source on this pass unless marked **`UNVERIFIED`**.
+
+Parity = every entry `done`. UI parity is not a goal (admin-dashboard IA excepted — `CONTEXT.md`).
 
 ---
 
 # Tier 1 — Playback
 
-*Highest priority (per project brief). Player files: `pages/playback/video.vue`, `pages/playback/music.vue`, `store/playback-manager.ts`, `store/player-element.ts`, `components/Playback/*`, `components/Buttons/Playback/*`.*
+*Highest priority. Files: `pages/playback/video.vue`, `pages/playback/music.vue`, `store/playback-manager.ts`, `store/player-element.ts`, `components/Playback/*`, `components/Buttons/Playback/*`.*
 
-## 1.1 Video playback
+### Video
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Streaming quality / max-bitrate selector | Surfaced | in progress | `PlaybackSettingsButton.vue`, `playback-manager.ts` | PR #2815 / branch `playback-quality-selector`. |
-| Click video body to toggle play/pause | Absent | not started | `pages/playback/video.vue` | Gripe G3. Container binds only `@mousemove`/`@touchend`. |
-| Paused-state info overlay (title/desc/progress) | Absent | not started | `video.vue`, new overlay component | Gripe G6. Deliver behind an **Experimental** toggle (user preference). |
-| In-player media source / version switch | Absent | not started | `PlaybackSettingsButton.vue`, `playback-manager.ts` | Pre-playback selector exists on item page only. |
-| Direct-play vs direct-stream vs transcode indicator | Absent | not started | `playback-manager.ts`, new badge | Surfaces existing `_currentPlaybackInfo` data. |
-| Transcode reason display | Absent | not started | `playback-manager.ts`, badge/tooltip | `TranscodeReasons` from playback info. |
-| Playback stats / info overlay | Absent | not started | new `components/Playback/PlaybackStats.vue` | jellyfin-web's stats overlay. |
-| Chapter markers on the scrubber | Absent `?` | not started | `components/Playback/TimeSlider.vue` | Confirm whether chapters are shown. |
-| Trickplay thumbnail preview on scrub | Absent | not started | `TimeSlider.vue`, player | Depends on server trickplay data. |
-| Skip intro / skip credits (Media Segments) | Absent | not started | `playback-manager.ts`, `video.vue` | Jellyfin Media Segments API. |
-| Up-next card near end of episode | Absent `?` | not started | `components/Playback/UpNext.vue` | `UpNext.vue` exists — verify it triggers. |
-| Aspect-ratio / zoom control | Surfaced `?` | not started | `PlaybackSettingsButton.vue` | Only a "stretch" toggle today; jellyfin-web has named ratios. |
-| Audio / subtitle delay (offset) control | Absent | not started | `playback-manager.ts`, player | |
-| Secondary subtitle track | Absent | not started | `player-element.ts` | jellyfin-web supports a second subtitle. |
-| Mobile gesture controls (seek/volume/brightness) | Absent | not started | `video.vue` | |
-| Cast video to a remote target | Absent | not started | `CastButton.vue` | See §3.4. |
+**`VID-1` — Streaming quality / max-bitrate selector** · Surfaced · `in progress` · seq 1 · depends: —
+Design: done on branch `playback-quality-selector` (PR #2815) — `PlaybackSettingsButton.vue` + `playback-manager.ts` `maxStreamingBitrate`.
+Done when: PR #2815 merged.
 
-## 1.2 Music playback
+**`VID-2` — Click video body to toggle play/pause** · Absent · `not started` · seq 2 · depends: —
+Design: add `@click` to the video container in `video.vue` → `playbackManager.playPause()`; ignore clicks whose target is inside the OSD controls.
+Done when: clicking the video toggles play/pause; OSD buttons unaffected.
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Synced lyrics view during playback | Absent `?` | not started | `pages/playback/music.vue` | jellyfin-web has a lyrics view; confirm jellyfin-vue. |
-| Music player full-screen visualizer parity | Surfaced `?` | not started | `components/Playback/MusicVisualizer.vue` | Exists — confirm feature-completeness. |
-| Music quality / bitrate selector | Absent `?` | not started | `playback-manager.ts` | |
+**`VID-3` — Direct-play vs transcode indicator** · Absent · `not started` · seq 3 · depends: —
+Design: expose a `playMethod` computed from the (currently private) `_currentPlaybackInfo` in `playback-manager.ts`; render a small badge in the `video.vue` OSD.
+Done when: a direct-play item shows "Direct play"; a transcoded one shows "Transcode".
 
-## 1.3 Queue
+**`VID-4` — Transcode reason display** · Absent · `not started` · seq 4 · depends: `VID-3`
+Design: expose `MediaSource.TranscodeReasons` alongside `playMethod`; tooltip on the `VID-3` badge.
+Done when: forcing a transcode (e.g. subtitle burn-in) shows the reason(s).
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Save current queue as a playlist | Surfaced | not started | `components/Buttons/QueueButton.vue` | Button exists but `disabled`. |
-| Accurate "Playing from …" source text | Surfaced | not started | `QueueButton.vue` | Existing TODO referencing upstream PR #609. |
+**`VID-5` — Playback stats overlay** · Absent · `not started` · seq 5 · depends: —
+Design: new `components/Playback/PlaybackStats.vue` reading `mediaControls`, the `hls` instance, and playback info; toggled from the OSD / a key.
+Done when: overlay shows live bitrate, codec, buffer, dropped frames.
+
+**`VID-6` — Paused-state info overlay** · Absent · `not started` · seq 6 · depends: `EXP-1`
+Design: new overlay shown when `isPaused && isVideo` — title, overview, progress, "ends at"; gated behind an Experimental toggle (owner preference).
+Done when: pausing shows the overlay; the toggle disables it.
+
+**`VID-7` — In-player media source / version switch** · Absent · `not started` · seq 7 · depends: —
+Design: add a source `<VSelect>` to `PlaybackSettingsButton.vue` bound to the `playback-manager` source index (reuses the seamless-reload path).
+Done when: switching version mid-playback reloads at the current time.
+
+**`VID-8` — Chapter markers on the scrubber** · Absent · `not started` · seq 8 · depends: —
+Design: read `item.Chapters`; render ticks on the time slider (`<TimeSlider>`).
+Done when: chapters appear as markers; hover shows the chapter name.
+
+**`VID-9` — Trickplay thumbnail preview on scrub** · Absent · `not started` · seq 9 · depends: —
+Design: fetch server trickplay tiles; show a thumbnail on scrub-hover.
+Done when: scrubbing shows a preview image.
+
+**`VID-10` — Skip intro / credits (Media Segments)** · Absent · `not started` · seq 10 · depends: —
+Design: query the Media Segments API for the item; show a "Skip" button during segment ranges in `video.vue`.
+Done when: the skip button appears and seeks past the segment.
+
+**`VID-11` — Aspect-ratio / zoom control** · Partial · `not started` · seq 11 · depends: —
+Design: replace the single "stretch" toggle in `PlaybackSettingsButton.vue` with named modes (auto / cover / fill) applied via CSS `object-fit`.
+Done when: ratio modes are selectable and applied.
+
+**`VID-12` — Audio / subtitle delay (offset) control** · Absent · `not started` · seq 12 · depends: —
+Design: offset controls in `PlaybackSettingsButton.vue`; apply the subtitle offset in `player-element.ts`.
+Done when: offsets visibly shift sync.
+
+**`VID-13` — Secondary subtitle track** · Absent · `not started` · seq 13 · depends: —
+Design: allow a second active track in `player-element.ts` rendering.
+Done when: two subtitle tracks render simultaneously.
+
+**`VID-14` — Mobile gesture controls** · Absent · `not started` · seq 14 · depends: —
+Design: touch handlers in `video.vue` for seek / volume / brightness.
+Done when: gestures work on a touch device.
+
+### Music
+
+**`MUS-1` — Synced lyrics view** · Absent · `not started` · seq 15 · depends: —
+Design: fetch lyrics via the SDK lyrics API; render a synced view in `music.vue`. (Verified: 0 lyric references in jellyfin-vue.)
+Done when: lyrics display and follow playback position.
+
+**`MUS-2` — Music quality / bitrate selector** · Absent · `not started` · seq 16 · depends: `VID-1`
+Design: reuse the `maxStreamingBitrate` mechanism for audio playback.
+Done when: audio streaming quality is selectable.
+
+> *Music visualizer is **done** (`MusicVisualizer.vue`) — not a parity gap.*
+
+### Queue
+
+**`QUE-1` — Save current queue as a playlist** · Surfaced · `not started` · seq 17 · depends: —
+Design: enable the disabled button in `QueueButton.vue`; call the SDK playlists API `createPlaylist` with the queue item ids.
+Done when: the queue becomes a server playlist.
+
+**`QUE-2` — Accurate "Playing from …" source text** · Surfaced · `not started` · seq 18 · depends: —
+Design: fix `sourceText` in `QueueButton.vue` (the existing TODO; search is now confirmed functional, so it no longer blocks this).
+Done when: the queue header shows the correct source.
 
 ---
 
 # Tier 2 — Core client
 
-## 2.1 Home
+### Experimental scaffold
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Home Screen settings (configure sections) | Surfaced | not started | `pages/settings/index.vue`, new `pages/settings/home.vue` + store | Disabled settings row. Covers gripe G10 (the "drop Libraries section" preference is a fork-only *default*, see `FORK_ROADMAP.md`). |
-| Additional home section types (genres, etc.) | Absent `?` | not started | `utils/items.ts`, `pages/index.vue` | Confirm which jellyfin-web section types are missing. |
+**`EXP-1` — Experimental settings section + store** · Absent · `not started` · seq 1 · depends: —
+Design: new `pages/settings/experimental.vue` + `store/settings/experimental.ts`; enable a settings-index row. Prerequisite for `VID-6` and all behaviour-changing toggles (`FORK_ROADMAP.md` §6).
+Done when: the section exists and toggles persist.
 
-## 2.2 Libraries & browsing
+### Home
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| List/alternate view modes for a library | Absent `?` | not started | `pages/library/[itemId].vue`, `Item/ItemGrid.vue` | Grid exists; confirm list view. |
-| Suggestions tab per library | Absent `?` | not started | `pages/library/[itemId].vue` | |
-| Studios / Tags / Years browse views | Absent `?` | not started | new pages | jellyfin-vue has genre/artist/person pages. |
-| Trigger a library scan from the UI | Absent | not started | item/library pages | |
+**`HOME-1` — Home Screen settings page** · Surfaced · `not started` · seq 2 · depends: —
+Design: new `pages/settings/home.vue` + store; enable the disabled "Home Screen" settings-index row; configure section visibility/order consumed by `utils/items.ts` / `pages/index.vue`. (Also delivers the owner's "drop Libraries section" default — `FORK_ROADMAP.md` §9.)
+Done when: the page works and the home screen reflects the configuration.
 
-## 2.3 Item details
+**`HOME-2` — Additional home section types** · Absent · `not started` · seq 3 · depends: `HOME-1` · **UNVERIFIED** (exact jellyfin-web section list)
+Design: add missing section types (e.g. genres, recommendations) in `utils/items.ts` / `index.vue`.
+Done when: home section types match jellyfin-web.
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Metadata editor — finish validation | Surfaced | not started | `Item/Metadata/MetadataEditor.vue` | Existing TODOs about client-side validation. |
-| Download / search subtitles for an item | Absent `?` | not started | `Item/*` | jellyfin-web's subtitle download dialog. |
-| Add item to a collection | Absent `?` | not started | `Item/ItemMenu.vue` | |
-| Add item to a playlist | Absent `?` | not started | `Item/ItemMenu.vue` | |
-| Special features / extras listing | Absent `?` | not started | `pages/item/[itemId].vue` | |
-| Trailers playback | Absent `?` | not started | `pages/item/[itemId].vue` | |
-| Chapters list on the detail page | Absent `?` | not started | `pages/item/[itemId].vue` | |
-| Item version/edition management | Absent `?` | not started | `Item/*` | |
+### Libraries & browsing
 
-## 2.4 Search
+**`LIB-1` — List / alternate view mode** · Absent · `not started` · seq 4 · depends: —
+Design: add a grid/list toggle to `library/[itemId].vue`; add a list renderer to `Item/ItemGrid.vue` (currently grid-only; `viewType` there is an item-*type* filter, not a layout).
+Done when: the user can switch between grid and list.
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Full search scope/filters parity | Surfaced `?` | not started | `pages/search.vue` | QueueButton TODO implies search is partial. |
-| Recent searches / suggestions | Absent `?` | not started | `pages/search.vue` | |
+**`LIB-2` — Suggestions tab per library** · Absent · `not started` · seq 5 · depends: —
+Design: add a Suggestions tab to `library/[itemId].vue` using suggestions/latest/next-up endpoints.
+Done when: suggestions show for a library.
 
-## 2.5 User preferences
+**`LIB-3` — Studios / Tags / Years browse views** · Absent · `not started` · seq 6 · depends: —
+Design: new pages mirroring the existing `genre`/`person` pages.
+Done when: these facets are browsable.
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Display preferences page | Surfaced `?` | not started | `pages/settings/*`, `store/settings/theme.ts` | jellyfin-web `mypreferencesdisplay`; confirm jellyfin-vue coverage. |
-| Playback preferences page | Surfaced | not started | `pages/settings/index.vue`, new `pages/settings/playback.vue` + store | Disabled settings row. Gateway for persisting quality/speed. |
-| Preferred audio language | Absent | not started | new playback settings store | |
-| Preferred subtitle language | Absent | not started | new playback/subtitle settings | |
-| Forced subtitle auto-enable preference | Absent | not started | `player-element.ts`, settings | Gripe-adjacent; jellyfin-web honours forced subs. |
-| Controls / media-players preferences page | Surfaced | not started | `pages/settings/index.vue` | Disabled "Media Players" row. |
-| Subtitle appearance preferences | done `?` | — | `pages/settings/subtitles.vue` | Present; confirm parity with jellyfin-web options. |
+**`LIB-4` — Trigger a library scan from the UI** · Absent · `not started` · seq 7 · depends: —
+Design: a refresh action calling the SDK library `refreshLibrary`.
+Done when: a scan can be triggered from the UI.
 
-## 2.6 Authentication & connection
+### Item details
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Quick Connect — authorize a code (as user) | Absent `?` | not started | `pages/settings/*` | jellyfin-web `quickconnect`. |
-| Quick Connect — sign in via code | Absent `?` | not started | `pages/server/login.vue` | |
-| Forgot-password / PIN reset flow | Absent `?` | not started | `pages/server/*` | jellyfin-web `forgotpasswordpin`. |
+**`ITEM-1` — Metadata editor: finish client-side validation** · Surfaced · `not started` · seq 8 · depends: —
+Design: validate input in `Item/Metadata/MetadataEditor.vue` before POST (the existing TODOs).
+Done when: invalid input is blocked client-side.
+
+**`ITEM-2` — Download / search subtitles for an item** · Absent · `not started` · seq 9 · depends: —
+Design: a subtitle-search dialog using the SDK subtitle API.
+Done when: subtitles can be searched and downloaded per item.
+
+**`ITEM-3` — Add item to a collection** · Absent · `not started` · seq 10 · depends: `COLL-2`
+Design: new action in `Item/ItemMenu.vue` (verified: no such action today) using the collection API.
+Done when: an item can be added to a (new or existing) collection.
+
+**`ITEM-4` — Add item to a playlist** · Absent · `not started` · seq 11 · depends: `COLL-5`
+Design: new action in `Item/ItemMenu.vue` using the playlists API.
+Done when: an item can be added to a playlist.
+
+**`ITEM-5` — Special features / extras** · Absent · `not started` · seq 12 · depends: —
+Design: fetch special features; show a row on `pages/item/[itemId].vue`.
+Done when: extras are listed and playable.
+
+**`ITEM-6` — Trailers** · Absent · `not started` · seq 13 · depends: —
+Design: surface `item.RemoteTrailers` / local trailers with a play action.
+Done when: a trailer is playable from the detail page.
+
+**`ITEM-7` — Chapters list on the detail page** · Absent · `not started` · seq 14 · depends: —
+Design: render `item.Chapters` with thumbnails on `pages/item/[itemId].vue`; click seeks during playback.
+Done when: chapters are listed and clickable.
+
+### Search
+
+> Verified: search **works** — `pages/search.vue` has Movies/Shows/Albums/Songs/Books/People/Artists tabs, each an `ItemGrid`. Remaining gaps only:
+
+**`SRCH-1` — Result filters / scope** · Absent · `not started` · seq 15 · depends: —
+Design: add filter controls (genre/year/etc.) to `search.vue`.
+Done when: results can be filtered.
+
+**`SRCH-2` — Recent searches / suggestions** · Absent · `not started` · seq 16 · depends: —
+Design: persist recent queries; show suggestions on focus.
+Done when: recent searches appear.
+
+### User preferences
+
+**`PREF-1` — Playback settings page** · Surfaced · `not started` · seq 17 · depends: —
+Design: new `pages/settings/playback.vue` + `store/settings/playback.ts`; enable the disabled "Playback" settings-index row. Gateway for `PREF-3/4/5` and persisted quality/speed.
+Done when: the page works and persists.
+
+**`PREF-2` — Display preferences page** · Absent · `not started` · seq 18 · depends: —
+Design: new `pages/settings/display.vue` consolidating theme/locale (today scattered in the app bar) and display options.
+Done when: a dedicated display-preferences page exists.
+
+**`PREF-3` — Preferred audio language** · Absent · `not started` · seq 19 · depends: `PREF-1`
+Design: preference in the playback store; applied during track selection in `playback-manager.ts`.
+Done when: the preferred audio track is auto-selected when present.
+
+**`PREF-4` — Preferred subtitle language** · Absent · `not started` · seq 20 · depends: `PREF-1`
+Design: as `PREF-3`, for subtitles.
+Done when: the preferred subtitle track is auto-selected when present.
+
+**`PREF-5` — Forced-subtitle auto-enable** · Absent · `not started` · seq 21 · depends: `PREF-1`
+Design: honour `MediaStream.IsForced` in `player-element.ts`, gated by a preference.
+Done when: forced subtitles auto-enable per the preference.
+
+**`PREF-6` — Controls / media-players preferences page** · Surfaced · `not started` · seq 22 · depends: —
+Design: new page; enable the disabled "Media Players" settings-index row.
+Done when: the page works.
+
+> *Subtitle appearance preferences are **done** (`pages/settings/subtitles.vue`).*
+
+### Authentication
+
+**`AUTH-1` — Quick Connect sign-in (enter code)** · Absent · `not started` · seq 23 · depends: —
+Design: add a Quick Connect option to `pages/server/login.vue` using the Quick Connect API. (Verified: Quick Connect appears only in *admin* `server.vue`, not user-facing.)
+Done when: a user can sign in via a Quick Connect code.
+
+**`AUTH-2` — Quick Connect authorize (approve a code)** · Absent · `not started` · seq 24 · depends: —
+Design: settings UI to approve a pending Quick Connect code.
+Done when: a logged-in user can authorize a code.
+
+**`AUTH-3` — Forgot-password / PIN reset flow** · Absent · `not started` · seq 25 · depends: —
+Design: new flow under `pages/server/` (jellyfin-web `forgotpasswordpin`).
+Done when: the reset flow completes.
 
 ---
 
 # Tier 3 — Extended client
 
-## 3.1 Live TV *(entirely Absent — jellyfin-vue excludes `livetv`)*
+### Live TV *(entirely Absent — jellyfin-vue excludes `livetv`)*
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Live TV channel list | Absent | not started | new pages | |
-| Live TV program guide grid | Absent | not started | new pages | |
-| Watch a live channel | Absent | not started | new pages, `playback-manager.ts` | |
-| Recordings list & playback | Absent | not started | new pages | |
-| Schedule a recording | Absent | not started | new pages | |
-| Series timers (record a series) | Absent | not started | new pages | |
-| Live TV suggested / landing | Absent | not started | new pages | |
-| Channel favorites | Absent | not started | new pages | |
+**`LTV-1` — Channel list** · Absent · seq 1 · Design: new page, live-tv channels endpoint. Done when: channels list and are playable to `LTV-3`.
+**`LTV-2` — Program guide grid** · Absent · seq 2 · depends: `LTV-1` · Design: new guide page. Done when: the EPG grid renders.
+**`LTV-3` — Watch a live channel** · Absent · seq 3 · depends: `LTV-1` · Design: route a channel into `playback-manager`. Done when: a channel plays.
+**`LTV-4` — Recordings list & playback** · Absent · seq 4 · Design: new page. Done when: recordings list and play.
+**`LTV-5` — Schedule a recording** · Absent · seq 5 · depends: `LTV-2` · Design: timer-create from the guide. Done when: a recording can be scheduled.
+**`LTV-6` — Series timers** · Absent · seq 6 · depends: `LTV-5` · Done when: a series can be set to record.
+**`LTV-7` — Live TV suggested / landing** · Absent · seq 7 · depends: `LTV-1` · Done when: a landing page exists.
+**`LTV-8` — Channel favorites** · Absent · seq 8 · depends: `LTV-1` · Done when: channels can be favorited.
 
-## 3.2 Collections & Playlists
+### Collections & Playlists
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| View a collection (BoxSet) | done `?` | — | `pages/item/[itemId].vue`, `CollectionTabs` | Item page handles BoxSet — confirm. |
-| Create a collection | Absent | not started | `Item/*` | |
-| Add/remove items to a collection | Absent | not started | `Item/*` | |
-| View a playlist | Absent `?` | not started | new page | |
-| Create a playlist | Absent | not started | `QueueButton.vue`, `Item/*` | Linked to §1.3 save-as-playlist. |
-| Edit / reorder a playlist | Absent | not started | new page | |
-| Delete a collection / playlist | Absent | not started | — | |
+**`COLL-1` — View a collection (BoxSet)** · Partial · `not started` · seq 9 · depends: — · **UNVERIFIED depth**
+Design: `pages/item/[itemId].vue` already renders BoxSet children via `CollectionTabs` — confirm full parity.
+Done when: a collection's contents are fully browsable.
 
-## 3.3 Other media types
+**`COLL-2` — Create a collection** · Absent · seq 10 · Design: collection-create action/dialog. Done when: a collection can be created.
+**`COLL-3` — Add / remove items in a collection** · Absent · seq 11 · depends: `COLL-2` · (paired with `ITEM-3`). Done when: collection membership is editable.
+**`COLL-4` — View a playlist** · Absent · `not started` · seq 12 · **UNVERIFIED** — confirm whether a `Playlist` item routes through the generic item/library page; if not, a dedicated view is needed. Done when: a playlist's contents are browsable.
+**`COLL-5` — Create a playlist** · Absent · seq 13 · (shares the API with `QUE-1`). Done when: a playlist can be created.
+**`COLL-6` — Edit / reorder a playlist** · Absent · seq 14 · depends: `COLL-4` · Design: reorder via the existing `DraggableQueue` pattern. Done when: playlists are editable.
+**`COLL-7` — Delete a collection / playlist** · Absent · seq 15 · depends: `COLL-1`,`COLL-4` · Done when: both can be deleted.
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Photo viewer / slideshow | Absent `?` | not started | new pages | jellyfin-web has a photos experience. |
-| Book / e-reader | Absent `?` | not started | new pages | jellyfin-web has an epub reader. |
-| Audiobook playback parity | Absent `?` | not started | `playback-manager.ts` | |
+### Other media types
 
-## 3.4 Casting, remote & SyncPlay
+**`MEDIA-1` — Photo viewer / slideshow** · Absent · seq 16 · Design: new viewer pages. Done when: photos view and slideshow.
+**`MEDIA-2` — Book / e-reader** · Absent · seq 17 · Design: an epub reader (large). Done when: a book is readable.
+**`MEDIA-3` — Audiobook playback parity** · Absent · `not started` · seq 18 · **UNVERIFIED** — confirm current audiobook handling in `playback-manager.ts`. Done when: audiobooks play with chapter support.
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Cast to a remote Jellyfin session | Surfaced | not started | `components/Layout/AppBar/Buttons/CastButton.vue` | Whole button is `disabled`; placeholder devices. |
-| Control / remote another session | Absent | not started | `CastButton.vue`, new store | |
-| SyncPlay — create / join a group | Surfaced | not started | `CastButton.vue` | Placeholder list item exists. |
-| SyncPlay — synchronised playback | Absent | not started | `playback-manager.ts`, `remote.socket` | Most upstream-friendly casting slice. |
-| Google Cast (Chromecast) | Surfaced | not started | `CastButton.vue` | Placeholder device entry. |
-| AirPlay target | Surfaced | not started | `CastButton.vue` | Placeholder device entry. |
+### Casting, remote & SyncPlay
+
+**`CAST-1` — Cast to a remote Jellyfin session** · Surfaced · seq 19 · Design: `CastButton.vue` exists but is **commented out** in `AppBar.vue` — re-mount it and implement session control via `remote.socket`. Done when: playback can target a remote session.
+**`CAST-2` — SyncPlay: create / join a group** · Surfaced · seq 20 · depends: `CAST-1` · Done when: a group can be created/joined.
+**`CAST-3` — SyncPlay: synchronised playback** · Absent · seq 21 · depends: `CAST-2` · Design: sync via `remote.socket` + `playback-manager`. Done when: playback stays in sync across clients.
+**`CAST-4` — Google Cast (Chromecast)** · Surfaced · seq 22 · Design: Cast SDK integration (placeholder entry exists). Done when: casting to Chromecast works.
+**`CAST-5` — AirPlay target** · Surfaced · seq 23 · Done when: AirPlay target works.
 
 ---
 
 # Tier 4 — Admin dashboard
 
-*Reimagined per `CONTEXT.md`: jellyfin-vue components/theme, jellyfin-web's dashboard information architecture. Most rows are Absent or Surfaced (disabled settings-index entries).*
+*Reimagined per `CONTEXT.md`: jellyfin-vue components/theme, jellyfin-web's dashboard information architecture. Most pages are new; existing admin pages need only a depth check.*
 
-## 4.1 Dashboard home & server
+### Verified already present (depth check only)
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Dashboard landing (server overview) | Absent | not started | new `pages/settings/dashboard.vue` | |
-| Active sessions / devices live view | Absent | not started | new page | |
-| Active transcodes monitor | Absent | not started | new page | |
-| General server settings | Surfaced `?` | not started | `pages/settings/server.vue` | Page exists — confirm coverage vs jellyfin-web. |
-| Branding (login disclaimer, custom CSS) | Absent | not started | new page | |
-| Backups (create / restore / schedule) | Absent | not started | new page | |
-| Server logs | done `?` | — | `pages/settings/logs-and-activity.vue` | Present — confirm parity. |
-| Activity log | done `?` | — | `pages/settings/logs-and-activity.vue` | Confirm. |
-| Notifications settings | Absent | not started | new page | Disabled settings row. |
-| Networking settings | Absent | not started | new page | Disabled settings row. |
-| DLNA settings | Absent | not started | new page | Disabled settings row. |
+**`SRV-1` — General server settings** · `done` · Design: `pages/settings/server.vue` covers name, language, Quick Connect, paths, branding fields, performance limits. Done when: confirmed at parity depth with jellyfin-web.
+**`LOG-1` — Server logs / activity log** · `done` · `pages/settings/logs-and-activity.vue`. Confirm depth.
+**`USR-1` — Users admin (list / add / edit / access / parental / password)** · `done` · Verified: `settings/users/*` with Profile/Access/Parental/Password tabs. Confirm depth.
+**`KEY-1` — API keys** · `done` · `pages/settings/apikeys.vue`. Confirm depth.
+**`DEV-1` — Devices** · `done` · `pages/settings/devices.vue`. Confirm depth.
+**`WIZ-1` — First-run setup wizard** · `done` · `pages/wizard.vue` + `components/Wizard/*`. Confirm step-for-step parity.
 
-## 4.2 Users (admin)
+### Dashboard home
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| User list | done `?` | — | `pages/settings/users/index.vue` | Present — confirm. |
-| Add a user | done `?` | — | `pages/settings/users/new.vue` | Present — confirm. |
-| Edit a user | done `?` | — | `pages/settings/users/[id].vue` | Present — confirm. |
-| User library/device access control | Surfaced `?` | not started | `pages/settings/users/[id].vue` | jellyfin-web `users/access`. |
-| Parental controls | Absent | not started | `pages/settings/users/[id].vue` | jellyfin-web `users/parentalcontrol`. |
-| Reset / set a user password (admin) | Surfaced `?` | not started | `pages/settings/users/[id].vue` | jellyfin-web `users/password`. |
+**`DASH-1` — Dashboard landing (server overview)** · Absent · seq 1 · new `pages/settings/dashboard.vue`. Done when: a server-overview landing exists.
+**`DASH-2` — Active sessions / devices live view** · Absent · seq 2 · depends: `DASH-1` · Done when: live sessions are listed.
+**`DASH-3` — Active transcodes monitor** · Absent · seq 3 · depends: `DASH-1` · Done when: running transcodes are shown.
 
-## 4.3 Libraries (admin)
+### Server
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Library list (admin) | Surfaced | not started | `pages/settings/index.vue` | Disabled row. |
-| Add / edit / delete a library | Absent | not started | new page | |
-| Library display settings | Absent | not started | new page | jellyfin-web `libraries/display`. |
-| Metadata settings | Absent | not started | new page | jellyfin-web `libraries/metadata`. |
-| NFO settings | Absent | not started | new page | jellyfin-web `libraries/nfo`. |
+**`SRV-2` — Branding (custom CSS)** · Partial · seq 4 · `server.vue` already has login disclaimer + splash; custom CSS is missing. Done when: custom CSS is configurable.
+**`SRV-3` — Backups (create / restore / schedule)** · Absent · seq 5 · Done when: backups are manageable.
+**`SRV-4` — Notifications settings** · Absent · seq 6 · disabled settings-index row. Done when: a notifications page exists.
+**`SRV-5` — Networking settings** · Absent · seq 7 · disabled settings-index row. Done when: a networking page exists.
+**`SRV-6` — DLNA settings** · Absent · seq 8 · disabled settings-index row. Done when: a DLNA page exists.
 
-## 4.4 Playback (admin)
+### Libraries (admin)
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Transcoding settings | Surfaced | not started | `pages/settings/index.vue` | Disabled "Transcoding & Streaming" row. |
-| Streaming settings | Absent | not started | new page | |
-| Resume settings | Absent | not started | new page | |
-| Trickplay settings | Absent | not started | new page | |
+**`LIBA-1` — Library list / add / edit / delete** · Surfaced · seq 9 · disabled "Libraries" row. Done when: libraries are manageable.
+**`LIBA-2` — Library display settings** · Absent · seq 10 · depends: `LIBA-1` · Done when: display settings editable.
+**`LIBA-3` — Metadata settings** · Absent · seq 11 · depends: `LIBA-1` · Done when: metadata settings editable.
+**`LIBA-4` — NFO settings** · Absent · seq 12 · depends: `LIBA-1` · Done when: NFO settings editable.
 
-## 4.5 Live TV / DVR (admin)
+### Playback (admin)
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Live TV / DVR setup | Surfaced | not started | `pages/settings/index.vue` | Disabled "Live TV" row. |
-| Tuner & guide-provider configuration | Absent | not started | new page | |
-| Recording defaults | Absent | not started | new page | |
+**`PBA-1` — Transcoding settings** · Surfaced · seq 13 · disabled "Transcoding & Streaming" row. Done when: transcoding settings editable.
+**`PBA-2` — Streaming settings** · Absent · seq 14 · Done when: streaming settings editable.
+**`PBA-3` — Resume settings** · Absent · seq 15 · Done when: resume settings editable.
+**`PBA-4` — Trickplay settings** · Absent · seq 16 · Done when: trickplay settings editable.
 
-## 4.6 Plugins, tasks, infrastructure (admin)
+### Live TV / DVR (admin)
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| Installed plugins list | Surfaced | not started | `pages/settings/index.vue` | Disabled "Plugins" row. |
-| Plugin catalog (browse/install) | Absent | not started | new page | |
-| Plugin configuration pages | Absent | not started | new page | jellyfin-web `plugins/:pluginId`. |
-| Plugin repositories | Absent | not started | new page | |
-| Scheduled tasks list | Surfaced | not started | `pages/settings/index.vue` | Disabled "Scheduled Tasks" row. `store/task-manager.ts` tracks client tasks only. |
-| Run / configure a scheduled task | Absent | not started | new page | |
-| API keys management | done `?` | — | `pages/settings/apikeys.vue` | Present — confirm. |
-| Devices management | done `?` | — | `pages/settings/devices.vue` | Present — confirm. |
+**`LTVA-1` — Live TV / DVR setup** · Surfaced · seq 17 · disabled "Live TV" row. Done when: a DVR setup page exists.
+**`LTVA-2` — Tuner & guide-provider configuration** · Absent · seq 18 · depends: `LTVA-1` · Done when: tuners/guides configurable.
 
-## 4.7 Setup wizard
+### Plugins, tasks (admin)
 
-| Capability | Type | Status | Likely jellyfin-vue files | Notes |
-|---|---|---|---|---|
-| First-run setup wizard parity | Surfaced `?` | not started | `pages/wizard.vue`, `components/Wizard/*` | Wizard exists — confirm step-for-step parity with jellyfin-web. |
+**`PLG-1` — Installed plugins list** · Surfaced · seq 19 · disabled "Plugins" row. Done when: installed plugins listed.
+**`PLG-2` — Plugin catalog (browse / install)** · Absent · seq 20 · depends: `PLG-1` · Done when: plugins installable.
+**`PLG-3` — Plugin configuration pages** · Absent · seq 21 · depends: `PLG-1` · Done when: a plugin's config is editable.
+**`PLG-4` — Plugin repositories** · Absent · seq 22 · depends: `PLG-1` · Done when: repositories manageable.
+**`TASK-1` — Scheduled tasks list** · Surfaced · seq 23 · disabled "Scheduled Tasks" row (`store/task-manager.ts` tracks client tasks only). Done when: server tasks are listed.
+**`TASK-2` — Run / configure a scheduled task** · Absent · seq 24 · depends: `TASK-1` · Done when: a task can be run/configured.
 
 ---
 
-## Out of scope
+## Implementation notes
 
-- jellyfin-web `apps/experimental` — jellyfin-web's own unfinished next-gen UI.
-- UI parity (visual match) — except the admin-dashboard information architecture.
+- **Start point:** Tier 1, `VID-1` (in progress) → `VID-2` → … by seq. One commit per ID, commit scope = the ID (e.g. `feat(playback): VID-2 click-to-pause`).
+- **Cross-tier prerequisite:** `VID-6` needs `EXP-1` (Tier 2 seq 1) — do `EXP-1` early if the paused overlay is wanted sooner.
+- **`UNVERIFIED` entries** — `HOME-2`, `COLL-1` depth, `COLL-4`, `MEDIA-3`: confirm against jellyfin-vue/jellyfin-web before starting that specific entry.
+- **`done` Tier 4 entries** are depth-checks, not builds — verify field-for-field parity, file a follow-up entry only if a gap is found.
 
 ## Related
 
-- **Bugs** (defects regardless of jellyfin-web) — `KNOWN_BUGS.md`.
-- **Fork-only QoL** (jellyfin-web doesn't do it either) — `FORK_ROADMAP.md`.
-- **Performance** — `PERFORMANCE_NOTES.md`. Performance is the priority *after* parity.
+- Bugs (defects regardless of jellyfin-web) — `KNOWN_BUGS.md`.
+- Fork-only QoL — `FORK_ROADMAP.md` §9.
+- Performance (the priority *after* parity) — `PERFORMANCE_NOTES.md`.
 
-## Status summary
+## Out of scope
 
-All rows `not started` except the quality selector (`in progress`). Rows marked `done ?` are believed already present in jellyfin-vue and need confirmation only. **`?` Type rows are unverified against current jellyfin-vue source — confirm before starting.**
+- jellyfin-web `apps/experimental`.
+- UI parity (visual match) — except the admin-dashboard information architecture.
