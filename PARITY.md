@@ -31,7 +31,7 @@ Parity = every entry `done`. UI parity is not a goal (admin-dashboard IA excepte
 **`VID-1` — Streaming quality / max-bitrate selector** · Surfaced · `done` · seq 1 · depends: —
 Design: `PlaybackSettingsButton.vue` + `playback-manager.ts` `maxStreamingBitrate`. Landed on `develop`.
 
-**`VID-2` — Click video body to toggle play/pause** · Absent · `not started` · seq 2 · depends: —
+**`VID-2` — Click video body to toggle play/pause** · Absent · `done` · seq 2 · depends: —
 Design: add `@click` to the video container in `video.vue` → `playbackManager.playPause()`; ignore clicks whose target is inside the OSD controls.
 Done when: clicking the video toggles play/pause; OSD buttons unaffected.
 

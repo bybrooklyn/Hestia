@@ -4,7 +4,8 @@
     class="fill-height uno-flex uno-justify-center uno-bg-black !uno-h-screen"
     :class="{ 'uno-cursor-none': !overlay }"
     @mousemove.passive="handleMouseMove"
-    @touchend.passive="handleMouseMove">
+    @touchend.passive="handleMouseMove"
+    @click="handleClick">
     <JOverlay
       class="uno-h-full uno-flex uno-flex-col uno-items-center uno-justify-between"
       :class="{
@@ -130,6 +131,7 @@ import { useTimeoutFn } from '@vueuse/core';
 import { computed, shallowRef, watch } from 'vue';
 import { playbackGuard } from '#/plugins/router/middlewares/playback.ts';
 import {
+  hasFinePointer,
   mediaControls
 } from '#/store/index.ts';
 import { playbackManager } from '#/store/playback-manager.ts';
@@ -168,6 +170,23 @@ const timeout = useTimeoutFn(() => {
 function handleMouseMove(): void {
   overlay.value = true;
   timeout.start();
+}
+
+/**
+ * Toggles play/pause when the video surface is clicked. Clicks on the OSD
+ * controls (top/bottom bars) are ignored so buttons don't double-trigger.
+ * Mouse only — touch interaction is handled separately.
+ */
+function handleClick(e: MouseEvent): void {
+  if (
+    !hasFinePointer.value
+    || !(e.target instanceof Element)
+    || e.target.closest('.osd-top, .osd-bottom')
+  ) {
+    return;
+  }
+
+  playbackManager.playPause();
 }
 
 watch(staticOverlay, (val) => {
