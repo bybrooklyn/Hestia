@@ -443,5 +443,8 @@
   "writing": "Writing",
   "year": "Year",
   "years": "Years",
-  "youMayAlsoLike": "You may also like"
+  "youMayAlsoLike": "You may also like",
+  "experimental": "Experimental",
+  "experimentalSettingsDescription": "Enable experimental features for this device",
+  "pausedInfoOverlay": "Show info overlay when paused"
 }

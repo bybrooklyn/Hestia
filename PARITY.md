@@ -111,9 +111,8 @@ Done when: the queue header shows the correct source.
 
 ### Experimental scaffold
 
-**`EXP-1` — Experimental settings section + store** · Absent · `not started` · seq 1 · depends: —
-Design: new `pages/settings/experimental.vue` + `store/settings/experimental.ts`; enable a settings-index row. Prerequisite for `VID-6` and all behaviour-changing toggles (`FORK_ROADMAP.md` §6).
-Done when: the section exists and toggles persist.
+**`EXP-1` — Experimental settings section + store** · Absent · `done` · seq 1 · depends: —
+Design: `pages/settings/experimental.vue` + `store/settings/experimental.ts` (device-local, `localStorage`); settings-index row enabled. Minimal scaffold landed with `VID-6`'s toggle; extend with further toggles as behaviour-changing work arrives (`FORK_ROADMAP.md` §6).
 
 ### Home
 

@@ -161,6 +161,12 @@ const userItems = computed<MenuOptions[]>(() => {
       name: t('subtitles'),
       description: t('subtitlesSettingsDescription'),
       link: '/settings/subtitles'
+    },
+    {
+      icon: 'i-mdi:flask',
+      name: t('experimental'),
+      description: t('experimentalSettingsDescription'),
+      link: '/settings/experimental'
     }
   ];
 });

@@ -22,6 +22,7 @@ declare module 'vue-router' {
   interface TypesConfig {
     ParamParsers:
       | never
+    RouteNamedMap: import('vue-router/auto-routes').RouteNamedMap
   }
 }
 
@@ -159,6 +160,13 @@ declare module 'vue-router/auto-routes' {
     '/settings/devices': RouteRecordInfo<
       '/settings/devices',
       '/settings/devices',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/settings/experimental': RouteRecordInfo<
+      '/settings/experimental',
+      '/settings/experimental',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -336,6 +344,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/settings/devices.vue': {
       routes:
         | '/settings/devices'
+      views:
+        | never
+    }
+    'src/pages/settings/experimental.vue': {
+      routes:
+        | '/settings/experimental'
       views:
         | never
     }
