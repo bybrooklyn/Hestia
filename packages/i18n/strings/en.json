@@ -449,5 +449,8 @@
   "pausedInfoOverlay": "Show info overlay when paused",
   "directPlay": "Direct play",
   "directStream": "Direct stream",
-  "transcoding": "Transcoding"
+  "transcoding": "Transcoding",
+  "playbackStats": "Playback stats",
+  "droppedFrames": "Dropped frames",
+  "bufferHealth": "Buffer"
 }

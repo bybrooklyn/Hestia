@@ -43,7 +43,7 @@ Done when: a direct-play item shows "Direct play"; a transcoded one shows "Trans
 Design: expose `MediaSource.TranscodeReasons` alongside `playMethod`; tooltip on the `VID-3` badge.
 Done when: forcing a transcode (e.g. subtitle burn-in) shows the reason(s).
 
-**`VID-5` — Playback stats overlay** · Absent · `not started` · seq 5 · depends: —
+**`VID-5` — Playback stats overlay** · Absent · `done` · seq 5 · depends: —
 Design: new `components/Playback/PlaybackStats.vue` reading `mediaControls`, the `hls` instance, and playback info; toggled from the OSD / a key.
 Done when: overlay shows live bitrate, codec, buffer, dropped frames.
 

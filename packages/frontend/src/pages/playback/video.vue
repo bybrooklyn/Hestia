@@ -28,6 +28,11 @@
           </div>
           <div class="uno-ml-auto uno-flex uno-items-center">
             <PlaybackMethodBadge class="uno-mr-2" />
+            <VBtn
+              icon
+              @click="playbackStats = !playbackStats">
+              <JIcon class="i-mdi:chart-box-outline" />
+            </VBtn>
             <CastButton />
           </div>
         </div>
@@ -114,6 +119,7 @@
         </div>
       </div>
     </JOverlay>
+    <PlaybackStats v-if="playbackStats" />
   </div>
 </template>
 
@@ -149,6 +155,7 @@ const { fullscreen } = usePlayback();
 const osd = shallowRef(true);
 const subtitleSelectionButtonOpened = shallowRef(false);
 const playbackSettingsButtonOpened = shallowRef(false);
+const playbackStats = shallowRef(false);
 const staticOverlay = computed(
   () =>
     playbackManager.isPaused.value
