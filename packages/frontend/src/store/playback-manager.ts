@@ -15,6 +15,7 @@ import { getInstantMixApi } from '@jellyfin/sdk/lib/utils/api/instant-mix-api';
 import { getItemsApi } from '@jellyfin/sdk/lib/utils/api/items-api';
 import { getMediaInfoApi } from '@jellyfin/sdk/lib/utils/api/media-info-api';
 import { getPlaystateApi } from '@jellyfin/sdk/lib/utils/api/playstate-api';
+import { getSessionApi } from '@jellyfin/sdk/lib/utils/api/session-api';
 import { getTvShowsApi } from '@jellyfin/sdk/lib/utils/api/tv-shows-api';
 import { computedAsync, watchThrottled } from '@vueuse/core';
 import { computed, watch, watchEffect } from 'vue';
@@ -282,6 +283,38 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
       return 'Transcode';
     }
   });
+
+  /**
+   * The server-side session for this device. Only fetched while transcoding,
+   * since its only consumer is the transcode reasons (which live on the
+   * session's TranscodingInfo, not on the playback info response).
+   */
+  private readonly _currentSession = computedAsync(async () => {
+    const itemId = this.currentItemId.value;
+
+    if (
+      isNil(itemId)
+      || this.playMethod.value !== 'Transcode'
+      || isNil(remote.auth.currentUserId.value)
+    ) {
+      return;
+    }
+
+    const { data } = await remote.sdk.newUserApi(getSessionApi).getSessions({
+      deviceId: remote.sdk.deviceInfo.id
+    });
+
+    return data[0];
+  });
+
+  /**
+   * Reasons the current item is being transcoded. Empty unless transcoding.
+   * The SDK mistypes `TranscodeReasons` as an empty enum (`never`); at runtime
+   * the server sends an array of reason strings.
+   */
+  public readonly transcodeReasons = computed(() =>
+    (this._currentSession.value?.TranscodingInfo?.TranscodeReasons as string[] | undefined) ?? []
+  );
 
   private readonly _previousItemIndex = computed(() => {
     if (this.isRepeatingAll.value && this._state.value.currentItemIndex === 0) {

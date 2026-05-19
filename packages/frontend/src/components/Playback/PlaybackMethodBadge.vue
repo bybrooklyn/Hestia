@@ -1,12 +1,16 @@
 <template>
-  <VChip
+  <JTooltip
     v-if="playbackManager.playMethod.value"
-    size="small"
-    variant="flat"
-    label
-    :color="playbackManager.playMethod.value === 'Transcode' ? 'warning' : 'success'">
-    {{ label }}
-  </VChip>
+    :text="reasonsText"
+    position="bottom">
+    <VChip
+      size="small"
+      variant="flat"
+      label
+      :color="playbackManager.playMethod.value === 'Transcode' ? 'warning' : 'success'">
+      {{ label }}
+    </VChip>
+  </JTooltip>
 </template>
 
 <script setup lang="ts">
@@ -34,5 +38,20 @@ const label = computed(() => {
       return '';
     }
   }
+});
+
+/**
+ * Transcode reasons, humanised from the server enum (e.g. `VideoCodecNotSupported`
+ * -> `Video Codec Not Supported`), shown as a tooltip on the badge. Empty when
+ * not transcoding, in which case JTooltip renders the bare chip.
+ */
+const reasonsText = computed(() => {
+  if (playbackManager.playMethod.value !== 'Transcode') {
+    return '';
+  }
+
+  return playbackManager.transcodeReasons.value
+    .map(reason => reason.replaceAll(/([A-Z])/gu, ' $1').trim())
+    .join(', ');
 });
 </script>

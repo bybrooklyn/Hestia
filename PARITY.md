@@ -39,7 +39,7 @@ Done when: clicking the video toggles play/pause; OSD buttons unaffected.
 Design: expose a `playMethod` computed from the (currently private) `_currentPlaybackInfo` in `playback-manager.ts`; render a small badge in the `video.vue` OSD.
 Done when: a direct-play item shows "Direct play"; a transcoded one shows "Transcode".
 
-**`VID-4` — Transcode reason display** · Absent · `not started` · seq 4 · depends: `VID-3`
+**`VID-4` — Transcode reason display** · Absent · `done` · seq 4 · depends: `VID-3`
 Design: expose `MediaSource.TranscodeReasons` alongside `playMethod`; tooltip on the `VID-3` badge.
 Done when: forcing a transcode (e.g. subtitle burn-in) shows the reason(s).
 
