@@ -78,6 +78,7 @@ declare module 'vue' {
     NextTrackButton: typeof import('./../../src/components/Buttons/Playback/NextTrackButton.vue')['default']
     PeopleList: typeof import('./../../src/components/Item/PeopleList.vue')['default']
     PersonEditor: typeof import('./../../src/components/Item/Metadata/PersonEditor.vue')['default']
+    PlaybackMethodBadge: typeof import('./../../src/components/Playback/PlaybackMethodBadge.vue')['default']
     PlaybackSettingsButton: typeof import('./../../src/components/Buttons/Playback/PlaybackSettingsButton.vue')['default']
     PlayButton: typeof import('./../../src/components/Buttons/Playback/PlayButton.vue')['default']
     PlayerElement: typeof import('./../../src/components/Playback/PlayerElement.vue')['default']

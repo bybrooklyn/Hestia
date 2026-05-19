@@ -259,6 +259,30 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
     this.getItemPlaybackUrl(this._currentPlaybackInfo.value?.MediaSources?.[0])
   );
 
+  /**
+   * How the current item is being played: direct play, direct stream (remux)
+   * or transcode. Derived from the negotiated playback info media source.
+   */
+  public readonly playMethod = computed<'DirectPlay' | 'DirectStream' | 'Transcode' | undefined>(() => {
+    const source = this._currentPlaybackInfo.value?.MediaSources?.[0];
+
+    if (isNil(source)) {
+      return;
+    }
+
+    if (source.SupportsDirectPlay) {
+      return 'DirectPlay';
+    }
+
+    if (source.SupportsDirectStream) {
+      return 'DirectStream';
+    }
+
+    if (source.TranscodingUrl) {
+      return 'Transcode';
+    }
+  });
+
   private readonly _previousItemIndex = computed(() => {
     if (this.isRepeatingAll.value && this._state.value.currentItemIndex === 0) {
       return this.queueLength.value - 1;

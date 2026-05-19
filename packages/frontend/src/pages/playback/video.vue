@@ -26,7 +26,8 @@
               <JIcon class="i-mdi:chevron-down" />
             </VBtn>
           </div>
-          <div class="uno-ml-auto uno-flex">
+          <div class="uno-ml-auto uno-flex uno-items-center">
+            <PlaybackMethodBadge class="uno-mr-2" />
             <CastButton />
           </div>
         </div>

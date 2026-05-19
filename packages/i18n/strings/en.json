@@ -446,5 +446,8 @@
   "youMayAlsoLike": "You may also like",
   "experimental": "Experimental",
   "experimentalSettingsDescription": "Enable experimental features for this device",
-  "pausedInfoOverlay": "Show info overlay when paused"
+  "pausedInfoOverlay": "Show info overlay when paused",
+  "directPlay": "Direct play",
+  "directStream": "Direct stream",
+  "transcoding": "Transcoding"
 }

@@ -35,7 +35,7 @@ Design: `PlaybackSettingsButton.vue` + `playback-manager.ts` `maxStreamingBitrat
 Design: add `@click` to the video container in `video.vue` → `playbackManager.playPause()`; ignore clicks whose target is inside the OSD controls.
 Done when: clicking the video toggles play/pause; OSD buttons unaffected.
 
-**`VID-3` — Direct-play vs transcode indicator** · Absent · `not started` · seq 3 · depends: —
+**`VID-3` — Direct-play vs transcode indicator** · Absent · `done` · seq 3 · depends: —
 Design: expose a `playMethod` computed from the (currently private) `_currentPlaybackInfo` in `playback-manager.ts`; render a small badge in the `video.vue` OSD.
 Done when: a direct-play item shows "Direct play"; a transcoded one shows "Transcode".
 
