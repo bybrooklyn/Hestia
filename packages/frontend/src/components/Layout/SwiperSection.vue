@@ -57,9 +57,6 @@
 <script setup lang="ts">
 import type { BaseItemDto } from '@jellyfin/sdk/lib/generated-client';
 import 'swiper/css';
-import 'swiper/css/a11y';
-import 'swiper/css/free-mode';
-import 'swiper/css/virtual';
 import { A11y, FreeMode, Navigation, Virtual } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { computed, useId } from 'vue';

@@ -10,7 +10,7 @@
             playbackManager.currentlyPlayingType.value ===
               BaseItemKind.Episode
           ">
-          <span class="text-h6 uno-font-semibold uno-line-clamp-1">
+          <span class="text-h6 uno-line-clamp-1 uno-font-semibold">
             {{ playbackManager.currentItem.value?.SeriesName }}
           </span>
           <span class="text-subtitle-1 text--secondary uno-line-clamp-1">
@@ -26,7 +26,7 @@
           </span>
         </template>
         <template v-else>
-          <span class="text-h6 uno-font-semibold uno-line-clamp-1">
+          <span class="text-h6 uno-line-clamp-1 uno-font-semibold">
             {{ playbackManager.currentItem.value?.Name }}
           </span>
         </template>
@@ -34,7 +34,7 @@
         <!-- Overview -->
         <p
           v-if="playbackManager.currentItem.value?.Overview"
-          class="text-body-2 text--secondary uno-mt-1 uno-line-clamp-4 uno-leading-relaxed">
+          class="text-body-2 text--secondary uno-line-clamp-4 uno-mt-1 uno-leading-relaxed">
           {{ playbackManager.currentItem.value.Overview }}
         </p>
 

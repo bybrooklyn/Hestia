@@ -21,5 +21,3 @@ declare module 'vue' {
     vHide: hideDirective;
   }
 }
-
-export {};

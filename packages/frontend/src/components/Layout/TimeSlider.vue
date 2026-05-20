@@ -15,7 +15,7 @@
         <div class="thumb-label-content uno-flex uno-flex-col uno-items-center">
           <div
             v-if="trickplayImageStyle"
-            class="trickplay-preview uno-mb-2 uno-rounded uno-overflow-hidden uno-shadow-lg"
+            class="trickplay-preview uno-mb-2 uno-overflow-hidden uno-rounded uno-shadow-lg"
             :style="trickplayImageStyle" />
           <span>{{ formatTime(sliderValue) }}</span>
         </div>

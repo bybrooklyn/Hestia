@@ -1,5 +1,5 @@
 <template>
-  <div class="playback-stats uno-absolute uno-rounded uno-px-4 uno-py-3 uno-text-caption">
+  <div class="playback-stats uno-text-caption uno-absolute uno-rounded uno-px-4 uno-py-3">
     <div class="text-subtitle-2 uno-mb-1">
       {{ $t('playbackStats') }}
     </div>

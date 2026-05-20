@@ -111,7 +111,7 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
    * reactive state object so `stop()` → `_reset()` doesn't clear it before
    * the consumer reads it.
    */
-  public readonly sourceRoute = shallowRef<string | undefined>(undefined);
+  public readonly sourceRoute = shallowRef<string | undefined>();
   /**
    * == GETTERS AND SETTERS ==
    */

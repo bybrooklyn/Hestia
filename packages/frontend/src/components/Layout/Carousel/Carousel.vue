@@ -44,11 +44,6 @@
 <script setup lang="ts">
 import type SwiperType from 'swiper';
 import 'swiper/css';
-import 'swiper/css/a11y';
-import 'swiper/css/effect-fade';
-import 'swiper/css/keyboard';
-import 'swiper/css/parallax';
-import 'swiper/css/virtual';
 import { A11y, EffectFade, Keyboard, Parallax, Virtual } from 'swiper/modules';
 import { Swiper } from 'swiper/vue';
 import { shallowRef, onMounted } from 'vue';

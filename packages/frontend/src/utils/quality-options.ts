@@ -90,8 +90,7 @@ export function getVideoQualityOptions(input: VideoQualityInput): QualityOption[
      * native quality without listing every higher preset.
      */
     const sourceOption = [...VIDEO_BITRATES]
-      .filter(c => c.bitrate > referenceBitRate)
-      .pop();
+      .findLast(c => c.bitrate > referenceBitRate);
 
     if (sourceOption) {
       options.push(sourceOption);

@@ -30,7 +30,7 @@ import { usePageTitle } from '#/composables/page-title.ts';
  * passes `:fluid="true"` so admin pages span the full width to the right
  * of the persistent sidebar.
  */
-const { fluid = false } = defineProps<{
+const { fluid } = defineProps<{
   fluid?: boolean;
 }>();
 

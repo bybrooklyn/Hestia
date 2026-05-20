@@ -55,7 +55,7 @@ const findSubtitle = (dialogue: ParsedSubtitleTrack['dialogue'], start = 0) => {
   return index === -1 ? undefined : index + start;
 };
 
-const dialogue = computed(() => 
+const dialogue = computed(() =>
   isSecondary
     ? playerElement.currentSecondaryExternalSubtitleTrack.value?.parsed?.dialogue
     : playerElement.currentExternalSubtitleTrack.value?.parsed?.dialogue

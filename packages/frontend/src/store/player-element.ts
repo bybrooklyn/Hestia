@@ -129,11 +129,10 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
       sub => sub.srcIndex === playbackManager.currentSubtitleTrack.value?.Index
     ) as SubtitleExternalTrack;
 
-    if (this._useCustomSubtitleTrack.value && el) {
-      if (!el.parsed) {
-        const data = await runGenericWorkerFunc('parseVttFile')(el.src);
-        el.parsed = data;
-      }
+    if (this._useCustomSubtitleTrack.value && el && !el.parsed) {
+      const data = await runGenericWorkerFunc('parseVttFile')(el.src);
+
+      el.parsed = data;
     }
 
     return el;
@@ -144,11 +143,10 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
       sub => sub.srcIndex === playbackManager.currentSecondarySubtitleTrack.value?.Index
     ) as SubtitleExternalTrack;
 
-    if (this._useCustomSubtitleTrack.value && el) {
-      if (!el.parsed) {
-        const data = await runGenericWorkerFunc('parseVttFile')(el.src);
-        el.parsed = data;
-      }
+    if (this._useCustomSubtitleTrack.value && el && !el.parsed) {
+      const data = await runGenericWorkerFunc('parseVttFile')(el.src);
+
+      el.parsed = data;
     }
 
     return el;
