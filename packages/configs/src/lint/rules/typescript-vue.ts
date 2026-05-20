@@ -145,7 +145,30 @@ const common = () => defineConfig([
   {
     name: '(@jellyfin-vue/configs/lint/typescript-vue - sonarcloud) Custom config',
     rules: {
-      'sonarjs/function-return-type': 'off'
+      'sonarjs/function-return-type': 'off',
+      /**
+       * `TODO:` comments are the explicit organising convention in this
+       * fork (PARITY.md, FORK_ROADMAP.md, KNOWN_BUGS.md all use them).
+       * The default rule flags every TODO as a separate problem, which
+       * is the opposite of how we use them.
+       */
+      'sonarjs/todo-tag': 'off'
+    }
+  },
+  {
+    /**
+     * `utils/playback-profiles/` is documented `@deprecated` upstream and
+     * slated for replacement with the `MediaCapabilities` API. Suppress the
+     * complexity / deprecation rules inside that module so its scheduled
+     * removal isn't blocked by lint noise.
+     */
+    name: '(@jellyfin-vue/configs/lint/typescript-vue - sonarcloud) playback-profiles overrides',
+    files: ['**/utils/playback-profiles/**'],
+    rules: {
+      'sonarjs/cognitive-complexity': 'off',
+      'sonarjs/no-duplicated-branches': 'off',
+      'sonarjs/deprecation': 'off',
+      '@typescript-eslint/no-deprecated': 'off'
     }
   }
 ]);
