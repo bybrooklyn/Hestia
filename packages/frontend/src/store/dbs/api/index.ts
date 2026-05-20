@@ -11,10 +11,8 @@ import { toRaw, watch } from 'vue';
 import { isArray, isObj, sealed } from '@jellyfin-vue/shared/validation';
 import { wrap } from 'comlink';
 import { useSessionStorage } from '@vueuse/core';
-import type { IApiDatabase, TApiDatabase } from './apidb.worker.ts';
+import type { IApiDatabase } from './apidb.worker.ts';
 import ApiDatabase from './apidb.worker.ts?worker';
-
-export type { TApiDatabase };
 import { remote } from '#/plugins/remote/index.ts';
 
 /**
@@ -154,3 +152,5 @@ class ApiStore {
 }
 
 export const apiStore = new ApiStore();
+
+export { type TApiDatabase } from './apidb.worker.ts';

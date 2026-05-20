@@ -139,7 +139,7 @@ watchImmediate(
 watch(
   () => defaultStreamIndex,
   (newValue) => {
-    if (newValue !== trackIndex.value) {
+    if (newValue !== (trackIndex.value ?? undefined)) {
       // eslint-disable-next-line unicorn/no-null
       trackIndex.value = newValue ?? null;
     }

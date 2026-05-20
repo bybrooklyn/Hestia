@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/consistent-indexed-object-style */
+import type { hideDirective } from '#/plugins/directives.ts';
 
 declare module 'vue' {
   export interface AllowedComponentProps {
@@ -53,8 +54,6 @@ declare module 'vue' {
     [key: `data${string}`]: string;
   }
 
-  import type { hideDirective } from '#/plugins/directives.ts';
-
   export interface GlobalDirectives {
     vHide: hideDirective;
   }
@@ -78,10 +77,6 @@ declare global {
   }
 
   /** Mirror the additions onto the global scope so `globalThis.x` resolves. */
-  // eslint-disable-next-line vars-on-top, no-var
   var queryLocalFonts: Window['queryLocalFonts'];
-  // eslint-disable-next-line vars-on-top, no-var
   var webapis: Window['webapis'];
 }
-
-export {};
