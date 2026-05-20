@@ -294,7 +294,7 @@ Done when: a collection's contents are fully browsable.
 **`SRV-2` — Branding (custom CSS)** · Partial · `done` · seq 4 · `server.vue` already has login disclaimer + splash; custom CSS is missing. Done when: custom CSS is configurable.
 **`SRV-3` — Backups (create / restore / schedule)** · Absent · `done` · seq 5 · Done when: backups are manageable. *(Scheduling lands as part of `TASK-2`; the API is the same per-task config used by every scheduled task.)*
 **`SRV-4` — Notifications settings** · Absent · `done` · seq 6 · disabled settings-index row. Done when: a notifications page exists.
-**`SRV-5` — Networking settings** · Absent · seq 7 · disabled settings-index row. Done when: a networking page exists.
+**`SRV-5` — Networking settings** · Absent · `done` · seq 7 · disabled settings-index row. Done when: a networking page exists.
 **`SRV-6` — DLNA settings** · Absent · seq 8 · disabled settings-index row. Done when: a DLNA page exists.
 
 ### Libraries (admin)

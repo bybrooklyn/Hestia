@@ -93,7 +93,7 @@ export function useAdminSections(): ComputedRef<AdminSection[]> {
         icon: 'i-mdi:network',
         name: t('networking'),
         description: t('networkingSettingsDescription'),
-        link: undefined
+        link: '/settings/networking'
       }
     ],
     [
