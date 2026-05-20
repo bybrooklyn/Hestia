@@ -53,6 +53,16 @@
           v-model="brandingSettings.SplashscreenEnabled"
           :label="$t('enableSplashScreen')" />
 
+        <VTextarea
+          v-model="brandingSettings.CustomCss"
+          :label="$t('customCss')"
+          :hint="$t('customCssHint')"
+          persistent-hint
+          rows="6"
+          variant="outlined"
+          class="uno-font-mono" />
+
+
         <h3 class="uno-mb-2 uno-text-lg uno-font-bold">
           {{ $t('serverSettingsPerformance') }}
         </h3>
@@ -80,6 +90,7 @@ import { SomeItemSelectedRule } from '@jellyfin-vue/shared/validation';
 import { watchDeep } from '@vueuse/core';
 import { useApi } from '#/composables/apis.ts';
 import { taskManager } from '#/store/task-manager.ts';
+import { remote } from '#/plugins/remote/index.ts';
 
 const tasks = new Map<number, string>();
 const signal = shallowRef(false);
@@ -125,6 +136,19 @@ watch([l1, l2], (newvals) => {
 });
 
 watchDeep([serverSettings, brandingSettings], () => signal.value = true, { once: true });
+
+/**
+ * Keep the cached `currentServer.BrandingOptions` in sync with edits so the
+ * `useServerCustomCss` composable (and any other branding consumers, e.g.
+ * the login-screen disclaimer) picks up changes immediately. `currentServer`
+ * caches a snapshot taken at server-registration time; it doesn't refresh
+ * automatically when the form auto-saves new branding to the server.
+ */
+watchDeep(brandingSettings, () => {
+  if (remote.auth.currentServer.value) {
+    remote.auth.currentServer.value.BrandingOptions = { ...brandingSettings.value };
+  }
+});
 
 onScopeDispose(() => {
   for (const [,id] of tasks) {

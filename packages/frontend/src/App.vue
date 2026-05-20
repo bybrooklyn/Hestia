@@ -21,6 +21,9 @@ import { computed } from 'vue';
 import { remote } from './plugins/remote/index.ts';
 import { themeSettings } from '#/store/settings/theme.ts';
 import { useLoading } from '#/composables/use-loading.ts';
+import { useServerCustomCss } from '#/composables/use-server-custom-css.ts';
+
+useServerCustomCss();
 
 /**
  * When app is mounted, the classes and styles we initialized in the pre-Vue splashscreen in body

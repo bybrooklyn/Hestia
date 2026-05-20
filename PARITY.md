@@ -291,7 +291,7 @@ Done when: a collection's contents are fully browsable.
 
 ### Server
 
-**`SRV-2` — Branding (custom CSS)** · Partial · seq 4 · `server.vue` already has login disclaimer + splash; custom CSS is missing. Done when: custom CSS is configurable.
+**`SRV-2` — Branding (custom CSS)** · Partial · `done` · seq 4 · `server.vue` already has login disclaimer + splash; custom CSS is missing. Done when: custom CSS is configurable.
 **`SRV-3` — Backups (create / restore / schedule)** · Absent · seq 5 · Done when: backups are manageable.
 **`SRV-4` — Notifications settings** · Absent · seq 6 · disabled settings-index row. Done when: a notifications page exists.
 **`SRV-5` — Networking settings** · Absent · seq 7 · disabled settings-index row. Done when: a networking page exists.
