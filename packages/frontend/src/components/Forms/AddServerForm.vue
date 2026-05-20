@@ -52,7 +52,7 @@ import { jsonConfig } from '#/utils/external-config.ts';
 
 const router = useRouter();
 const { t } = useTranslation();
-const valid = shallowRef(false);
+const valid = shallowRef<boolean | null>(false);
 const previousServerLength = remote.auth.addedServers.value;
 const serverUrl = shallowRef('');
 const loading = shallowRef(false);

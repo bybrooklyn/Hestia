@@ -10,6 +10,7 @@
       <div
         :key="root ? route.meta.layout.name ?? 'default' : route.name"
         class="uno-h-full">
+        <!-- @vue-expect-error: dynamic `<Component :is>` is intentional here -->
         <Component
           :is="root ? getLayoutComponent(route.meta.layout.name) : comp">
           <MainView

@@ -42,7 +42,7 @@ function replaceTags(input: string, tagMap: TagMap) {
     const regex = new RegExp(escapedHtmlTag, 'gi');
 
     formattedText = formattedText.replace(regex, (_, p1: string) => {
-      return tagMap[htmlTag].replace('$1', p1.trim());
+      return tagMap[htmlTag]!.replace('$1', p1.trim());
     });
   }
 
@@ -70,13 +70,15 @@ export async function parseVttFile(src: string) {
     let i = 0;
 
     while (i < vttLines.length) {
-      if (vttLines[i].includes('-->')) {
-        const [start, end] = vttLines[i].split(' --> ');
+      const line = vttLines[i]!;
+
+      if (line.includes('-->')) {
+        const [start, end] = line.split(' --> ');
         let text = '';
 
         i++;
 
-        while (i < vttLines.length && !vttLines[i].includes('-->')) {
+        while (i < vttLines.length && !vttLines[i]!.includes('-->')) {
           text += `${vttLines[i] ?? ''}\n`;
           i++;
         }
@@ -86,8 +88,8 @@ export async function parseVttFile(src: string) {
         });
 
         dialogue.push({
-          start: parseTime(start),
-          end: parseTime(end),
+          start: parseTime(start!),
+          end: parseTime(end!),
           text: formattedText.trim()
         });
       } else {

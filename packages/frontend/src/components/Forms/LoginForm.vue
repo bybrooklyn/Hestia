@@ -86,7 +86,7 @@ defineEmits<{
 
 const { t } = useTranslation();
 
-const valid = shallowRef(false);
+const valid = shallowRef<boolean | null>(false);
 const login = ref({ username: '', password: '', rememberMe: true });
 const showPassword = shallowRef(false);
 const loading = shallowRef(false);

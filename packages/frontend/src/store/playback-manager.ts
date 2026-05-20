@@ -538,6 +538,7 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
     item,
     audioTrackIndex,
     subtitleTrackIndex,
+    secondarySubtitleTrackIndex,
     videoTrackIndex,
     mediaSourceIndex,
     startFromIndex = 0,

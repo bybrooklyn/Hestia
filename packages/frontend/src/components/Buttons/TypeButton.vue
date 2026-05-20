@@ -6,7 +6,7 @@
       $vuetify.display.smAndDown || items.length === 0
         ? undefined
         : innerModel.length === 0
-          ? items[0].title
+          ? items[0]!.title
           : items.find((i) => i.value === innerModel[0])?.title
     }}
     <JIcon

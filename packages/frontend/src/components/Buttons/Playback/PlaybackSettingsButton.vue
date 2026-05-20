@@ -139,7 +139,7 @@
                   density="compact"
                   hide-details
                   variant="outlined"
-                  step="50" />
+                  :step="50" />
               </VCol>
             </VRow>
             <VRow
@@ -157,7 +157,7 @@
                   density="compact"
                   hide-details
                   variant="outlined"
-                  step="50" />
+                  :step="50" />
               </VCol>
             </VRow>
           </VCardText>

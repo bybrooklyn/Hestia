@@ -2,7 +2,7 @@
   <VBtn
     icon
     :disabled="disabled"
-    @click="emit('change', model[0], !ascending)">
+    @click="emit('change', model[0] ?? '', !ascending)">
     <JIcon
       v-if="ascending"
       :class="ascending ? 'i-mdi:sort-ascending' : 'i-mdi:sort-descending'" />
@@ -13,20 +13,20 @@
       v-if="!$vuetify.display.smAndDown"
       class="i-mdi:menu-down" />
     <JIcon
-      v-else-if="model.length === 0 || model[0] === items[0].value"
+      v-else-if="model.length === 0 || model[0] === items[0]!.value"
       class="i-mdi:sort-alphabetical-variant" />
     <JIcon
-      v-else-if="model[0] === items[1].value"
+      v-else-if="model[0] === items[1]!.value"
       class="i-mdi:numeric-9-plus-box-outline" />
     <JIcon
-      v-else-if="model[0] === items[2].value"
+      v-else-if="model[0] === items[2]!.value"
       class="i-mdi:calendar-range" />
     <VMenu :disabled="disabled">
       <VList
         v-model:selected="model"
         :items="items"
         class="filter-content"
-        @update:selected="emit('change', model[0], ascending)" />
+        @update:selected="emit('change', model[0] ?? '', ascending)" />
     </VMenu>
   </VBtn>
 </template>
@@ -59,7 +59,7 @@ const sortingLabel = computed(() =>
   t('sortByType', {
     type:
       model.value.length === 0
-        ? items.value[0].title
+        ? items.value[0]!.title
         : items.value.find(x => x.value === model.value[0])?.title
   })
 );

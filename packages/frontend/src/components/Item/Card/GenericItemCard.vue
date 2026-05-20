@@ -3,6 +3,7 @@
     :class="{
       'uno-m-2': margin
     }">
+    <!-- @vue-expect-error: dynamic `<Component :is>` is intentional here -->
     <Component
       :is="to ? 'router-link' : 'div'"
       :to="to"

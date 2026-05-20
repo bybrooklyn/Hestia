@@ -63,7 +63,7 @@ const { t } = useTranslation();
 const { query: permissionQuery, isSupported, state: fontPermission } = usePermission('local-fonts', { controls: true });
 const fontAccess = computed(() => fontPermission.value === 'granted');
 const isQueryLocalFontsSupported = useSupported(() => isSupported.value && 'queryLocalFonts' in globalThis);
-const askForPermission = async () => isQueryLocalFontsSupported.value
+const askForPermission = async () => isQueryLocalFontsSupported.value && globalThis.queryLocalFonts
   ? Promise.all([permissionQuery(), globalThis.queryLocalFonts()])
   : undefined;
 
@@ -74,7 +74,7 @@ const askForPermission = async () => isQueryLocalFontsSupported.value
 const fontList = computedAsync(async () => {
   const res: string[] = [];
 
-  if (fontAccess.value || isQueryLocalFontsSupported.value) {
+  if ((fontAccess.value || isQueryLocalFontsSupported.value) && globalThis.queryLocalFonts) {
     const set = new Set<string>((await globalThis.queryLocalFonts()).map((font: FontFace) => font.family));
 
     /**

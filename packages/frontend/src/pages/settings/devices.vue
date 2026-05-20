@@ -99,7 +99,7 @@ meta:
 </route>
 
 <script setup lang="ts">
-import type { DeviceInfo } from '@jellyfin/sdk/lib/generated-client';
+import type { DeviceInfoDto as DeviceInfo } from '@jellyfin/sdk/lib/generated-client';
 import { getDevicesApi } from '@jellyfin/sdk/lib/utils/api/devices-api';
 import { formatRelative, parseJSON } from 'date-fns';
 import { computed, ref } from 'vue';

@@ -3,6 +3,7 @@ import * as vuetifyLocales from 'virtual:locales/vuetify';
 import { createVuetify, type ThemeDefinition } from 'vuetify';
 import { md3 } from 'vuetify/blueprints';
 import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
+// @ts-expect-error - Vuetify ships the CSS but no module declaration
 import 'vuetify/styles';
 
 const dark: ThemeDefinition = {

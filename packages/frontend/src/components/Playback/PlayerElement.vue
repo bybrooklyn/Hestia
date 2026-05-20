@@ -5,6 +5,7 @@
       :disabled="!videoContainerRef"
       defer>
       <div class="uno-relative">
+        <!-- @vue-expect-error: dynamic `<Component :is>` is intentional here -->
         <Component
           :is="mediaElementType"
           v-show="playbackManager.isVideo.value && videoContainerRef"
