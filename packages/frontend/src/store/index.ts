@@ -51,7 +51,8 @@ export const mediaControls = useMediaControls(mediaElementRef);
  */
 export const mediaWebAudio = {
   context: shallowRef<AudioContext>(),
-  sourceNode: shallowRef<MediaElementAudioSourceNode>()
+  sourceNode: shallowRef<MediaElementAudioSourceNode>(),
+  delayNode: shallowRef<DelayNode>()
 };
 
 /**

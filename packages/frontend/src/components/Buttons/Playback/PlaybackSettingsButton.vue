@@ -105,6 +105,38 @@
                   hide-details />
               </VCol>
             </VRow>
+            <VRow align="center">
+              <VCol :cols="6">
+                <label>Audio Delay (ms)</label>
+              </VCol>
+              <VCol
+                :cols="6"
+                class="text-right">
+                <VTextField
+                  v-model.number="playbackManager.audioOffset.value"
+                  type="number"
+                  density="compact"
+                  hide-details
+                  variant="outlined"
+                  step="50" />
+              </VCol>
+            </VRow>
+            <VRow align="center">
+              <VCol :cols="6">
+                <label>Subtitle Delay (ms)</label>
+              </VCol>
+              <VCol
+                :cols="6"
+                class="text-right">
+                <VTextField
+                  v-model.number="playbackManager.subtitleOffset.value"
+                  type="number"
+                  density="compact"
+                  hide-details
+                  variant="outlined"
+                  step="50" />
+              </VCol>
+            </VRow>
           </VCardText>
         </VCard>
       </VMenu>

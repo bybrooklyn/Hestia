@@ -102,6 +102,11 @@ async function detachWebAudio(): Promise<void> {
       sourceNode.value = undefined;
     }
 
+    if (mediaWebAudio.delayNode.value) {
+      mediaWebAudio.delayNode.value.disconnect();
+      mediaWebAudio.delayNode.value = undefined;
+    }
+
     await context.value.close();
     context.value = undefined;
   }
@@ -111,13 +116,22 @@ async function detachWebAudio(): Promise<void> {
  * Resumes WebAudio when playback is in place
  */
 async function attachWebAudio(el: HTMLMediaElement): Promise<void> {
-  const { context, sourceNode } = mediaWebAudio;
+  const { context, sourceNode, delayNode } = mediaWebAudio;
 
   context.value = new AudioContext();
   sourceNode.value = context.value.createMediaElementSource(el);
+  delayNode.value = context.value.createDelay(10);
+  delayNode.value.delayTime.value = Math.max(0, (playbackManager.audioOffset.value || 0) / 1000);
   await context.value.resume();
-  sourceNode.value.connect(context.value.destination);
+  sourceNode.value.connect(delayNode.value);
+  delayNode.value.connect(context.value.destination);
 }
+
+watch(() => playbackManager.audioOffset.value, (newOffset) => {
+  if (mediaWebAudio.delayNode.value) {
+    mediaWebAudio.delayNode.value.delayTime.value = Math.max(0, (newOffset || 0) / 1000);
+  }
+});
 
 /**
  * Called by the media element when the playback is ready

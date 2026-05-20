@@ -84,6 +84,8 @@ interface PlaybackManagerState {
    * media source to fit within it. Undefined means automatic (source quality).
    */
   maxStreamingBitrate?: number;
+  audioOffset: number;
+  subtitleOffset: number;
 }
 
 /**
@@ -414,6 +416,20 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
     get: () => this._state.value.maxStreamingBitrate,
     set: (newBitrate: number | undefined) => {
       this._state.value.maxStreamingBitrate = newBitrate;
+    }
+  });
+
+  public readonly audioOffset = computed({
+    get: () => this._state.value.audioOffset,
+    set: (newOffset: number) => {
+      this._state.value.audioOffset = newOffset;
+    }
+  });
+
+  public readonly subtitleOffset = computed({
+    get: () => this._state.value.subtitleOffset,
+    set: (newOffset: number) => {
+      this._state.value.subtitleOffset = newOffset;
     }
   });
 
@@ -875,7 +891,9 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
         playbackInitiatorId: undefined,
         playbackInitMode: InitMode.Unknown,
         playbackSpeed: 1,
-        maxStreamingBitrate: undefined
+        maxStreamingBitrate: undefined,
+        audioOffset: 0,
+        subtitleOffset: 0
       })
     });
     /**

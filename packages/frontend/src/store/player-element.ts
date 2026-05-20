@@ -213,7 +213,10 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
         this._asssub = new ASSSUB(
           subtitleTrackPayload[trackSrc],
           mediaElementRef.value,
-          { resampling: 'video_width' }
+          {
+            resampling: 'video_width',
+            timeOffset: (playbackManager.subtitleOffset.value || 0) / 1000
+          }
         );
 
         this._cleanups.add(() => {
@@ -353,6 +356,12 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
         await this.applyCurrentSubtitle();
       }
     }, { flush: 'post' });
+
+    watch(() => playbackManager.subtitleOffset.value, (newOffset) => {
+      if (this._asssub) {
+        this._asssub.timeOffset = (newOffset || 0) / 1000;
+      }
+    });
   }
 }
 

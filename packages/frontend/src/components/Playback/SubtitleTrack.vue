@@ -38,7 +38,15 @@ const { preview } = defineProps<{
  * since the user can seek to any position) when 'previous' is undefined and then relies in previous
  * to find the next one
  */
-const predicate = (d?: Dialogue) => d && d.start <= playbackManager.currentTime.value && d.end >= playbackManager.currentTime.value;
+const predicate = (d?: Dialogue) => {
+  if (!d) {
+    return false;
+  }
+
+  const offsetSecs = (playbackManager.subtitleOffset.value || 0) / 1000;
+
+  return (d.start + offsetSecs) <= playbackManager.currentTime.value && (d.end + offsetSecs) >= playbackManager.currentTime.value;
+};
 const findSubtitle = (dialogue: ParsedSubtitleTrack['dialogue'], start = 0) => {
   const index = dialogue.slice(start).findIndex(d => predicate(d));
 
