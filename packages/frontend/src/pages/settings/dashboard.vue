@@ -72,13 +72,13 @@
 
         <h3 class="uno-mb-2 uno-mt-6 uno-text-lg uno-font-bold">
           {{ t('activeTranscodes') }}
-          <span class="uno-ml-2 uno-text-sm uno-text-disabled">
+          <span class="uno-text-disabled uno-ml-2 uno-text-sm">
             ({{ transcodingSessions.length }})
           </span>
         </h3>
         <div
           v-if="transcodingSessions.length === 0"
-          class="uno-py-4 uno-text-disabled">
+          class="uno-text-disabled uno-py-4">
           {{ t('noActiveTranscodes') }}
         </div>
         <VList
@@ -91,7 +91,7 @@
             :title="s.UserName ?? t('unknown')">
             <template #prepend>
               <JIcon
-                class="i-mdi:transit-transfer uno-text-xl uno-mr-3" />
+                class="i-mdi:transit-transfer uno-mr-3 uno-text-xl" />
             </template>
             <template #subtitle>
               <div class="uno-text-xs">
@@ -99,7 +99,7 @@
               </div>
               <div
                 v-if="transcodeReasons(s).length > 0"
-                class="uno-text-xs uno-text-disabled uno-mt-1">
+                class="uno-text-disabled uno-mt-1 uno-text-xs">
                 {{ transcodeReasons(s).join(', ') }}
               </div>
               <VProgressLinear
@@ -114,13 +114,13 @@
 
         <h3 class="uno-mb-2 uno-mt-6 uno-text-lg uno-font-bold">
           {{ t('activeSessions') }}
-          <span class="uno-ml-2 uno-text-sm uno-text-disabled">
+          <span class="uno-text-disabled uno-ml-2 uno-text-sm">
             ({{ sessions.length }})
           </span>
         </h3>
         <div
           v-if="sessions.length === 0"
-          class="uno-py-4 uno-text-disabled">
+          class="uno-text-disabled uno-py-4">
           {{ t('noActiveSessions') }}
         </div>
         <VList
@@ -196,6 +196,10 @@ const { data: systemInfo } = await useApi(getSystemApi, 'getSystemInfo')();
  */
 const sessions = shallowRef<SessionInfoDto[]>([]);
 
+/**
+ * Pull the current session list from the server. Errors leave the existing
+ * `sessions` value untouched so a transient blip doesn't blank the UI.
+ */
 async function refetchSessions(): Promise<void> {
   try {
     const { data } = await remote.sdk.newUserApi(getSessionApi).getSessions({
@@ -213,7 +217,7 @@ await refetchSessions();
 watch(remote.socket.message, () => {
   const msg = remote.socket.message.value;
 
-  if (!msg || msg.MessageType !== 'Sessions' || !Array.isArray(msg.Data)) {
+  if (msg?.MessageType !== 'Sessions' || !Array.isArray(msg.Data)) {
     return;
   }
 
@@ -223,7 +227,7 @@ watch(remote.socket.message, () => {
 });
 
 const { pause: stopPoll, resume: startPoll } = useIntervalFn(
-  refetchSessions,
+  () => void refetchSessions(),
   10_000,
   { immediate: false }
 );
@@ -250,6 +254,10 @@ const transcodingSessions = computed(() =>
   sessions.value.filter(s => s.TranscodingInfo)
 );
 
+/**
+ * Compact one-line summary of an active transcode: container, codec
+ * changes (direct vs re-encode), resolution, framerate, bitrate.
+ */
 function transcodeSummary(s: SessionInfoDto): string {
   const t_info = s.TranscodingInfo;
 
@@ -286,6 +294,10 @@ function transcodeSummary(s: SessionInfoDto): string {
   return parts.join(' · ');
 }
 
+/**
+ * Reason strings the server attached to the transcode (e.g.
+ * `VideoCodecNotSupported`). Returns an empty array if absent.
+ */
 function transcodeReasons(s: SessionInfoDto): string[] {
   /**
    * The SDK mistypes TranscodeReasons as an empty enum; at runtime it's an
@@ -294,6 +306,11 @@ function transcodeReasons(s: SessionInfoDto): string[] {
   return (s.TranscodingInfo?.TranscodeReasons as string[] | undefined) ?? [];
 }
 
+/**
+ * Build the subtitle line shown under each session: now-playing item
+ * (with series prefix if any), then `client · device`. Falls back to
+ * `client · device` (or device type) when nothing is playing.
+ */
 function sessionSubtitle(s: SessionInfoDto): string {
   const client = [s.Client, s.DeviceName].filter(Boolean).join(' · ');
 

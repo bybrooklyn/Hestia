@@ -26,7 +26,7 @@
 
         <div
           v-if="backups.length === 0"
-          class="uno-py-8 uno-text-center uno-text-disabled">
+          class="uno-text-disabled uno-py-8 uno-text-center">
           {{ t('noBackups') }}
         </div>
         <VTable
@@ -48,7 +48,7 @@
               :key="b.Path ?? ''">
               <td>{{ b.DateCreated ? formatDate(b.DateCreated) : '' }}</td>
               <td>{{ b.ServerVersion }}</td>
-              <td class="uno-text-xs uno-text-disabled">
+              <td class="uno-text-disabled uno-text-xs">
                 {{ contentsSummary(b) }}
               </td>
               <td class="uno-text-right">
@@ -157,14 +157,16 @@ const getBackupApi = (api: Api): BackupApi =>
 
 const backups = shallowRef<BackupManifestDto[]>([]);
 
+/**
+ * Pull the current backup list and sort newest-first — the server returns
+ * them in filesystem order, which is stable but not chronological on every
+ * filesystem.
+ */
 async function refresh(): Promise<void> {
   try {
     const { data } = await remote.sdk.newUserApi(getBackupApi).listBackups();
-    /**
-     * Latest first — the server returns them in filesystem order, which is
-     * stable but not chronological on every filesystem.
-     */
-    backups.value = [...data].sort((a, b) =>
+
+    backups.value = [...data].toSorted((a, b) =>
       (b.DateCreated ?? '').localeCompare(a.DateCreated ?? '')
     );
   } catch {
@@ -183,6 +185,11 @@ const newBackup = reactive<BackupOptionsDto>({
   Trickplay: false
 });
 
+/**
+ * Kick off a backup with the currently-toggled options. The server runs
+ * it asynchronously and doesn't push a finished event today, so we
+ * schedule a list refresh shortly after to surface the new archive.
+ */
 async function submitCreate(): Promise<void> {
   creating.value = true;
 
@@ -209,11 +216,19 @@ const confirmingRestore = ref(false);
 const restoring = ref(false);
 const restoreTarget = shallowRef<BackupManifestDto>();
 
+/**
+ * Stage a backup for restore and open the confirmation dialog.
+ */
 function askRestore(b: BackupManifestDto): void {
   restoreTarget.value = b;
   confirmingRestore.value = true;
 }
 
+/**
+ * Restart the server and apply the staged backup. The API takes the
+ * basename, not the full path. The server resolves it against its
+ * configured backup directory.
+ */
 async function submitRestore(): Promise<void> {
   const path = restoreTarget.value?.Path;
 
@@ -245,6 +260,10 @@ async function submitRestore(): Promise<void> {
    */
 }
 
+/**
+ * Locale-aware date formatter; falls back to the raw ISO string if the
+ * input is malformed.
+ */
 function formatDate(iso: string): string {
   try {
     return format(parseJSON(iso), 'PPpp');
@@ -253,6 +272,10 @@ function formatDate(iso: string): string {
   }
 }
 
+/**
+ * Comma-separated list of toggles a manifest preserves (Database,
+ * Metadata, etc) — translated for display.
+ */
 function contentsSummary(b: BackupManifestDto): string {
   const opts = b.Options;
 

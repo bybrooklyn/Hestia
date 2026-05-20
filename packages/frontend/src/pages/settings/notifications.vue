@@ -12,7 +12,7 @@
         </h3>
         <div
           v-if="services.length === 0"
-          class="uno-py-4 uno-text-disabled">
+          class="uno-text-disabled uno-py-4">
           {{ t('noNotificationServices') }}
         </div>
         <VList
@@ -33,7 +33,7 @@
         </h3>
         <div
           v-if="types.length === 0"
-          class="uno-py-4 uno-text-disabled">
+          class="uno-text-disabled uno-py-4">
           {{ t('noNotificationTypes') }}
         </div>
         <VTable
@@ -64,7 +64,7 @@
           </tbody>
         </VTable>
 
-        <p class="uno-mt-6 uno-text-sm uno-text-disabled">
+        <p class="uno-text-disabled uno-mt-6 uno-text-sm">
           {{ t('notificationsPluginHint') }}
         </p>
       </VCol>

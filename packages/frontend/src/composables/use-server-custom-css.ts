@@ -9,6 +9,10 @@ import { remote } from '#/plugins/remote/index.ts';
 
 const STYLE_ID = 'server-custom-css';
 
+/**
+ * Install a reactive effect that keeps a single `<style>` element in
+ * `document.head` synchronised with the active server's `CustomCss`.
+ */
 export function useServerCustomCss(): void {
   watchEffect(() => {
     const css = remote.auth.currentServer.value?.BrandingOptions?.CustomCss?.trim() ?? '';

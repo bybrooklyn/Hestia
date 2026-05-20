@@ -11,22 +11,21 @@
         :ref="el => setLineRef(el, index)"
         role="listitem"
         :data-active="String(index === activeIndex)"
-        class="lyrics-line uno-w-full uno-text-center uno-py-2 uno-px-4"
+        class="lyrics-line uno-w-full uno-px-4 uno-py-2 uno-text-center"
         @click="seekTo(line)">
         {{ line.text }}
       </div>
     </template>
     <div
       v-else
-      class="uno-flex uno-flex-1 uno-items-center uno-justify-center uno-text-disabled">
+      class="uno-text-disabled uno-flex uno-flex-1 uno-items-center uno-justify-center">
       {{ loading ? $t('loading') : $t('noLyricsFound') }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { ComponentPublicInstance } from 'vue';
-import { computed, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { type ComponentPublicInstance, computed, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue';
 import { getLyricsApi } from '@jellyfin/sdk/lib/utils/api/lyrics-api';
 import { isNil } from '@jellyfin-vue/shared/validation';
 import { remote } from '#/plugins/remote/index.ts';
@@ -35,8 +34,8 @@ import { msToTicks, ticksToMs } from '#/utils/time.ts';
 
 interface ParsedLine {
   text: string;
-  /** Start time in ticks (10⁻⁷ s). `null` for unsynced lines. */
-  start: number | null;
+  /** Start time in ticks (10⁻⁷ s). `undefined` for unsynced lines. */
+  start: number | undefined;
 }
 
 const container = useTemplateRef<HTMLElement>('container');
@@ -104,7 +103,7 @@ async function fetchLyrics(itemId: string | undefined): Promise<void> {
 
     lines.value = (data.Lyrics ?? []).map(l => ({
       text: l.Text ?? '',
-      start: l.Start ?? null
+      start: l.Start ?? undefined
     }));
   } catch {
     lines.value = [];

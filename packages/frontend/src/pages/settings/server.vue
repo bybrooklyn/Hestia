@@ -62,7 +62,6 @@
           variant="outlined"
           class="uno-font-mono" />
 
-
         <h3 class="uno-mb-2 uno-text-lg uno-font-bold">
           {{ $t('serverSettingsPerformance') }}
         </h3>

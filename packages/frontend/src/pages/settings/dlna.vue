@@ -78,7 +78,7 @@ const [{ data: dlnaRaw }, { data: users }] = await Promise.all([
 const dlna = shallowRef<DlnaOptions>(dlnaRaw.value as unknown as DlnaOptions);
 
 const userItems = computed(() =>
-  (users.value ?? []).map(u => ({ title: u.Name ?? '', value: u.Id ?? '' }))
+  users.value.map(u => ({ title: u.Name ?? '', value: u.Id ?? '' }))
 );
 
 const tasks = new Map<number, string>();

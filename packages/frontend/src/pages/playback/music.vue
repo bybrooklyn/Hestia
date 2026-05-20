@@ -101,10 +101,6 @@ meta:
 <script setup lang="ts">
 import type SwiperType from 'swiper';
 import 'swiper/css';
-import 'swiper/css/a11y';
-import 'swiper/css/effect-coverflow';
-import 'swiper/css/keyboard';
-import 'swiper/css/virtual';
 import { A11y, EffectCoverflow, Virtual } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { computed, shallowRef, watchEffect, onMounted } from 'vue';
@@ -131,6 +127,7 @@ const coverflowEffect = {
 };
 
 type ViewMode = 'cover' | 'visualizer' | 'lyrics';
+
 const viewModes: { value: ViewMode; icon: string }[] = [
   { value: 'cover', icon: 'i-dashicons:album' },
   { value: 'visualizer', icon: 'i-mdi:chart-bar' },

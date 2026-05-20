@@ -186,10 +186,14 @@ onScopeDispose(() => {
  * blobs. These computed proxies translate between the two so the DTO stays
  * the source of truth and a single watchDeep covers all edits.
  */
-function asLines(arr?: Array<string> | null): string {
+function asLines(arr?: string[] | null): string {
   return (arr ?? []).join('\n');
 }
 
+/**
+ * Inverse of `asLines`: split a textarea blob into a clean list of
+ * trimmed, non-empty entries.
+ */
 function fromLines(s: string): string[] {
   return s.split('\n').map(x => x.trim()).filter(Boolean);
 }

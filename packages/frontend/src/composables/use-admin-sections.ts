@@ -20,6 +20,11 @@ export interface AdminMenuItem {
 
 export type AdminSection = AdminMenuItem[];
 
+/**
+ * Reactive admin section registry used by the settings hub and the
+ * persistent admin sidebar. Returns sections grouped as `MenuItem[][]`;
+ * groups become visually divided in the sidebar/list.
+ */
 export function useAdminSections(): ComputedRef<AdminSection[]> {
   const { t } = useTranslation();
 
