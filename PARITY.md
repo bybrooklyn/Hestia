@@ -59,7 +59,7 @@ Done when: switching version mid-playback reloads at the current time.
 Design: read `item.Chapters`; render ticks on the time slider (`<TimeSlider>`).
 Done when: chapters appear as markers; hover shows the chapter name.
 
-**`VID-9` — Trickplay thumbnail preview on scrub** · Absent · `not started` · seq 9 · depends: —
+**`VID-9` — Trickplay thumbnail preview on scrub** · Absent · `done` · seq 9 · depends: —
 Design: fetch server trickplay tiles; show a thumbnail on scrub-hover.
 Done when: scrubbing shows a preview image.
 

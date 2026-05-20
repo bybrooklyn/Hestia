@@ -12,7 +12,13 @@
         {{ formatTime(playbackManager.currentTime.value) }}
       </template>
       <template #thumb-label>
-        {{ formatTime(sliderValue) }}
+        <div class="thumb-label-content uno-flex uno-flex-col uno-items-center">
+          <div
+            v-if="trickplayImageStyle"
+            class="trickplay-preview uno-mb-2 uno-rounded uno-overflow-hidden uno-shadow-lg"
+            :style="trickplayImageStyle" />
+          <span>{{ formatTime(sliderValue) }}</span>
+        </div>
       </template>
       <template #append>
         {{ formatTime(runtime) }}
@@ -37,6 +43,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { playbackManager } from '#/store/playback-manager.ts';
+import { remote } from '#/plugins/remote/index.ts';
 import { formatTime, ticksToMs } from '#/utils/time.ts';
 
 const currentInput = ref(0);
@@ -65,6 +72,82 @@ const chapters = computed(() => {
       name: ch.Name ?? '',
       position: (ticksToMs(ch.StartPositionTicks) / totalMs) * 100
     }));
+});
+
+const trickplayData = computed(() => {
+  const trickplayObj = playbackManager.currentItem.value?.Trickplay;
+
+  if (!trickplayObj) {
+    return;
+  }
+
+  const widthKeys = Object.keys(trickplayObj);
+
+  if (!widthKeys.length) {
+    return;
+  }
+
+  const widthKey = widthKeys[0];
+  const sourcesObj = trickplayObj[widthKey];
+
+  if (!sourcesObj) {
+    return;
+  }
+
+  const mediaSourceId = playbackManager.currentMediaSource.value?.Id;
+  const info = mediaSourceId && sourcesObj[mediaSourceId]
+    ? sourcesObj[mediaSourceId]
+    : Object.values(sourcesObj)[0];
+
+  if (!info?.Interval || !info.Width || !info.Height || !info.TileWidth || !info.TileHeight) {
+    return;
+  }
+
+  const itemId = playbackManager.currentItem.value?.Id;
+
+  if (!itemId) {
+    return;
+  }
+
+  return { widthKey, info, itemId, mediaSourceId };
+});
+
+const trickplayImageStyle = computed(() => {
+  const data = trickplayData.value;
+
+  if (!data) {
+    return;
+  }
+
+  const timeInMs = sliderValue.value * 1000;
+  const thumbnailIndex = Math.floor(timeInMs / data.info.Interval!);
+  const thumbnailsPerTile = data.info.TileWidth! * data.info.TileHeight!;
+  const tileIndex = Math.floor(thumbnailIndex / thumbnailsPerTile);
+  const indexInTile = thumbnailIndex % thumbnailsPerTile;
+
+  const col = indexInTile % data.info.TileWidth!;
+  const row = Math.floor(indexInTile / data.info.TileWidth!);
+
+  const basePath = remote.sdk.api?.basePath ?? '';
+  const token = remote.auth.currentUserToken.value ?? '';
+
+  let url = `${basePath}/Videos/${data.itemId}/Trickplay/${data.widthKey}/${tileIndex}.jpg`;
+
+  if (data.mediaSourceId) {
+    url += `?MediaSourceId=${data.mediaSourceId}`;
+  }
+
+  if (token) {
+    url += (url.includes('?') ? '&' : '?') + `api_key=${token}`;
+  }
+
+  return {
+    width: `${data.info.Width}px`,
+    height: `${data.info.Height}px`,
+    backgroundImage: `url('${url}')`,
+    backgroundPosition: `-${col * data.info.Width}px -${row * data.info.Height}px`,
+    backgroundSize: `${data.info.TileWidth * data.info.Width}px ${data.info.TileHeight * data.info.Height}px`
+  };
 });
 
 /**
