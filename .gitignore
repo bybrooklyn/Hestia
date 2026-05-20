@@ -95,3 +95,8 @@ sw.js
 packaging/jellyfin-vue*
 
 *storybook.log
+
+# Reference clone of jellyfin-web (the parity baseline) — kept locally so we
+# can read upstream source while building parity. Re-clone via:
+#   git clone --depth 1 --branch v10.11.8 https://github.com/jellyfin/jellyfin-web.git old/jellyfin-web
+/old/

@@ -168,29 +168,54 @@
 </template>
 
 <script setup lang="ts">
+import { MediaStreamType } from '@jellyfin/sdk/lib/generated-client';
 import { computed, shallowRef } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { isObj, isStr, isUndef } from '@jellyfin-vue/shared/validation';
 import { playbackManager } from '#/store/playback-manager.ts';
 import { playerElement } from '#/store/player-element.ts';
+import {
+  getAudioQualityOptions,
+  getVideoQualityOptions
+} from '#/utils/quality-options.ts';
 
 const menuModel = defineModel<boolean>();
 const { t } = useTranslation();
 
 /**
- * Streaming quality presets. `0` means automatic (source quality); any other
- * value is the maximum streaming bitrate in bps passed to the server.
+ * Streaming quality presets, dynamic per source.
+ *
+ * Mirrors jellyfin-web's behaviour: only options at or below the source's
+ * bitrate are shown, plus a single entry just above it so the user can
+ * pick the file's native bitrate. The Auto entry includes a hint of what
+ * the cap currently resolves to. For audio, the full preset list is used
+ * (no source-aware filtering needed — every audio preset fits).
  */
-const qualityItems = computed(() => [
-  { title: t('auto'), value: 0 },
-  { title: '1080p - 20 Mbps', value: 20_000_000 },
-  { title: '1080p - 10 Mbps', value: 10_000_000 },
-  { title: '720p - 8 Mbps', value: 8_000_000 },
-  { title: '720p - 4 Mbps', value: 4_000_000 },
-  { title: '480p - 3 Mbps', value: 3_000_000 },
-  { title: '480p - 1.5 Mbps', value: 1_500_000 },
-  { title: '360p - 720 kbps', value: 720_000 }
-]);
+const qualityItems = computed(() => {
+  const source = playbackManager.currentMediaSource.value;
+  const currentMax = playbackManager.maxStreamingBitrate.value;
+  const autoLabel = t('auto');
+
+  if (playbackManager.isVideo.value) {
+    const videoStream = source?.MediaStreams?.find(
+      s => s.Type === MediaStreamType.Video
+    );
+
+    return getVideoQualityOptions({
+      currentMaxBitrate: currentMax,
+      videoBitRate: videoStream?.BitRate,
+      videoCodec: videoStream?.Codec,
+      enableAuto: true,
+      autoLabel
+    }).map(o => ({ title: o.name, value: o.bitrate }));
+  }
+
+  return getAudioQualityOptions({
+    currentMaxBitrate: currentMax,
+    enableAuto: true,
+    autoLabel
+  }).map(o => ({ title: o.name, value: o.bitrate }));
+});
 const maxStreamingBitrate = computed({
   get: () => playbackManager.maxStreamingBitrate.value ?? 0,
   set: (val: number) => {
