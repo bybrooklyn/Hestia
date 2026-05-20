@@ -1,5 +1,5 @@
 <template>
-  <SettingsPage>
+  <AdminSettingsLayout>
     <template #title>
       {{ t('newUser') }}
     </template>
@@ -76,7 +76,7 @@
         </VForm>
       </VCard>
     </template>
-  </SettingsPage>
+  </AdminSettingsLayout>
 </template>
 
 <route lang="yaml">

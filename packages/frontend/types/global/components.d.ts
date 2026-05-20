@@ -13,6 +13,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AboutLinks: typeof import('./../../src/components/System/AboutLinks.vue')['default']
     AddApiKey: typeof import('./../../src/components/System/AddApiKey.vue')['default']
+    AdminSettingsLayout: typeof import('./../../src/components/Layout/AdminSettingsLayout.vue')['default']
     AddServerForm: typeof import('./../../src/components/Forms/AddServerForm.vue')['default']
     AppBar: typeof import('./../../src/components/Layout/AppBar/AppBar.vue')['default']
     AppBarButtonLayout: typeof import('./../../src/components/Layout/AppBar/AppBarButtonLayout.vue')['default']

@@ -1,5 +1,5 @@
 <template>
-  <SettingsPage>
+  <AdminSettingsLayout>
     <template #title>
       {{ t('logsAndActivity') }}
     </template>
@@ -82,7 +82,7 @@
         </JTransition>
       </VCol>
     </template>
-  </SettingsPage>
+  </AdminSettingsLayout>
 </template>
 
 <route lang="yaml">

@@ -1,5 +1,5 @@
 <template>
-  <SettingsPage>
+  <AdminSettingsLayout>
     <template #title>
       {{ t('apiKeys') }}
     </template>
@@ -98,7 +98,7 @@
         </VCard>
       </VDialog>
     </template>
-  </SettingsPage>
+  </AdminSettingsLayout>
 </template>
 
 <route lang="yaml">

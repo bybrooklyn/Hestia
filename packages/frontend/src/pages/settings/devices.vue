@@ -1,5 +1,5 @@
 <template>
-  <SettingsPage>
+  <AdminSettingsLayout>
     <template #title>
       {{ t('devices') }}
     </template>
@@ -90,7 +90,7 @@
         </VCard>
       </VDialog>
     </template>
-  </SettingsPage>
+  </AdminSettingsLayout>
 </template>
 
 <route lang="yaml">

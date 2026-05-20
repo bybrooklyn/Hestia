@@ -1,5 +1,5 @@
 <template>
-  <SettingsPage>
+  <AdminSettingsLayout>
     <template #title>
       {{ $t('serverSettings') }}
     </template>
@@ -68,7 +68,7 @@
           type="number" />
       </VCol>
     </template>
-  </SettingsPage>
+  </AdminSettingsLayout>
 </template>
 
 <script setup lang="ts">

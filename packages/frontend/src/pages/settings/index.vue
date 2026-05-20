@@ -118,6 +118,7 @@ import type { RouteLocationRaw } from 'vue-router';
 import { remote } from '#/plugins/remote/index.ts';
 import { version as clientVersion } from '#/package.json';
 import { usePageTitle } from '#/composables/page-title.ts';
+import { useAdminSections } from '#/composables/use-admin-sections.ts';
 
 const { t } = useTranslation();
 
@@ -129,6 +130,8 @@ interface MenuOptions {
 }
 
 usePageTitle(() => t('settings'));
+
+const adminSections = useAdminSections();
 
 const userItems = computed<MenuOptions[]>(() => {
   return [
@@ -171,96 +174,6 @@ const userItems = computed<MenuOptions[]>(() => {
   ];
 });
 
-const adminSections = computed<MenuOptions[][]>(() => {
-  return [
-    [
-      {
-        icon: 'i-mdi:server',
-        name: t('server'),
-        description: t('serverSettingsDescription'),
-        link: '/settings/server'
-      },
-      {
-        icon: 'i-mdi:devices',
-        name: t('devices'),
-        description: t('devicesSettingsDescription'),
-        link: '/settings/devices'
-      },
-      {
-        icon: 'i-mdi:library-shelves',
-        name: t('libraries'),
-        description: t('librariesSettingsDescription'),
-        link: undefined
-      }
-    ],
-    [
-      {
-        icon: 'i-mdi:account-multiple',
-        name: t('users'),
-        description: t('userSettingsDescription'),
-        link: '/settings/users'
-      },
-      {
-        icon: 'i-mdi:key-chain',
-        name: t('apiKeys'),
-        description: t('apiKeysSettingsDescription'),
-        link: '/settings/apikeys'
-      }
-    ],
-    [
-      {
-        icon: 'i-mdi:play-network',
-        name: t('transcodingAndStreaming'),
-        description: t('transcodingSettingsDescription'),
-        link: undefined
-      },
-      {
-        icon: 'i-mdi:dlna',
-        name: t('dlna'),
-        description: t('dlnaSettingsDescription'),
-        link: undefined
-      },
-      {
-        icon: 'i-mdi:television-classic',
-        name: t('liveTv'),
-        description: t('liveTvSettingsDescription'),
-        link: undefined
-      },
-      {
-        icon: 'i-mdi:network',
-        name: t('networking'),
-        description: t('networkingSettingsDescription'),
-        link: undefined
-      }
-    ],
-    [
-      {
-        icon: 'i-mdi:puzzle',
-        name: t('plugins'),
-        description: t('pluginsSettingsDescription'),
-        link: undefined
-      },
-      {
-        icon: 'i-mdi:calendar-clock',
-        name: t('scheduledTasks'),
-        description: t('scheduledTasksSettingsDescription'),
-        link: undefined
-      },
-      {
-        icon: 'i-mdi:bell',
-        name: t('notifications'),
-        description: t('notificationsSettingsDescription'),
-        link: undefined
-      },
-      {
-        icon: 'i-mdi:text-box',
-        name: t('logsAndActivity'),
-        description: t('logsAndActivitySettingsDescription'),
-        link: '/settings/logs-and-activity'
-      }
-    ]
-  ];
-});
 </script>
 
 <style scoped>

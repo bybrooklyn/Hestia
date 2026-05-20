@@ -1,5 +1,5 @@
 <template>
-  <SettingsPage>
+  <AdminSettingsLayout>
     <template #title>
       {{ t('users') }}
     </template>
@@ -52,7 +52,7 @@
         </VRow>
       </VContainer>
     </template>
-  </SettingsPage>
+  </AdminSettingsLayout>
 </template>
 
 <route lang="yaml">
