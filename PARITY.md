@@ -47,7 +47,7 @@ Done when: forcing a transcode (e.g. subtitle burn-in) shows the reason(s).
 Design: new `components/Playback/PlaybackStats.vue` reading `mediaControls`, the `hls` instance, and playback info; toggled from the OSD / a key.
 Done when: overlay shows live bitrate, codec, buffer, dropped frames.
 
-**`VID-6` — Paused-state info overlay** · Absent · `not started` · seq 6 · depends: `EXP-1`
+**`VID-6` — Paused-state info overlay** · Absent · `done` · seq 6 · depends: `EXP-1`
 Design: new overlay shown when `isPaused && isVideo` — title, overview, progress, "ends at"; gated behind an Experimental toggle (owner preference).
 Done when: pausing shows the overlay; the toggle disables it.
 

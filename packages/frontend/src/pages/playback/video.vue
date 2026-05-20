@@ -120,6 +120,7 @@
       </div>
     </JOverlay>
     <PlaybackStats v-if="playbackStats" />
+    <PausedInfoOverlay />
   </div>
 </template>
 

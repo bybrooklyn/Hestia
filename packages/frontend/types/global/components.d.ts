@@ -76,6 +76,7 @@ declare module 'vue' {
     MusicVisualizer: typeof import('./../../src/components/Playback/MusicVisualizer.vue')['default']
     NavigationDrawer: typeof import('./../../src/components/Layout/Navigation/NavigationDrawer.vue')['default']
     NextTrackButton: typeof import('./../../src/components/Buttons/Playback/NextTrackButton.vue')['default']
+    PausedInfoOverlay: typeof import('./../../src/components/Playback/PausedInfoOverlay.vue')['default']
     PeopleList: typeof import('./../../src/components/Item/PeopleList.vue')['default']
     PersonEditor: typeof import('./../../src/components/Item/Metadata/PersonEditor.vue')['default']
     PlaybackMethodBadge: typeof import('./../../src/components/Playback/PlaybackMethodBadge.vue')['default']
