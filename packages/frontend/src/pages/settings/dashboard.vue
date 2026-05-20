@@ -71,6 +71,48 @@
         </VTable>
 
         <h3 class="uno-mb-2 uno-mt-6 uno-text-lg uno-font-bold">
+          {{ t('activeTranscodes') }}
+          <span class="uno-ml-2 uno-text-sm uno-text-disabled">
+            ({{ transcodingSessions.length }})
+          </span>
+        </h3>
+        <div
+          v-if="transcodingSessions.length === 0"
+          class="uno-py-4 uno-text-disabled">
+          {{ t('noActiveTranscodes') }}
+        </div>
+        <VList
+          v-else
+          class="transcodes"
+          lines="three">
+          <VListItem
+            v-for="s in transcodingSessions"
+            :key="`transcode-${s.Id ?? ''}`"
+            :title="s.UserName ?? t('unknown')">
+            <template #prepend>
+              <JIcon
+                class="i-mdi:transit-transfer uno-text-xl uno-mr-3" />
+            </template>
+            <template #subtitle>
+              <div class="uno-text-xs">
+                {{ transcodeSummary(s) }}
+              </div>
+              <div
+                v-if="transcodeReasons(s).length > 0"
+                class="uno-text-xs uno-text-disabled uno-mt-1">
+                {{ transcodeReasons(s).join(', ') }}
+              </div>
+              <VProgressLinear
+                v-if="s.TranscodingInfo?.CompletionPercentage != null"
+                class="uno-mt-1"
+                :model-value="s.TranscodingInfo.CompletionPercentage"
+                color="primary"
+                height="3" />
+            </template>
+          </VListItem>
+        </VList>
+
+        <h3 class="uno-mb-2 uno-mt-6 uno-text-lg uno-font-bold">
           {{ t('activeSessions') }}
           <span class="uno-ml-2 uno-text-sm uno-text-disabled">
             ({{ sessions.length }})
@@ -131,7 +173,7 @@ import type { SessionInfoDto, UserDto } from '@jellyfin/sdk/lib/generated-client
 import { getSystemApi } from '@jellyfin/sdk/lib/utils/api/system-api';
 import { getSessionApi } from '@jellyfin/sdk/lib/utils/api/session-api';
 import { useIntervalFn } from '@vueuse/core';
-import { onScopeDispose, shallowRef, watch } from 'vue';
+import { computed, onScopeDispose, shallowRef, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { useApi } from '#/composables/apis.ts';
 import { remote } from '#/plugins/remote/index.ts';
@@ -199,6 +241,58 @@ watch(
 );
 
 onScopeDispose(() => stopPoll());
+
+/**
+ * Sessions currently transcoding — derived from the same list as DASH-2,
+ * no extra API call. Useful as a quick-glance monitor for server load.
+ */
+const transcodingSessions = computed(() =>
+  sessions.value.filter(s => s.TranscodingInfo)
+);
+
+function transcodeSummary(s: SessionInfoDto): string {
+  const t_info = s.TranscodingInfo;
+
+  if (!t_info) {
+    return '';
+  }
+
+  const parts: string[] = [];
+
+  if (t_info.Container) {
+    parts.push(t_info.Container.toUpperCase());
+  }
+
+  if (t_info.VideoCodec) {
+    parts.push(`${t_info.IsVideoDirect ? 'direct' : ''} v:${t_info.VideoCodec}`.trim());
+  }
+
+  if (t_info.AudioCodec) {
+    parts.push(`${t_info.IsAudioDirect ? 'direct' : ''} a:${t_info.AudioCodec}`.trim());
+  }
+
+  if (t_info.Width && t_info.Height) {
+    parts.push(`${t_info.Width}×${t_info.Height}`);
+  }
+
+  if (t_info.Framerate) {
+    parts.push(`${t_info.Framerate.toFixed(2)} fps`);
+  }
+
+  if (t_info.Bitrate) {
+    parts.push(`${(t_info.Bitrate / 1_000_000).toFixed(1)} Mbps`);
+  }
+
+  return parts.join(' · ');
+}
+
+function transcodeReasons(s: SessionInfoDto): string[] {
+  /**
+   * The SDK mistypes TranscodeReasons as an empty enum; at runtime it's an
+   * array of reason strings (mirrors the same fix in playback-manager.ts).
+   */
+  return (s.TranscodingInfo?.TranscodeReasons as string[] | undefined) ?? [];
+}
 
 function sessionSubtitle(s: SessionInfoDto): string {
   const client = [s.Client, s.DeviceName].filter(Boolean).join(' · ');

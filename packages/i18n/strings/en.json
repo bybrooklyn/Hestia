@@ -469,5 +469,7 @@
   "restartPending": "A restart is pending",
   "activeSessions": "Active sessions",
   "noActiveSessions": "No active sessions",
-  "nowPlaying": "Now playing"
+  "nowPlaying": "Now playing",
+  "activeTranscodes": "Active transcodes",
+  "noActiveTranscodes": "No active transcodes"
 }
