@@ -83,7 +83,17 @@ const menuItems = computed<MenuItem[]>(() => {
       title: t('settings'),
       icon: 'i-mdi:cog',
       action: async (): Promise<void> => {
-        await router.push('/settings');
+        /**
+         * Drop admins straight onto the dashboard — the sidebar there takes
+         * them to any admin page (and to their personal settings via the
+         * bottom group). Non-admins still land on the shared hub, which is
+         * effectively their personal-settings index.
+         */
+        await router.push(
+          auth.currentUser.value?.Policy?.IsAdministrator
+            ? '/settings/dashboard'
+            : '/settings'
+        );
       }
     },
     {
