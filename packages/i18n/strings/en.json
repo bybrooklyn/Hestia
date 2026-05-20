@@ -454,5 +454,7 @@
   "droppedFrames": "Dropped frames",
   "bufferHealth": "Buffer",
   "lyrics": "Lyrics",
-  "noLyricsFound": "No lyrics found"
+  "noLyricsFound": "No lyrics found",
+  "playlistCreated": "Saved playlist \"{{item}}\"",
+  "playlistCreateFailed": "Could not save the playlist"
 }
