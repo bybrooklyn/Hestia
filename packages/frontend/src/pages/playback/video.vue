@@ -8,10 +8,7 @@
     @click="handleClick">
     <JOverlay
       class="uno-h-full uno-flex uno-flex-col uno-items-center uno-justify-between"
-      :class="{
-        'uno-opacity-100': overlay,
-        'uno-opacity-0': !overlay
-      }">
+      :style="{ opacity: overlay ? 1 : 0 }">
       <div class="osd-top pt-s pl-s pr-s">
         <div class="uno-flex uno-items-center uno-px-4 uno-py-2">
           <div class="uno-flex">
