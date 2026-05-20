@@ -67,7 +67,7 @@ Done when: scrubbing shows a preview image.
 Design: query the Media Segments API for the item; show a "Skip" button during segment ranges in `video.vue`.
 Done when: the skip button appears and seeks past the segment.
 
-**`VID-11` — Aspect-ratio / zoom control** · Partial · `not started` · seq 11 · depends: —
+**`VID-11` — Aspect-ratio / zoom control** · Absent · `done` · seq 11 · depends: —
 Design: replace the single "stretch" toggle in `PlaybackSettingsButton.vue` with named modes (auto / cover / fill) applied via CSS `object-fit`.
 Done when: ratio modes are selectable and applied.
 

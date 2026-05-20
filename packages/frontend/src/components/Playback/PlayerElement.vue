@@ -15,7 +15,10 @@
           playsinline
           :loop="playbackManager.isRepeatingOnce.value"
           :class="{
-            'uno-object-fill uno-w-screen': playerElement.state.value.isStretched,
+            'uno-object-contain': playerElement.state.value.fitMode === 'contain' || !playerElement.state.value.fitMode,
+            'uno-object-cover': playerElement.state.value.fitMode === 'cover',
+            'uno-object-fill': playerElement.state.value.fitMode === 'fill',
+            'uno-w-screen': playerElement.state.value.fitMode === 'fill' || playerElement.state.value.fitMode === 'cover',
             'uno-h-full uno-max-h-100vh': playbackManager.isVideo.value
           }"
           @loadeddata="onLoadedData">

@@ -91,14 +91,17 @@
             </VRow>
             <VRow align="center">
               <VCol :cols="4">
-                <label>{{ $t('stretch') }}</label>
+                <label>{{ $t('mediaInfoAspectRatio') }}</label>
               </VCol>
               <VCol
                 :cols="8"
                 class="text-right">
-                <VSwitch
-                  v-model="playerElement.state.value.isStretched"
-                  color="primary"
+                <VSelect
+                  v-model="playerElement.state.value.fitMode"
+                  :items="fitModeItems"
+                  item-title="title"
+                  item-value="value"
+                  density="comfortable"
                   hide-details />
               </VCol>
             </VRow>
@@ -152,6 +155,12 @@ const mediaSourceIndex = computed({
     playbackManager.currentMediaSourceIndex.value = val;
   }
 });
+
+const fitModeItems = computed(() => [
+  { title: t('normal'), value: 'contain' },
+  { title: 'Cover', value: 'cover' },
+  { title: 'Fill', value: 'fill' }
+]);
 
 const defaultPlaybackSpeeds = Object.freeze([0.5, 0.75, 1, 1.25, 1.5, 2]);
 const playbackItems = computed(() => defaultPlaybackSpeeds.map(speed => ({

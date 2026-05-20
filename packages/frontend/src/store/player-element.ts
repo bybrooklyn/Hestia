@@ -32,7 +32,7 @@ interface SubtitleExternalTrack extends PlaybackExternalTrack {
   parsed?: ParsedSubtitleTrack;
 }
 interface PlayerElementState {
-  isStretched: boolean;
+  fitMode: 'contain' | 'cover' | 'fill';
   currentExternalSubtitleTrack?: SubtitleExternalTrack;
 }
 interface PlaybackTrack {
@@ -55,7 +55,7 @@ export const videoContainerRef = shallowRef<HTMLDivElement>();
  * == CLASS CONSTRUCTOR ==
  */
 @sealed
-class PlayerElementStore extends CommonStore<PlayerElementState, 'isStretched' | 'currentExternalSubtitleTrack'> {
+class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'currentExternalSubtitleTrack'> {
   /**
    * == NON REACTIVE STATE ==
    * Reactive state is defined in the super() constructor
@@ -324,7 +324,7 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'isStretched' |
     super({
       storeKey: 'playerElement',
       defaultState: () => ({
-        isStretched: false
+        fitMode: 'contain'
       }),
       resetOnLogout: true
     });
