@@ -112,67 +112,19 @@
 
 <script setup lang="ts">
 import { commit_hash } from 'virtual:commit';
-import { computed } from 'vue';
 import { useTranslation } from 'i18next-vue';
-import type { RouteLocationRaw } from 'vue-router';
 import { remote } from '#/plugins/remote/index.ts';
 import { version as clientVersion } from '#/package.json';
 import { usePageTitle } from '#/composables/page-title.ts';
 import { useAdminSections } from '#/composables/use-admin-sections.ts';
+import { useUserSettingsItems } from '#/composables/use-user-settings-items.ts';
 
 const { t } = useTranslation();
-
-interface MenuOptions {
-  icon: string;
-  name: string;
-  description: string;
-  link?: RouteLocationRaw;
-}
 
 usePageTitle(() => t('settings'));
 
 const adminSections = useAdminSections();
-
-const userItems = computed<MenuOptions[]>(() => {
-  return [
-    {
-      icon: 'i-mdi:account',
-      name: t('account'),
-      description: t('accountSettingsDescription'),
-      link: '/settings/account'
-    },
-    {
-      icon: 'i-mdi:home',
-      name: t('homeScreen'),
-      description: t('homeScreenSettingsDescription'),
-      link: undefined
-    },
-    {
-      icon: 'i-mdi:play-pause',
-      name: t('playback'),
-      description: t('playbackSettingsDescription'),
-      link: undefined
-    },
-    {
-      icon: 'i-mdi:disc-player',
-      name: t('mediaPlayers'),
-      description: t('mediaPlayersSettingsDescription'),
-      link: undefined
-    },
-    {
-      icon: 'i-mdi:subtitles',
-      name: t('subtitles'),
-      description: t('subtitlesSettingsDescription'),
-      link: '/settings/subtitles'
-    },
-    {
-      icon: 'i-mdi:flask',
-      name: t('experimental'),
-      description: t('experimentalSettingsDescription'),
-      link: '/settings/experimental'
-    }
-  ];
-});
+const userItems = useUserSettingsItems();
 
 </script>
 

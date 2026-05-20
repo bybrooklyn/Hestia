@@ -30,6 +30,20 @@
               </template>
             </VListItem>
           </template>
+          <VDivider class="uno-my-2" />
+          <VListSubheader>{{ $t('personalSettings') }}</VListSubheader>
+          <VListItem
+            v-for="item in userItems"
+            :key="`user-${item.name}`"
+            :to="item.link"
+            :disabled="!item.link"
+            :title="item.name">
+            <template #prepend>
+              <JIcon
+                class="uno-min-w-8"
+                :class="item.icon" />
+            </template>
+          </VListItem>
         </VList>
       </VCol>
       <VCol>
@@ -92,6 +106,21 @@
             </template>
           </VListItem>
         </template>
+        <VDivider class="uno-my-2" />
+        <VListSubheader>{{ $t('personalSettings') }}</VListSubheader>
+        <VListItem
+          v-for="item in userItems"
+          :key="`user-mobile-${item.name}`"
+          :to="item.link"
+          :disabled="!item.link"
+          :title="item.name"
+          @click="drawer = false">
+          <template #prepend>
+            <JIcon
+              class="uno-min-w-8"
+              :class="item.icon" />
+          </template>
+        </VListItem>
       </VList>
     </VNavigationDrawer>
   </VContainer>
@@ -101,9 +130,11 @@
 import { ref } from 'vue';
 import { useDisplay } from 'vuetify';
 import { useAdminSections } from '#/composables/use-admin-sections.ts';
+import { useUserSettingsItems } from '#/composables/use-user-settings-items.ts';
 
 const display = useDisplay();
 const adminSections = useAdminSections();
+const userItems = useUserSettingsItems();
 const drawer = ref(false);
 </script>
 

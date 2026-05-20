@@ -474,6 +474,7 @@
   "noActiveTranscodes": "No active transcodes",
   "customCss": "Custom CSS",
   "customCssHint": "Applied to every client connected to this server",
+  "personalSettings": "Personal settings",
   "backups": "Backups",
   "backupsSettingsDescription": "Create or restore server backups",
   "createBackup": "Create backup",
