@@ -466,5 +466,8 @@
   "transcodePath": "Transcode path",
   "webClientPath": "Web client path",
   "updateAvailable": "An update is available",
-  "restartPending": "A restart is pending"
+  "restartPending": "A restart is pending",
+  "activeSessions": "Active sessions",
+  "noActiveSessions": "No active sessions",
+  "nowPlaying": "Now playing"
 }
