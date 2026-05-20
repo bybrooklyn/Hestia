@@ -57,7 +57,7 @@
               </VCol>
             </VRow>
             <VRow
-              v-if="!$vuetify.display.smAndUp"
+              v-if="playbackManager.isVideo.value && !$vuetify.display.smAndUp"
               align="center">
               <VCol :cols="4">
                 <label>{{ $t('subtitles') }}</label>
@@ -74,7 +74,7 @@
               </VCol>
             </VRow>
             <VRow
-              v-if="!$vuetify.display.smAndUp"
+              v-if="playbackManager.isVideo.value && !$vuetify.display.smAndUp"
               align="center">
               <VCol :cols="4">
                 <label>Secondary Subtitle</label>
@@ -106,7 +106,9 @@
                   @update:focused="onFocus" />
               </VCol>
             </VRow>
-            <VRow align="center">
+            <VRow
+              v-if="playbackManager.isVideo.value"
+              align="center">
               <VCol :cols="4">
                 <label>{{ $t('mediaInfoAspectRatio') }}</label>
               </VCol>
@@ -122,7 +124,9 @@
                   hide-details />
               </VCol>
             </VRow>
-            <VRow align="center">
+            <VRow
+              v-if="playbackManager.isVideo.value"
+              align="center">
               <VCol :cols="6">
                 <label>Audio Delay (ms)</label>
               </VCol>
@@ -138,7 +142,9 @@
                   step="50" />
               </VCol>
             </VRow>
-            <VRow align="center">
+            <VRow
+              v-if="playbackManager.isVideo.value"
+              align="center">
               <VCol :cols="6">
                 <label>Subtitle Delay (ms)</label>
               </VCol>

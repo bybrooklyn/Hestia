@@ -16,6 +16,7 @@
           <JIcon :class="opt.icon" />
         </template>
       </AppBarButtonLayout>
+      <PlaybackSettingsButton />
     </VAppBar>
     <VCol class="uno-px-0">
       <JTransition mode="out-in">
