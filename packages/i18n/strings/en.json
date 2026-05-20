@@ -524,5 +524,16 @@
   "publicHttpsPort": "Public HTTPS port",
   "localNetworkSubnets": "Local network subnets",
   "knownProxies": "Known proxies",
-  "oneEntryPerLine": "One entry per line"
+  "oneEntryPerLine": "One entry per line",
+  "enableDlnaServer": "Enable the DLNA server",
+  "enableDlnaPlayTo": "Enable Play To (control DLNA renderers from the server)",
+  "autoCreatePlayToProfiles": "Auto-create Play To profiles",
+  "blastAliveMessages": "Blast SSDP alive messages",
+  "sendOnlyMatchedHost": "Send SSDP alive only to matched hosts",
+  "enableDebugLog": "Enable debug logging",
+  "enablePlayToTracing": "Enable Play To tracing",
+  "intervals": "Intervals",
+  "clientDiscoveryIntervalSeconds": "Client discovery interval (seconds)",
+  "aliveMessageIntervalSeconds": "Alive message interval (seconds)",
+  "defaultUser": "Default user"
 }

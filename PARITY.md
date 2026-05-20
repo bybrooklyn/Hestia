@@ -295,7 +295,7 @@ Done when: a collection's contents are fully browsable.
 **`SRV-3` — Backups (create / restore / schedule)** · Absent · `done` · seq 5 · Done when: backups are manageable. *(Scheduling lands as part of `TASK-2`; the API is the same per-task config used by every scheduled task.)*
 **`SRV-4` — Notifications settings** · Absent · `done` · seq 6 · disabled settings-index row. Done when: a notifications page exists.
 **`SRV-5` — Networking settings** · Absent · `done` · seq 7 · disabled settings-index row. Done when: a networking page exists.
-**`SRV-6` — DLNA settings** · Absent · seq 8 · disabled settings-index row. Done when: a DLNA page exists.
+**`SRV-6` — DLNA settings** · Absent · `done` · seq 8 · disabled settings-index row. Done when: a DLNA page exists. *(Per-device DLNA profiles ship with a follow-up if needed; this page covers the server-level options.)*
 
 ### Libraries (admin)
 

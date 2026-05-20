@@ -81,7 +81,7 @@ export function useAdminSections(): ComputedRef<AdminSection[]> {
         icon: 'i-mdi:dlna',
         name: t('dlna'),
         description: t('dlnaSettingsDescription'),
-        link: undefined
+        link: '/settings/dlna'
       },
       {
         icon: 'i-mdi:television-classic',
