@@ -5,7 +5,8 @@
     :class="{ 'uno-cursor-none': !overlay }"
     @mousemove.passive="handleMouseMove"
     @touchend.passive="handleMouseMove"
-    @click="handleClick">
+    @click="handleClick"
+    @dblclick="handleDblClick">
     <JOverlay
       class="uno-h-full uno-flex uno-flex-col uno-items-center uno-justify-between"
       :style="{ opacity: overlay ? 1 : 0 }">
@@ -216,6 +217,16 @@ function handleMouseMove(): void {
 }
 
 /**
+ * A double-click on the video surface toggles browser fullscreen. To
+ * disambiguate from a single click that toggles play/pause, the single-
+ * click action is deferred briefly; if a second click lands inside the
+ * window, the pending play/pause is cancelled and fullscreen runs
+ * instead. 250 ms is the standard double-click threshold most video
+ * players (YouTube, jellyfin-web) use.
+ */
+let pendingClick: ReturnType<typeof setTimeout> | undefined;
+
+/**
  * Toggles play/pause when the video surface is clicked. Clicks on the OSD
  * controls (top/bottom bars) are ignored so buttons don't double-trigger.
  * Mouse only — touch interaction is handled separately.
@@ -229,7 +240,35 @@ function handleClick(e: MouseEvent): void {
     return;
   }
 
-  playbackManager.playPause();
+  if (pendingClick !== undefined) {
+    clearTimeout(pendingClick);
+  }
+
+  pendingClick = setTimeout(() => {
+    playbackManager.playPause();
+    pendingClick = undefined;
+  }, 250);
+}
+
+/**
+ * Toggles browser fullscreen on a double-click. Cancels any pending
+ * single-click so play/pause doesn't fire alongside fullscreen.
+ */
+function handleDblClick(e: MouseEvent): void {
+  if (
+    !hasFinePointer.value
+    || !(e.target instanceof Element)
+    || e.target.closest('.osd-top, .osd-bottom')
+  ) {
+    return;
+  }
+
+  if (pendingClick !== undefined) {
+    clearTimeout(pendingClick);
+    pendingClick = undefined;
+  }
+
+  void fullscreen.toggle();
 }
 
 let swipeTargetValid = true;
