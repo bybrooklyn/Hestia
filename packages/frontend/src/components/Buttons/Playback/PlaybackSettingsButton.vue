@@ -73,6 +73,23 @@
                   @input="playbackManager.currentSubtitleTrack.value = $event ?? -1" />
               </VCol>
             </VRow>
+            <VRow
+              v-if="!$vuetify.display.smAndUp"
+              align="center">
+              <VCol :cols="4">
+                <label>Secondary Subtitle</label>
+              </VCol>
+              <VCol :cols="8">
+                <MediaStreamSelector
+                  v-if="playbackManager.currentItemSubtitleTracks.value"
+                  :media-streams="playbackManager.currentItemSubtitleTracks.value"
+                  type="Subtitle"
+                  :default-stream-index="
+                    playbackManager.currentSecondarySubtitleTrack.value?.Index
+                  "
+                  @input="playbackManager.currentSecondarySubtitleTrack.value = $event ?? -1" />
+              </VCol>
+            </VRow>
             <VRow align="center">
               <VCol :cols="4">
                 <label>{{ $t('speed') }}</label>

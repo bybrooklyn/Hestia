@@ -71,7 +71,7 @@ Done when: the skip button appears and seeks past the segment.
 Design: replace the single "stretch" toggle in `PlaybackSettingsButton.vue` with named modes (auto / cover / fill) applied via CSS `object-fit`.
 Done when: ratio modes are selectable and applied.
 
-**`VID-12` — Audio / subtitle delay (offset) control** · Absent · `not started` · seq 12 · depends: —
+**`VID-12` — Audio / subtitle delay (offset) control** · Absent · `done` · seq 12 · depends: —
 Design: offset controls in `PlaybackSettingsButton.vue`; apply the subtitle offset in `player-element.ts`.
 Done when: offsets visibly shift sync.
 

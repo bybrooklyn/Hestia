@@ -66,6 +66,7 @@ interface PlaybackManagerState {
     video?: number;
     audio?: number;
     subtitle?: number;
+    secondarySubtitle?: number;
   };
   remotePlaybackTime: number;
   remoteCurrentVolume: number;
@@ -197,6 +198,20 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
       }
     },
     set: (newIndex: number) => this._state.value.mediaSourceIndexes.subtitle = newIndex
+  });
+
+  public readonly currentSecondarySubtitleTrack = computed({
+    get: () => {
+      if (!isNil(this._state.value.mediaSourceIndexes.secondarySubtitle)
+      ) {
+        return this.currentMediaSource.value?.MediaStreams?.find(
+          stream =>
+            stream.Type === MediaStreamType.Subtitle
+            && stream.Index === this._state.value.mediaSourceIndexes.secondarySubtitle
+        );
+      }
+    },
+    set: (newIndex: number) => this._state.value.mediaSourceIndexes.secondarySubtitle = newIndex
   });
 
   /**
@@ -521,6 +536,7 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
     subtitleTrackIndex?: number;
     videoTrackIndex?: number;
     mediaSourceIndex?: number;
+    secondarySubtitleTrackIndex?: number;
     startFromIndex?: number;
     startFromTime?: number;
     initiator?: BaseItemDto;
@@ -537,6 +553,7 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
       this._state.value.mediaSourceIndexes.video = videoTrackIndex;
       this._state.value.mediaSourceIndexes.audio = audioTrackIndex;
       this._state.value.mediaSourceIndexes.subtitle = subtitleTrackIndex;
+      this._state.value.mediaSourceIndexes.secondarySubtitle = secondarySubtitleTrackIndex;
       this._state.value.currentItemIndex = startFromIndex;
 
       if (startShuffled) {

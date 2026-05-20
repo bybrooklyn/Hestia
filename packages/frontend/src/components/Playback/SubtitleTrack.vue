@@ -1,6 +1,7 @@
 <template>
   <div
-    class="uno-absolute uno-bottom-0 uno-left-0 uno-w-full uno-text-center">
+    class="uno-absolute uno-w-full uno-text-center"
+    :class="isSecondary ? 'uno-top-10' : 'uno-bottom-0'">
     <span
       class="uno-inline-block uno-pb-10px uno-color-white"
       :class="{ 'stroked': subtitleSettings.state.value.stroke }"
@@ -24,11 +25,12 @@ import { playerElement } from '#/store/player-element.ts';
 import type { ParsedSubtitleTrack, Dialogue } from '#/plugins/workers/generic/subtitles.ts';
 import { playbackManager } from '#/store/playback-manager.ts';
 
-const { preview } = defineProps<{
+const { preview, isSecondary } = defineProps<{
   /**
    * Whether the subtitle track is in preview mode.
    */
   preview?: boolean;
+  isSecondary?: boolean;
 }>();
 
 /**
@@ -53,7 +55,11 @@ const findSubtitle = (dialogue: ParsedSubtitleTrack['dialogue'], start = 0) => {
   return index === -1 ? undefined : index + start;
 };
 
-const dialogue = computed(() => playerElement.currentExternalSubtitleTrack.value?.parsed?.dialogue);
+const dialogue = computed(() => 
+  isSecondary
+    ? playerElement.currentSecondaryExternalSubtitleTrack.value?.parsed?.dialogue
+    : playerElement.currentExternalSubtitleTrack.value?.parsed?.dialogue
+);
 const currentSubtitle = computed<{ index: number; sub?: Dialogue } | undefined>((previous) => {
   if (!isNil(dialogue.value)) {
     const hasPrevious = !isNil(previous);

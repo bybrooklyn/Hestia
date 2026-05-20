@@ -20,15 +20,31 @@
         transition="slide-y-transition"
         location="top">
         <VList class="uno-overflow-hidden">
+          <VListSubheader>Primary Subtitle</VListSubheader>
           <VListItem
             v-for="track of tracks"
-            :key="track.srcIndex"
+            :key="`primary-${track.srcIndex}`"
             :title="track.label"
             @click="
               playbackManager.currentSubtitleTrack.value = track.srcIndex
             ">
             <template
-              v-if="track.srcIndex === playbackManager.currentSubtitleTrack.value?.Index"
+              v-if="track.srcIndex === (playbackManager.currentSubtitleTrack.value?.Index ?? -1)"
+              #prepend>
+              <JIcon class="i-mdi:check uno-w-10" />
+            </template>
+          </VListItem>
+          <VDivider />
+          <VListSubheader>Secondary Subtitle</VListSubheader>
+          <VListItem
+            v-for="track of tracks"
+            :key="`secondary-${track.srcIndex}`"
+            :title="track.label"
+            @click="
+              playbackManager.currentSecondarySubtitleTrack.value = track.srcIndex
+            ">
+            <template
+              v-if="track.srcIndex === (playbackManager.currentSecondarySubtitleTrack.value?.Index ?? -1)"
               #prepend>
               <JIcon class="i-mdi:check uno-w-10" />
             </template>
