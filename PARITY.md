@@ -285,9 +285,9 @@ Done when: a collection's contents are fully browsable.
 
 ### Dashboard home
 
-**`DASH-1` — Dashboard landing (server overview)** · Absent · seq 1 · new `pages/settings/dashboard.vue`. Done when: a server-overview landing exists.
-**`DASH-2` — Active sessions / devices live view** · Absent · seq 2 · depends: `DASH-1` · Done when: live sessions are listed.
-**`DASH-3` — Active transcodes monitor** · Absent · seq 3 · depends: `DASH-1` · Done when: running transcodes are shown.
+**`DASH-1` — Dashboard landing (server overview)** · Absent · `done` · seq 1 · new `pages/settings/dashboard.vue`. Done when: a server-overview landing exists.
+**`DASH-2` — Active sessions / devices live view** · Absent · `done` · seq 2 · depends: `DASH-1` · Done when: live sessions are listed.
+**`DASH-3` — Active transcodes monitor** · Absent · `done` · seq 3 · depends: `DASH-1` · Done when: running transcodes are shown.
 
 ### Server
 
