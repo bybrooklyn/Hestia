@@ -63,7 +63,7 @@ Done when: chapters appear as markers; hover shows the chapter name.
 Design: fetch server trickplay tiles; show a thumbnail on scrub-hover.
 Done when: scrubbing shows a preview image.
 
-**`VID-10` — Skip intro / credits (Media Segments)** · Absent · `not started` · seq 10 · depends: —
+**`VID-10` — Skip intro / credits (Media Segments API)** · Absent · `done` · seq 10 · depends: —
 Design: query the Media Segments API for the item; show a "Skip" button during segment ranges in `video.vue`.
 Done when: the skip button appears and seeks past the segment.
 

@@ -37,6 +37,17 @@
           </div>
         </div>
       </div>
+      <div
+        v-if="currentSegment"
+        class="skip-segment-container uno-absolute uno-bottom-40 uno-right-8 uno-z-50">
+        <VBtn
+          color="primary"
+          variant="elevated"
+          size="large"
+          @click.stop="skipSegment">
+          Skip {{ currentSegment.Type }}
+        </VBtn>
+      </div>
       <div class="pl-s pr-s osd-bottom pb-s">
         <div class="uno-p-4">
           <TimeSlider />
@@ -150,6 +161,24 @@ import { usePlayback } from '#/composables/use-playback.ts';
 defineOptions({
   beforeRouteEnter: playbackGuard
 });
+
+const currentSegment = computed(() => {
+  const timeInTicks = msToTicks(playbackManager.currentTime.value * 1000);
+
+  return playbackManager.currentSegments.value.find(
+    seg => timeInTicks >= Number(seg.StartTicks) && timeInTicks < Number(seg.EndTicks)
+  );
+});
+
+/**
+ * Skips the current media segment
+ */
+function skipSegment() {
+  if (currentSegment.value) {
+    // ticks to seconds
+    playbackManager.currentTime.value = Number(currentSegment.value.EndTicks) / 10_000_000;
+  }
+}
 
 const { fullscreen } = usePlayback();
 

@@ -262,6 +262,28 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
   }
   );
 
+  public readonly currentSegments = computedAsync(async () => {
+    const itemId = this.currentItemId.value;
+
+    if (!itemId) {
+      return [];
+    }
+
+    try {
+      const axios = remote.sdk.api?.axiosInstance;
+
+      if (!axios) {
+        return [];
+      }
+
+      const { data } = await axios.get('/MediaSegments', { params: { itemId } });
+
+      return (data?.Items ?? data ?? []) as Record<string, unknown>[];
+    } catch {
+      return [];
+    }
+  }, []);
+
   public readonly currentSourceUrl = computed(() =>
     this.getItemPlaybackUrl(this._currentPlaybackInfo.value?.MediaSources?.[0])
   );
@@ -613,10 +635,10 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
   };
 
   public readonly stop = (): void => {
-    const sessionId = String(this._state.value.playSessionId ?? '');
-    const time = Number(this.currentTime.value);
-    const itemId = String(this.currentItem.value?.Id ?? '');
-    const volume = Number(this.currentVolume.value);
+    const sessionId = this._state.value.playSessionId ?? '';
+    const time = this.currentTime.value;
+    const itemId = this.currentItem.value?.Id ?? '';
+    const volume = this.currentVolume.value;
 
     this._reset();
     this.currentVolume.value = volume;
