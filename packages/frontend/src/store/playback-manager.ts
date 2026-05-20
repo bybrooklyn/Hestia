@@ -18,12 +18,13 @@ import { getPlaystateApi } from '@jellyfin/sdk/lib/utils/api/playstate-api';
 import { getSessionApi } from '@jellyfin/sdk/lib/utils/api/session-api';
 import { getTvShowsApi } from '@jellyfin/sdk/lib/utils/api/tv-shows-api';
 import { computedAsync, watchThrottled } from '@vueuse/core';
-import { computed, watch, watchEffect } from 'vue';
+import { computed, shallowRef, watch, watchEffect } from 'vue';
 import { isNil, sealed } from '@jellyfin-vue/shared/validation';
 import i18next from 'i18next';
 import { useBaseItem } from '#/composables/apis.ts';
 import { useSnackbar } from '#/composables/use-snackbar.ts';
 import { remote } from '#/plugins/remote/index.ts';
+import { router } from '#/plugins/router/index.ts';
 import { apiStore } from '#/store/dbs/api/index.ts';
 import { getImageInfo } from '#/utils/images.ts';
 import { getItemRuntime } from '#/utils/items.ts';
@@ -102,6 +103,15 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
    * Amount of time to wait between playback reports
    */
   private readonly _progressReportInterval = 3500;
+  /**
+   * The route the user was on when `play()` was called — used by
+   * `composables/use-playback.ts` to return them there on stop instead of
+   * relying on `router.back()` (which rewinds *browser history*, often
+   * landing on whatever the AppBar last navigated to). Kept outside the
+   * reactive state object so `stop()` → `_reset()` doesn't clear it before
+   * the consumer reads it.
+   */
+  public readonly sourceRoute = shallowRef<string | undefined>(undefined);
   /**
    * == GETTERS AND SETTERS ==
    */
@@ -543,6 +553,18 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
     startShuffled?: boolean;
   }): Promise<void> => {
     try {
+      /**
+       * Record where the user was *before* starting playback so we can
+       * return them there on stop. Skip when called from a player route
+       * itself (e.g., switching tracks inside /playback/music) so we
+       * don't overwrite the legitimate source with a player route.
+       */
+      const currentPath = router.currentRoute.value.fullPath;
+
+      if (!currentPath.startsWith('/playback/')) {
+        this.sourceRoute.value = currentPath;
+      }
+
       if (this._state.value.status !== PlaybackStatus.Stopped) {
         this.stop();
       }

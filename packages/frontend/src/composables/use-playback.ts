@@ -11,7 +11,15 @@ import { playbackManager } from '#/store/playback-manager.ts';
 export function usePlayback() {
   watch(playbackManager.currentItem, () => {
     if (!playbackManager.currentItem.value) {
-      router.back();
+      /**
+       * Return the user to the page they were on when they pressed play.
+       * `router.back()` would rewind browser history one step, which on
+       * admin testing often lands on `/settings/dashboard` (or whatever
+       * the AppBar last navigated to) rather than the library/item page
+       * playback was triggered from. The source route is captured in
+       * `playbackManager.play()`.
+       */
+      void router.replace(playbackManager.sourceRoute.value ?? '/');
     }
   }, { flush: 'sync' });
 
