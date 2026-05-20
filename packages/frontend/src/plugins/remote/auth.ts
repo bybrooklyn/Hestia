@@ -110,7 +110,7 @@ class RemotePluginAuth extends BaseState<AuthState> {
   };
 
   private readonly _runCallbacks = async (callbacks: MaybePromise<void>[]) =>
-    await Promise.allSettled(callbacks.map(fn => fn()));
+    Promise.allSettled(callbacks.map(async fn => fn()));
 
   /**
    * Runs the passed function before logging out the user
@@ -355,12 +355,22 @@ class RemotePluginAuth extends BaseState<AuthState> {
       }),
       persistenceType: 'localStorage'
     });
+  }
 
+  /**
+   * Kick off the deferred startup fetches that were previously called from
+   * the constructor. Sonar (no-async-constructor) forbids async work in
+   * `constructor()`, so the singleton invokes this immediately after
+   * construction instead.
+   */
+  public readonly _bootstrap = (): void => {
     void this.refreshCurrentUserInfo();
     void this._refreshServers();
-  }
+  };
 }
 
 const RemotePluginAuthInstance = new RemotePluginAuth();
+
+RemotePluginAuthInstance._bootstrap();
 
 export default RemotePluginAuthInstance;

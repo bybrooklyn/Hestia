@@ -11,11 +11,6 @@
 <script lang="ts">
 import { reactive, computed } from 'vue';
 
-interface SnackbarState {
-  message: string;
-  color: string;
-}
-
 const state = reactive({
   message: '',
   color: ''

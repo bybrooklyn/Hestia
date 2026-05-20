@@ -1,8 +1,10 @@
 <template>
+  <!-- @vue-expect-error: dynamic `<Component :is>` is intentional here -->
   <Component
     :is="tag"
     ref="rootRef"
     :style="rootStyles">
+    <!-- @vue-expect-error: dynamic `<Component :is>` is intentional here -->
     <Component
       :is="probeTag"
       ref="probeRef"

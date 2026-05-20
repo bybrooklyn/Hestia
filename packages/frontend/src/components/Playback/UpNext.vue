@@ -82,7 +82,7 @@ const currentItemDuration = computed(
   () => playbackManager.currentItemRuntime.value / 1000
 );
 const currentItemTimeLeft = computed(() =>
-  Math.round(currentItemDuration.value - (playbackManager.currentTime.value || 0))
+  Math.round(currentItemDuration.value - (playbackManager.currentTime.value ?? 0))
 );
 const nextUpDuration = computed(() => {
   /**

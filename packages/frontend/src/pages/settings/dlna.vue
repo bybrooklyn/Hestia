@@ -75,7 +75,7 @@ const [{ data: dlnaRaw }, { data: users }] = await Promise.all([
   useApi(getUserApi, 'getUsers')()
 ]);
 
-const dlna = shallowRef<DlnaOptions>(dlnaRaw.value as unknown as DlnaOptions);
+const dlna = shallowRef<DlnaOptions>(dlnaRaw.value as DlnaOptions);
 
 const userItems = computed(() =>
   users.value.map(u => ({ title: u.Name ?? '', value: u.Id ?? '' }))

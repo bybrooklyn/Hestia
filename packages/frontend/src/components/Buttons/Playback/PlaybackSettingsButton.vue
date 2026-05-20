@@ -224,7 +224,7 @@ const maxStreamingBitrate = computed({
 });
 
 const mediaSources = computed(() =>
-  (playbackManager.currentItem.value?.MediaSources ?? []).map((source, index) => ({
+  (playbackManager.currentItem.value?.MediaSources ?? []).map((source, index: number) => ({
     title: source.Name ?? `${t('version')} ${index + 1}`,
     value: index
   }))
@@ -243,12 +243,18 @@ const fitModeItems = computed(() => [
 ]);
 
 const defaultPlaybackSpeeds = Object.freeze([0.5, 0.75, 1, 1.25, 1.5, 2]);
-const playbackItems = computed(() => defaultPlaybackSpeeds.map(speed => ({
+
+interface PlaybackSpeedItem {
+  title: string;
+  speed: number;
+}
+
+const playbackItems = computed<PlaybackSpeedItem[]>(() => defaultPlaybackSpeeds.map(speed => ({
   title: speed === 1 ? t('normal') : String(speed),
   speed
 })));
 
-type PlaybackSpeedValue = string | typeof playbackItems.value[number] | null;
+type PlaybackSpeedValue = string | PlaybackSpeedItem | null;
 
 const _playbackSpeed = shallowRef<PlaybackSpeedValue>();
 const playbackSpeed = computed({

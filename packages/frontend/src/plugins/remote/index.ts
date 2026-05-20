@@ -50,7 +50,7 @@ export function createPlugin(): {
           );
 
           return isNil(server);
-        }).reverse();
+        }).toReversed();
 
       for (const serverUrl of missingServers) {
         await auth.connectServer(serverUrl, true);

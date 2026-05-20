@@ -101,6 +101,7 @@ const defaultOps: () => BaseItemComposableOps = () => ({
  * @param loading - Ref to hold the loading state
  * @param global - Whether to start the global loading indicator or not
  */
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 function startLoading(loading: Ref<boolean | undefined> | undefined, global: boolean): void {
   if (!isNil(loading)) {
     loading.value = true;
@@ -116,6 +117,7 @@ function startLoading(loading: Ref<boolean | undefined> | undefined, global: boo
  * @param loading - Ref to hold the loading state
  * @param global - Whether to start the global loading indicator or not
  */
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 function stopLoading(loading: Ref<boolean | undefined> | undefined, global: boolean): void {
   if (!isNil(loading?.value)) {
     loading.value = false;
@@ -139,6 +141,7 @@ async function fetchAndAdd<T extends Record<K, (...args: any[]) => any>, K exten
   api: (api: Api) => T,
   methodName: K,
   ofBaseItem: boolean,
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   loading: Ref<boolean | undefined> | undefined,
   stringifiedArgs: string,
   ops: Required<ComposableOps>,
@@ -416,6 +419,7 @@ function _sharedInternalLogic<T extends Record<K, (...args: any[]) => any>, K ex
 
     if (argsRef.value && !onlyPending) {
       if (isConnectedToServer.value) {
+        // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
         const resolved = await fetchAndAdd(
           raw_api,
           raw_method,

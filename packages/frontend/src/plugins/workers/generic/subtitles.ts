@@ -77,7 +77,7 @@ export async function parseVttFile(src: string) {
         i++;
 
         while (i < vttLines.length && !vttLines[i].includes('-->')) {
-          text += vttLines[i] + '\n';
+          text += `${vttLines[i] ?? ''}\n`;
           i++;
         }
 

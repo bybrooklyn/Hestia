@@ -71,6 +71,7 @@ const activeIndex = computed(() => {
  * Track per-line DOM refs so the active line can be scrolled into view.
  * Vue's `:ref` binding hands us either an element or a component instance.
  */
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 function setLineRef(el: Element | ComponentPublicInstance | null, index: number): void {
   lineEls.value[index] = (el as HTMLElement | null) ?? undefined;
 }

@@ -184,15 +184,14 @@ const osd = shallowRef(true);
 const subtitleSelectionButtonOpened = shallowRef(false);
 const playbackSettingsButtonOpened = shallowRef(false);
 const playbackStats = shallowRef(false);
-const staticOverlay = computed(
-  () =>
-    playbackManager.isPaused.value
-    || subtitleSelectionButtonOpened.value
-    || playbackSettingsButtonOpened.value
-);
+const staticOverlay = computed(() => [
+  playbackManager.isPaused.value,
+  subtitleSelectionButtonOpened.value,
+  playbackSettingsButtonOpened.value
+].some(Boolean));
 
 const overlay = computed({
-  get: () => staticOverlay.value || osd.value,
+  get: () => [staticOverlay.value, osd.value].some(Boolean),
   set: newValue => (osd.value = newValue)
 });
 

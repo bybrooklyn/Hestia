@@ -14,7 +14,7 @@
 <script setup lang="ts">
 import { CardShapes } from '#/utils/items.ts';
 
-const { boilerplate, text, cardShape = CardShapes.Portrait } = defineProps<{
+const { cardShape = CardShapes.Portrait } = defineProps<{
   boilerplate?: boolean;
   text?: boolean;
   cardShape?: CardShapes;

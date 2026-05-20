@@ -59,8 +59,11 @@ import type { ImageApiSetItemImageRequest } from '@jellyfin/sdk/lib/generated-cl
 import type { ImageType } from '@jellyfin/sdk/lib/generated-client/models/image-type';
 import { computed, ref } from 'vue';
 import type { AxiosRequestConfig } from 'axios';
-import type { JFileUploadExpose } from '@jellyfin-vue/ui-toolkit/components';
 import { remote } from '#/plugins/remote/index.ts';
+
+interface JFileUploadExpose {
+  readSelectedFileAsBase64: () => Promise<string>;
+}
 import { useSnackbar } from '#/composables/use-snackbar.ts';
 
 const { isImageDialogVisible, itemId } = defineProps<{

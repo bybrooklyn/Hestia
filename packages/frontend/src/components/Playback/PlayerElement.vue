@@ -124,7 +124,7 @@ async function attachWebAudio(el: HTMLMediaElement): Promise<void> {
   context.value = new AudioContext();
   sourceNode.value = context.value.createMediaElementSource(el);
   delayNode.value = context.value.createDelay(10);
-  delayNode.value.delayTime.value = Math.max(0, (playbackManager.audioOffset.value || 0) / 1000);
+  delayNode.value.delayTime.value = Math.max(0, (playbackManager.audioOffset.value ?? 0) / 1000);
   await context.value.resume();
   sourceNode.value.connect(delayNode.value);
   delayNode.value.connect(context.value.destination);
@@ -132,7 +132,7 @@ async function attachWebAudio(el: HTMLMediaElement): Promise<void> {
 
 watch(() => playbackManager.audioOffset.value, (newOffset) => {
   if (mediaWebAudio.delayNode.value) {
-    mediaWebAudio.delayNode.value.delayTime.value = Math.max(0, (newOffset || 0) / 1000);
+    mediaWebAudio.delayNode.value.delayTime.value = Math.max(0, (newOffset ?? 0) / 1000);
   }
 });
 

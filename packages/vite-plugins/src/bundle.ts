@@ -17,7 +17,7 @@ const defaultConfig = { build: { outDir: 'dist' } };
  */
 export function JBundleAnalysis(): Plugin {
   let mode: LiteralUnion<'analyze:bundle' | 'analyze:cycles', string>;
-  const warnings: Rolldown.RolldownLog = [];
+  const warnings: Rolldown.RolldownLog[] = [];
 
   return {
     name: 'Jellyfin_Vue:bundle_analysis',

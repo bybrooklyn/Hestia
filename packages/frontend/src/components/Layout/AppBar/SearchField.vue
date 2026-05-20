@@ -6,7 +6,7 @@
     density="compact"
     hide-details
     single-line
-    @update:focused="onFocus">
+    @update:focused="focused => focused ? onFocus() : onBlur()">
     <template #prepend-inner>
       <JIcon
         class="i-mdi:magnify" />
@@ -37,13 +37,20 @@ const searchQuery = computed({
 });
 
 /**
- * Handle page redirects depending on the focus state of the component
+ * Push to the search page when the field is focused with an empty query.
  */
-async function onFocus(focused: boolean): Promise<void> {
-  if (!searchQuery.value && !focused && globalThis.history.length) {
-    router.back();
-  } else if (focused && !searchQuery.value) {
+async function onFocus(): Promise<void> {
+  if (!searchQuery.value) {
     await router.push({ path: '/search' });
+  }
+}
+
+/**
+ * Pop back to the previous route when the field loses focus with an empty query.
+ */
+function onBlur(): void {
+  if (!searchQuery.value && globalThis.history.length) {
+    router.back();
   }
 }
 </script>

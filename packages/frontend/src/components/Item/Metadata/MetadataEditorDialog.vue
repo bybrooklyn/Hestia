@@ -23,9 +23,3 @@ const emit = defineEmits<{
 const model = ref(true);
 
 </script>
-
-<style scoped>
-.metadata-dialog {
-  height: 60vh;
-}
-</style>

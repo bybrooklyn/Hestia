@@ -36,7 +36,7 @@
             block
             size="large"
             color="primary"
-            @click="onBrowseButtonClick">
+            v-on="{ click: onBrowseButtonClick }">
             {{ t('browseFiles') }}
           </VBtn>
         </div>
@@ -49,7 +49,7 @@
       variant="flat"
       size="large"
       color="primary"
-      @click="onBrowseButtonClick">
+      v-on="{ click: onBrowseButtonClick }">
       {{ buttonText ?? t('browseFiles') }}
     </VBtn>
 
@@ -80,7 +80,7 @@
         icon
         size="medium"
         class="uno-ml-auto"
-        @click="onClearButtonClick">
+        v-on="{ click: onClearButtonClick }">
         <JIcon class="i-mdi:delete uno-min-w-10" />
       </VBtn>
     </div>

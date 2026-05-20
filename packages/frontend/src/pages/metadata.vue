@@ -49,13 +49,13 @@ const initialItems = (
   };
 });
 
-const items = ref<ITreeNode[]>(initialItems);
+const _items = ref<ITreeNode[]>(initialItems);
 const itemId = ref<string>();
 
 /**
- * Fetch child items for the given tree node
+ * Fetch child items for the given tree node (used by the commented-out v-treeview above)
  */
-async function fetchChildItems(node: ITreeNode): Promise<void> {
+async function _fetchChildItems(node: ITreeNode): Promise<void> {
   if (!node.children) {
     throw new Error('expanding a node without children');
   }
@@ -88,9 +88,9 @@ async function fetchChildItems(node: ITreeNode): Promise<void> {
 }
 
 /**
- * Handles a tree item being expanded
+ * Handles a tree item being expanded (used by the commented-out v-treeview above)
  */
-function onExpandItems(ids: string[]): void {
+function _onExpandItems(ids: string[]): void {
   itemId.value = ids[0];
 }
 </script>

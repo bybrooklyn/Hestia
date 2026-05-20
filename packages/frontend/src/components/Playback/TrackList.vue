@@ -123,19 +123,9 @@ const { item, tracks } = defineProps<{
 }>();
 
 const tracksPerDisc = computed(() => Object.groupBy(tracks, ({ ParentIndexNumber }) => ParentIndexNumber!));
-const hasMultipleDiscs = computed(() => {
-  let loops = 0;
-
-  for (const _ in tracksPerDisc.value) {
-    loops++;
-
-    if (loops > 1) {
-      return true;
-    }
-  }
-
-  return false;
-});
+const hasMultipleDiscs = computed(
+  () => Object.keys(tracksPerDisc.value).length > 1
+);
 
 /**
  * Check if a given BaseItemDto is playing

@@ -45,7 +45,7 @@ const predicate = (d?: Dialogue) => {
     return false;
   }
 
-  const offsetSecs = (playbackManager.subtitleOffset.value || 0) / 1000;
+  const offsetSecs = (playbackManager.subtitleOffset.value ?? 0) / 1000;
 
   return (d.start + offsetSecs) <= playbackManager.currentTime.value && (d.end + offsetSecs) >= playbackManager.currentTime.value;
 };
@@ -60,7 +60,7 @@ const dialogue = computed(() =>
     ? playerElement.currentSecondaryExternalSubtitleTrack.value?.parsed?.dialogue
     : playerElement.currentExternalSubtitleTrack.value?.parsed?.dialogue
 );
-const currentSubtitle = computed<{ index: number; sub?: Dialogue } | undefined>((previous) => {
+const currentSubtitle = computed<{ index: number; sub?: Dialogue } | undefined>((previous: { index: number; sub?: Dialogue } | undefined) => {
   if (!isNil(dialogue.value)) {
     const hasPrevious = !isNil(previous);
     const nextIndex = hasPrevious ? previous.index + 1 : 0;

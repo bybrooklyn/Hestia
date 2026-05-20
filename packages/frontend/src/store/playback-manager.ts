@@ -372,20 +372,24 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
   );
 
   private readonly _previousItemIndex = computed(() => {
-    if (this.isRepeatingAll.value && this._state.value.currentItemIndex === 0) {
+    const idx: number | undefined = this._state.value.currentItemIndex;
+
+    if (this.isRepeatingAll.value && idx === 0) {
       return this.queueLength.value - 1;
-    } else if (!isNil(this._state.value.currentItemIndex)) {
-      return this._state.value.currentItemIndex - 1;
+    } else if (!isNil(idx)) {
+      return idx - 1;
     }
   });
 
   public readonly previousItem = computed(() => this.queue.value[this._previousItemIndex.value ?? -1]);
 
   private readonly _nextItemIndex = computed(() => {
-    if (this.isRepeatingAll.value && this._state.value.currentItemIndex === this.queueLength.value - 1) {
+    const idx: number | undefined = this._state.value.currentItemIndex;
+
+    if (this.isRepeatingAll.value && idx === this.queueLength.value - 1) {
       return 0;
-    } else if (!isNil(this._state.value.currentItemIndex)) {
-      return this._state.value.currentItemIndex + 1;
+    } else if (!isNil(idx)) {
+      return idx + 1;
     }
   });
 
@@ -489,7 +493,7 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
       playbackStopInfo: {
         ItemId: itemId,
         PlaySessionId: sessionId,
-        PositionTicks: msToTicks((currentTime || 0) * 1000)
+        PositionTicks: msToTicks((currentTime ?? 0) * 1000)
       }
     });
   };
@@ -610,7 +614,9 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
   public readonly playNext = async (item: BaseItemDto): Promise<void> => {
     const translatedItem = await this.translateItemsForPlayback(item);
 
-    if (!isNil(this.currentItemIndex.value)) {
+    const idx: number | undefined = this.currentItemIndex.value;
+
+    if (!isNil(idx)) {
       /**
        * Removes the elements that already exists and append the new ones next to the currently playing item
        */
@@ -618,7 +624,7 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
         index => !translatedItem.includes(index)
       );
 
-      newQueue.splice(this.currentItemIndex.value + 1, 0, ...translatedItem);
+      newQueue.splice(idx + 1, 0, ...translatedItem);
       this.setNewQueue(newQueue);
     }
   };
@@ -705,29 +711,36 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
    * Seek forward 15 seconds
    */
   public readonly skipForward = (): void => {
-    this.currentTime.value = (this.currentTime.value || 0) + 15;
+    const t: number = this.currentTime.value ?? 0;
+
+    this.currentTime.value = t + 15;
   };
 
   /**
    * Seek backwards 15 seconds
    */
   public readonly skipBackward = (): void => {
-    this.currentTime.value
-      = (this.currentTime.value || 0) > 15 ? (this.currentTime.value || 0) - 15 : 0;
+    const t: number = this.currentTime.value ?? 0;
+
+    this.currentTime.value = t > 15 ? t - 15 : 0;
   };
 
   /**
    * Increase volume by 5
    */
   public readonly volumeUp = (): void => {
-    this.currentVolume.value = this.currentVolume.value + 5;
+    const v: number = this.currentVolume.value ?? 0;
+
+    this.currentVolume.value = v + 5;
   };
 
   /**
    * Decrease volume by 5
    */
   public readonly volumeDown = (): void => {
-    this.currentVolume.value = this.currentVolume.value - 5;
+    const v: number = this.currentVolume.value ?? 0;
+
+    this.currentVolume.value = v - 5;
   };
 
   public readonly toggleShuffle = async (preserveCurrentItem = true): Promise<void> => {

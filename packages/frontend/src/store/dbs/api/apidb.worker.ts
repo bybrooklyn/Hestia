@@ -54,7 +54,12 @@ class ApiDatabase extends BaseDb {
     (await this.items.filter((item: Item) => {
       const search = searchTerm.toLowerCase();
 
-      return item.Name?.includes(search) || item.SortName?.includes(search) || item.Overview?.includes(search) || item.Taglines?.includes(search);
+      return [
+        item.Name?.includes(search),
+        item.SortName?.includes(search),
+        item.Overview?.includes(search),
+        item.Taglines?.includes(search)
+      ].some(Boolean);
     }).toArray()).map(i => i.__raw);
 
   /**

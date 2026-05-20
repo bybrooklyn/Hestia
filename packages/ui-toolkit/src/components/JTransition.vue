@@ -23,7 +23,7 @@
       $attrs.onLeaveCancelled?.(...args);
     }">
     <!-- Transition only supports a single child, so we handle a possible misuse here wrapping if necessary -->
-    <span v-if="$slots.default?.({})?.length > 1 && !group">
+    <span v-if="($slots.default?.({})?.length ?? 0) > 1 && !group">
       <slot />
     </span>
     <slot v-else />

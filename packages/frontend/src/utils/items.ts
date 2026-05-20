@@ -257,7 +257,7 @@ export function canMarkWatched(item: BaseItemDto): boolean {
     return true;
   }
 
-  return !!(item.MediaType === 'Video' && item.Type !== 'TvChannel');
+  return item.MediaType === 'Video' && item.Type !== 'TvChannel';
 }
 
 /**

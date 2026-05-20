@@ -138,7 +138,13 @@ const refreshDialog = shallowRef(false);
 const identifyItemDialog = shallowRef(false);
 const mediaInfoDialog = shallowRef(false);
 
-const isActive = computed(() => show.value || metadataDialog.value || refreshDialog.value || identifyItemDialog.value || mediaInfoDialog.value);
+const isActive = computed(() => [
+  show.value,
+  metadataDialog.value,
+  refreshDialog.value,
+  identifyItemDialog.value,
+  mediaInfoDialog.value
+].some(Boolean));
 
 watch(isActive, newVal =>
   emit(newVal ? 'active' : 'inactive')

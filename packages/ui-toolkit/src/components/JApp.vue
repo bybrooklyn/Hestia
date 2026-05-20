@@ -3,6 +3,7 @@
     to="head"
     defer>
     <!-- eslint-disable vue/require-component-is vue/html-indent -->
+    <!-- @vue-expect-error: dynamic <component is="style"> tag is intentional -->
     <component
       is="style"
       data-jellyfin-css-vars>

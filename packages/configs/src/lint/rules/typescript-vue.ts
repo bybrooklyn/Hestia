@@ -139,7 +139,14 @@ const common = () => defineConfig([
     }
   },
   {
-    ...sonarjs.configs.recommended,
+    /**
+     * `sonarjs.configs.recommended` is itself an ESLint flat config (an
+     * array of config blocks). Spread it untyped to keep the typed-lint
+     * `no-misused-spread` rule from rejecting the otherwise-standard
+     * flat-config pattern.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-misused-spread
+    ...sonarjs.configs!.recommended,
     name: '(@jellyfin-vue/configs/lint/typescript-vue - sonarcloud) Extended config from plugin'
   },
   {
@@ -168,7 +175,39 @@ const common = () => defineConfig([
       'sonarjs/cognitive-complexity': 'off',
       'sonarjs/no-duplicated-branches': 'off',
       'sonarjs/deprecation': 'off',
-      '@typescript-eslint/no-deprecated': 'off'
+      '@typescript-eslint/no-deprecated': 'off',
+      /**
+       * The profile generators contain `if (browser.X)` guards whose
+       * narrowing always resolves truthy under the typed-lint resolver,
+       * and a handful of `!!(...)` coercions that the rule flags as
+       * redundant. Both are deliberate defensive patterns in this
+       * module, which is slated for removal once `MediaCapabilities`
+       * lands; mute them here rather than touch generated-style code.
+       */
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+      '@typescript-eslint/no-unnecessary-type-conversion': 'off'
+    }
+  },
+  {
+    /**
+     * `@jellyfin/sdk` is built on axios and exposes its `Api.axiosInstance`
+     * as the only supported HTTP client. The frontend's `remote` plugin
+     * and any direct consumers of that instance have to import the
+     * axios type/value to interop with the SDK — there is no fetch
+     * alternative here. Mute the ban for the touch-points that exist
+     * solely to satisfy the SDK's interface.
+     */
+    name: '(@jellyfin-vue/configs/lint/typescript-vue - depend) Allow axios where the SDK requires it',
+    files: [
+      '**/plugins/remote/**',
+      '**/composables/apis.ts',
+      '**/components/Item/Metadata/MetadataEditor.vue',
+      '**/components/Item/Metadata/UploadImageDialog.vue',
+      '**/pages/settings/account.vue',
+      '**/plugins/workers/generic/subtitles.ts'
+    ],
+    rules: {
+      'depend/ban-dependencies': 'off'
     }
   }
 ]);

@@ -141,7 +141,7 @@ const { data } = await useApi(getConfigurationApi, 'getNamedConfiguration')(() =
   key: 'network'
 }));
 const net = shallowRef<NetworkConfiguration>(
-  data.value as unknown as NetworkConfiguration
+  data.value as NetworkConfiguration
 );
 
 /**

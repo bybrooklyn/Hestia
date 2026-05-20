@@ -27,7 +27,7 @@ import { getUserImageUrl } from '#/utils/images.ts';
  * It also can't be passed as a prop, it needs to not specify a prop for it to work properly
  * in AppBar's button.
  */
-const { user, size = 64, rounded } = defineProps<{
+const { user, size = 64 } = defineProps<{
   user?: UserDto;
   size?: number;
   rounded?: boolean;

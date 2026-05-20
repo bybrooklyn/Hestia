@@ -106,8 +106,8 @@ import { remote } from '#/plugins/remote/index.ts';
 const { t } = useTranslation();
 const router = useRouter();
 
-const wizardStage = ref(1);
-const maxWizardStage = ref(1);
+const wizardStage = ref<number>(1);
+const maxWizardStage = ref<number>(1);
 
 /**
  * Completes server setup
@@ -131,10 +131,12 @@ async function completeWizard(): Promise<void> {
  * Change wizard step forward
  */
 async function nextStep(): Promise<void> {
-  if (wizardStage.value === 4) {
+  const current: number = wizardStage.value;
+
+  if (current === 4) {
     await completeWizard();
   } else {
-    wizardStage.value += 1;
+    wizardStage.value = current + 1;
   }
 
   // This allows the return to previous steps, but not going forward past incomplete steps

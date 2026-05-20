@@ -214,14 +214,14 @@ const { loading, data: items } = await useBaseItem(api, method)(() => ({
   genres: filters.value.genres,
   years: filters.value.years,
   officialRatings: filters.value.ratings,
-  hasSubtitles: filters.value.features.includes('HasSubtitles') || undefined,
-  hasTrailer: filters.value.features.includes('HasTrailer') || undefined,
-  hasSpecialFeature: filters.value.features.includes('HasSpecialFeature') || undefined,
-  hasThemeSong: filters.value.features.includes('HasThemeSong') || undefined,
-  hasThemeVideo: filters.value.features.includes('HasThemeVideo') || undefined,
-  isHd: filters.value.types.includes('isHD') || undefined,
-  is4K: filters.value.types.includes('is4K') || undefined,
-  is3D: filters.value.types.includes('is3D') || undefined,
+  hasSubtitles: filters.value.features.includes('HasSubtitles') ? true : undefined,
+  hasTrailer: filters.value.features.includes('HasTrailer') ? true : undefined,
+  hasSpecialFeature: filters.value.features.includes('HasSpecialFeature') ? true : undefined,
+  hasThemeSong: filters.value.features.includes('HasThemeSong') ? true : undefined,
+  hasThemeVideo: filters.value.features.includes('HasThemeVideo') ? true : undefined,
+  isHd: filters.value.types.includes('isHD') ? true : undefined,
+  is4K: filters.value.types.includes('is4K') ? true : undefined,
+  is3D: filters.value.types.includes('is3D') ? true : undefined,
   limit: queryLimit.value
 }));
 
@@ -234,18 +234,3 @@ onBeforeMount(() => {
   queryLimit.value = undefined;
 });
 </script>
-
-<style scoped>
-.empty-card-container {
-  max-height: 90vh;
-  overflow: hidden;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
-}
-
-.empty-message {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-</style>

@@ -83,6 +83,7 @@ const { src, alt, once, transitionProps = true } = defineProps<{
    *
    * @default true
    */
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   transitionProps?: JTransitionProps | boolean;
 }>();
 

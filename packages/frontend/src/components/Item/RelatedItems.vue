@@ -46,20 +46,3 @@ const { relatedItems, vertical } = defineProps<{
 
 const { t } = useTranslation();
 </script>
-
-<style scoped>
-.header span {
-  padding-left: 0.25em;
-}
-
-.header::before {
-  background-color: white;
-  content: '';
-  position: relative;
-  display: inline-block;
-  height: 1px;
-  bottom: 0.3em;
-  left: 0;
-  width: 1.25em;
-}
-</style>

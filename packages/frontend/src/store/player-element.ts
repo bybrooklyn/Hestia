@@ -127,7 +127,7 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
   public readonly currentExternalSubtitleTrack = computedAsync(async () => {
     const el = this.currentItemExternalParsedSubtitleTracks.value?.find(
       sub => sub.srcIndex === playbackManager.currentSubtitleTrack.value?.Index
-    ) as SubtitleExternalTrack;
+    ) as SubtitleExternalTrack | undefined;
 
     if (this._useCustomSubtitleTrack.value && el && !el.parsed) {
       const data = await runGenericWorkerFunc('parseVttFile')(el.src);
@@ -141,7 +141,7 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
   public readonly currentSecondaryExternalSubtitleTrack = computedAsync(async () => {
     const el = this.currentItemExternalParsedSubtitleTracks.value?.find(
       sub => sub.srcIndex === playbackManager.currentSecondarySubtitleTrack.value?.Index
-    ) as SubtitleExternalTrack;
+    ) as SubtitleExternalTrack | undefined;
 
     if (this._useCustomSubtitleTrack.value && el && !el.parsed) {
       const data = await runGenericWorkerFunc('parseVttFile')(el.src);
@@ -229,7 +229,7 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
           mediaElementRef.value,
           {
             resampling: 'video_width',
-            timeOffset: (playbackManager.subtitleOffset.value || 0) / 1000
+            timeOffset: (playbackManager.subtitleOffset.value ?? 0) / 1000
           }
         );
 
@@ -373,7 +373,7 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
 
     watch(() => playbackManager.subtitleOffset.value, (newOffset) => {
       if (this._asssub) {
-        this._asssub.timeOffset = (newOffset || 0) / 1000;
+        this._asssub.timeOffset = (newOffset ?? 0) / 1000;
       }
     });
   }
