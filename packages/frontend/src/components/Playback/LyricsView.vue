@@ -10,7 +10,7 @@
         :key="index"
         :ref="el => setLineRef(el, index)"
         role="listitem"
-        :data-active="index === activeIndex"
+        :data-active="String(index === activeIndex)"
         class="lyrics-line uno-w-full uno-text-center uno-py-2 uno-px-4"
         @click="seekTo(line)">
         {{ line.text }}
