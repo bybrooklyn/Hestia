@@ -38,6 +38,12 @@ export function useAdminSections(): ComputedRef<AdminSection[]> {
         link: '/settings/server'
       },
       {
+        icon: 'i-mdi:archive',
+        name: t('backups'),
+        description: t('backupsSettingsDescription'),
+        link: '/settings/backups'
+      },
+      {
         icon: 'i-mdi:devices',
         name: t('devices'),
         description: t('devicesSettingsDescription'),
