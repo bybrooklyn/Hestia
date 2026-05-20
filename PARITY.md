@@ -51,7 +51,7 @@ Done when: overlay shows live bitrate, codec, buffer, dropped frames.
 Design: new overlay shown when `isPaused && isVideo` — title, overview, progress, "ends at"; gated behind an Experimental toggle (owner preference).
 Done when: pausing shows the overlay; the toggle disables it.
 
-**`VID-7` — In-player media source / version switch** · Absent · `not started` · seq 7 · depends: —
+**`VID-7` — In-player media source / version switch** · Absent · `done` · seq 7 · depends: —
 Design: add a source `<VSelect>` to `PlaybackSettingsButton.vue` bound to the `playback-manager` source index (reuses the seamless-reload path).
 Done when: switching version mid-playback reloads at the current time.
 

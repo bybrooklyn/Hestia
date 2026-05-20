@@ -13,6 +13,22 @@
         location="top">
         <VCard min-width="300">
           <VCardText>
+            <VRow
+              v-if="mediaSources.length > 1"
+              align="center">
+              <VCol :cols="4">
+                <label>{{ $t('version') }}</label>
+              </VCol>
+              <VCol :cols="8">
+                <VSelect
+                  v-model="mediaSourceIndex"
+                  density="comfortable"
+                  :items="mediaSources"
+                  item-title="title"
+                  item-value="value"
+                  hide-details />
+              </VCol>
+            </VRow>
             <VRow align="center">
               <VCol :cols="4">
                 <label>{{ $t('quality') }}</label>
@@ -121,6 +137,19 @@ const maxStreamingBitrate = computed({
   get: () => playbackManager.maxStreamingBitrate.value ?? 0,
   set: (val: number) => {
     playbackManager.maxStreamingBitrate.value = val || undefined;
+  }
+});
+
+const mediaSources = computed(() =>
+  (playbackManager.currentItem.value?.MediaSources ?? []).map((source, index) => ({
+    title: source.Name ?? `${t('version')} ${index + 1}`,
+    value: index
+  }))
+);
+const mediaSourceIndex = computed({
+  get: () => playbackManager.currentMediaSourceIndex.value ?? 0,
+  set: (val: number) => {
+    playbackManager.currentMediaSourceIndex.value = val;
   }
 });
 

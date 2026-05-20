@@ -147,7 +147,13 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
     this.queue.value[this.currentItemIndex.value ?? -1]
   );
 
-  public readonly currentMediaSourceIndex = computed(() => this._state.value.mediaSourceIndexes.source);
+  public readonly currentMediaSourceIndex = computed({
+    get: () => this._state.value.mediaSourceIndexes.source,
+    set: (newIndex: number | undefined) => {
+      this._state.value.mediaSourceIndexes.source = newIndex;
+    }
+  });
+
   public readonly currentMediaSource = computed(() => this.currentItem.value?.MediaSources?.[this.currentMediaSourceIndex.value ?? 0]);
   public readonly currentVideoTrack = computed({
     get: () => {
