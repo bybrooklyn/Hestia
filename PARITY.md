@@ -83,13 +83,37 @@ Done when: two subtitle tracks render simultaneously.
 Design: touch handlers in `video.vue` for seek / volume / brightness.
 Done when: gestures work on a touch device.
 
+**`VID-15` — Previous / next track buttons in the OSD** · Absent · `not started` · seq 15 · depends: —
+Design: wire existing `playbackManager.setPreviousItem` / `setNextItem` to two new OSD buttons in `pages/playback/video.vue`. The keys (`Shift+P` / `Shift+N`) already work via `use-playback.ts`.
+Done when: both buttons appear in the OSD and behave like the keys.
+
+**`VID-16` — Previous / next chapter buttons in the OSD** · Absent · `not started` · seq 16 · depends: `VID-8`
+Design: jump to `item.Chapters[i].StartPositionTicks` relative to current time; reuse the chapter list already consumed by `VID-8`'s scrubber markers (`TimeSlider.vue`). Add two buttons to `video.vue`.
+Done when: chapter-skip buttons jump cleanly forward / back.
+
+**`VID-17` — Rewind / fast-forward buttons** · Absent · `not started` · seq 17 · depends: —
+Design: visible counterparts to the existing `J` / `L` keys (±15 s), wired to `playbackManager.skipForward` / `skipBackward`.
+Done when: both buttons appear in the OSD and skip ±15 s.
+
+**`VID-18` — End-at clock + position counter in the scrubber row** · Absent · `not started` · seq 18 · depends: —
+Design: jellyfin-web shows an "Ends at HH:MM" clock and a standalone running-position counter alongside the slider. Compute end-at from `Date.now() + (runtime - currentTime)`; we already render start / end on the slider.
+Done when: the clock + counter render and update with playback.
+
+**`VID-19` — Standalone mute button in the OSD** · Absent · `not started` · seq 19 · depends: —
+Design: separate mute toggle next to the volume slider, calling `playbackManager.toggleMute`. The slider works today but there's no quick-mute affordance.
+Done when: clicking the mute button toggles audio off and back on.
+
+**`VID-20` — User-rating button in the OSD** · Absent · `not started` · seq 20 · depends: —
+Design: reuse the existing `LikeButton` (already used in `music.vue`) inside the video OSD so the user can favourite while watching.
+Done when: the button appears, reflects current state, and toggles favourite on click.
+
 ### Music
 
-**`MUS-1` — Synced lyrics view** · Absent · `done` · seq 15 · depends: —
+**`MUS-1` — Synced lyrics view** · Absent · `done` · seq 21 · depends: —
 Design: fetch lyrics via the SDK lyrics API; render a synced view in `music.vue`. (Verified: 0 lyric references in jellyfin-vue.)
 Done when: lyrics display and follow playback position.
 
-**`MUS-2` — Music quality / bitrate selector** · Absent · `done` · seq 16 · depends: `VID-1`
+**`MUS-2` — Music quality / bitrate selector** · Absent · `done` · seq 22 · depends: `VID-1`
 Design: reuse the `maxStreamingBitrate` mechanism for audio playback.
 Done when: audio streaming quality is selectable.
 
@@ -97,11 +121,11 @@ Done when: audio streaming quality is selectable.
 
 ### Queue
 
-**`QUE-1` — Save current queue as a playlist** · Surfaced · `done` · seq 17 · depends: —
+**`QUE-1` — Save current queue as a playlist** · Surfaced · `done` · seq 23 · depends: —
 Design: enable the disabled button in `QueueButton.vue`; call the SDK playlists API `createPlaylist` with the queue item ids.
 Done when: the queue becomes a server playlist.
 
-**`QUE-2` — Accurate "Playing from …" source text** · Surfaced · `done` · seq 18 · depends: —
+**`QUE-2` — Accurate "Playing from …" source text** · Surfaced · `done` · seq 24 · depends: —
 Design: fix `sourceText` in `QueueButton.vue` (the existing TODO; search is now confirmed functional, so it no longer blocks this).
 Done when: the queue header shows the correct source.
 
