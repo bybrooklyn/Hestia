@@ -55,7 +55,7 @@ Done when: pausing shows the overlay; the toggle disables it.
 Design: add a source `<VSelect>` to `PlaybackSettingsButton.vue` bound to the `playback-manager` source index (reuses the seamless-reload path).
 Done when: switching version mid-playback reloads at the current time.
 
-**`VID-8` — Chapter markers on the scrubber** · Absent · `not started` · seq 8 · depends: —
+**`VID-8` — Chapter markers on the scrubber** · Absent · `done` · seq 8 · depends: —
 Design: read `item.Chapters`; render ticks on the time slider (`<TimeSlider>`).
 Done when: chapters appear as markers; hover shows the chapter name.
 
