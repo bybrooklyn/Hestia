@@ -456,5 +456,15 @@
   "lyrics": "Lyrics",
   "noLyricsFound": "No lyrics found",
   "playlistCreated": "Saved playlist \"{{item}}\"",
-  "playlistCreateFailed": "Could not save the playlist"
+  "playlistCreateFailed": "Could not save the playlist",
+  "dashboard": "Dashboard",
+  "dashboardSettingsDescription": "Server overview and live activity",
+  "serverOverview": "Server overview",
+  "operatingSystem": "Operating system",
+  "architecture": "Architecture",
+  "logPath": "Log path",
+  "transcodePath": "Transcode path",
+  "webClientPath": "Web client path",
+  "updateAvailable": "An update is available",
+  "restartPending": "A restart is pending"
 }

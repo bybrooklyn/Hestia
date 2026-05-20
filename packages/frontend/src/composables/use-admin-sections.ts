@@ -26,6 +26,12 @@ export function useAdminSections(): ComputedRef<AdminSection[]> {
   return computed<AdminSection[]>(() => [
     [
       {
+        icon: 'i-mdi:view-dashboard',
+        name: t('dashboard'),
+        description: t('dashboardSettingsDescription'),
+        link: '/settings/dashboard'
+      },
+      {
         icon: 'i-mdi:server',
         name: t('server'),
         description: t('serverSettingsDescription'),
