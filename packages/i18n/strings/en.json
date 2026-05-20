@@ -452,5 +452,7 @@
   "transcoding": "Transcoding",
   "playbackStats": "Playback stats",
   "droppedFrames": "Dropped frames",
-  "bufferHealth": "Buffer"
+  "bufferHealth": "Buffer",
+  "lyrics": "Lyrics",
+  "noLyricsFound": "No lyrics found"
 }

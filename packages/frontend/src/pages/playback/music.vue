@@ -7,16 +7,20 @@
         </template>
       </AppBarButtonLayout>
       <VSpacer />
-      <AppBarButtonLayout @click="isVisualizing = !isVisualizing">
+      <AppBarButtonLayout
+        v-for="opt in viewModes"
+        :key="opt.value"
+        :class="{ 'view-mode-active': viewMode === opt.value }"
+        @click="viewMode = opt.value">
         <template #icon>
-          <JIcon :class="isVisualizing ? 'i-dashicons:album' : 'i-mdi:chart-bar'" />
+          <JIcon :class="opt.icon" />
         </template>
       </AppBarButtonLayout>
     </VAppBar>
     <VCol class="uno-px-0">
       <JTransition mode="out-in">
         <Swiper
-          v-if="!isVisualizing"
+          v-if="viewMode === 'cover'"
           class="uno-flex uno-select-none uno-items-center uno-justify-center"
           :modules="modules"
           :slides-per-view="4"
@@ -39,8 +43,11 @@
           </SwiperSlide>
         </Swiper>
         <MusicVisualizer
-          v-else
+          v-else-if="viewMode === 'visualizer'"
           class="presentation-height uno-flex uno-select-none uno-items-center uno-justify-center" />
+        <LyricsView
+          v-else
+          class="presentation-height" />
       </JTransition>
       <VRow class="uno-mt-3 uno-items-center uno-justify-center">
         <VCol cols="6">
@@ -122,7 +129,13 @@ const coverflowEffect = {
   stretch: -400
 };
 
-const isVisualizing = shallowRef(false);
+type ViewMode = 'cover' | 'visualizer' | 'lyrics';
+const viewModes: { value: ViewMode; icon: string }[] = [
+  { value: 'cover', icon: 'i-dashicons:album' },
+  { value: 'visualizer', icon: 'i-mdi:chart-bar' },
+  { value: 'lyrics', icon: 'i-mdi:script-text-outline' }
+];
+const viewMode = shallowRef<ViewMode>('cover');
 const artistString = computed(() =>
   playbackManager.currentItem.value?.Artists?.join(', ')
 );
@@ -164,5 +177,9 @@ function onSlideChange(): void {
 
 .presentation-height {
   height: 65vh;
+}
+
+.view-mode-active :deep(.j-icon) {
+  color: rgb(var(--j-theme-color-primary));
 }
 </style>

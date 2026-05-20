@@ -62,6 +62,7 @@ declare module 'vue' {
     LoadingIndicator: typeof import('./../../src/components/System/LoadingIndicator.vue')['default']
     LocaleSwitcher: typeof import('./../../src/components/System/LocaleSwitcher.vue')['default']
     LoginForm: typeof import('./../../src/components/Forms/LoginForm.vue')['default']
+    LyricsView: typeof import('./../../src/components/Playback/LyricsView.vue')['default']
     MainView: typeof import('./../../src/components/Layout/MainView.vue')['default']
     MarkPlayedButton: typeof import('./../../src/components/Buttons/MarkPlayedButton.vue')['default']
     MediaDetailAttr: typeof import('./../../src/components/Item/MediaDetail/MediaDetailAttr.vue')['default']
