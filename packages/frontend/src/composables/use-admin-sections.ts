@@ -113,7 +113,7 @@ export function useAdminSections(): ComputedRef<AdminSection[]> {
         icon: 'i-mdi:bell',
         name: t('notifications'),
         description: t('notificationsSettingsDescription'),
-        link: undefined
+        link: '/settings/notifications'
       },
       {
         icon: 'i-mdi:text-box',

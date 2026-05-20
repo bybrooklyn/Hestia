@@ -495,5 +495,12 @@
   "trickplay": "Trickplay",
   "contents": "Contents",
   "actions": "Actions",
-  "restore": "Restore"
+  "restore": "Restore",
+  "notificationServices": "Notification services",
+  "noNotificationServices": "No notification services are installed. Install a plugin to enable notifications.",
+  "notificationTypes": "Notification types",
+  "noNotificationTypes": "No notification types are registered.",
+  "notificationsPluginHint": "Notification services come from server plugins. Install a plugin to deliver notifications via email, webhooks, etc.",
+  "category": "Category",
+  "enabled": "Enabled"
 }
