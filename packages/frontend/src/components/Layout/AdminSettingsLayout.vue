@@ -45,7 +45,7 @@
             {{ $t('settings') }}
           </VBtn>
         </div>
-        <SettingsPage>
+        <SettingsPage fluid>
           <template
             v-if="$slots.title"
             #title>

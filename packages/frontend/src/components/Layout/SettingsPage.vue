@@ -1,5 +1,5 @@
 <template>
-  <VContainer>
+  <VContainer :fluid="fluid">
     <VRow v-if="$slots.title">
       <VCol>
         <VRow class="mb-2 mt-4 mx-0 justify-space-between">
@@ -22,6 +22,17 @@
 import { useSlots, computed } from 'vue';
 import { isStr } from '@jellyfin-vue/shared/validation';
 import { usePageTitle } from '#/composables/page-title.ts';
+
+/**
+ * When `fluid` is true the underlying `VContainer` drops its centred
+ * max-width and spans the full available width. Defaults to `false` so
+ * the existing personal-settings pages remain centred; `AdminSettingsLayout`
+ * passes `:fluid="true"` so admin pages span the full width to the right
+ * of the persistent sidebar.
+ */
+const { fluid = false } = defineProps<{
+  fluid?: boolean;
+}>();
 
 const slots = useSlots();
 const pageTitle = computed(() => {
