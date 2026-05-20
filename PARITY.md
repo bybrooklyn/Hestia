@@ -79,17 +79,17 @@ Done when: offsets visibly shift sync.
 Design: allow a second active track in `player-element.ts` rendering.
 Done when: two subtitle tracks render simultaneously.
 
-**`VID-14` — Mobile gesture controls** · Absent · `not started` · seq 14 · depends: —
+**`VID-14` — Mobile gesture controls** · Absent · `done` · seq 14 · depends: —
 Design: touch handlers in `video.vue` for seek / volume / brightness.
 Done when: gestures work on a touch device.
 
 ### Music
 
-**`MUS-1` — Synced lyrics view** · Absent · `not started` · seq 15 · depends: —
+**`MUS-1` — Synced lyrics view** · Absent · `done` · seq 15 · depends: —
 Design: fetch lyrics via the SDK lyrics API; render a synced view in `music.vue`. (Verified: 0 lyric references in jellyfin-vue.)
 Done when: lyrics display and follow playback position.
 
-**`MUS-2` — Music quality / bitrate selector** · Absent · `not started` · seq 16 · depends: `VID-1`
+**`MUS-2` — Music quality / bitrate selector** · Absent · `done` · seq 16 · depends: `VID-1`
 Design: reuse the `maxStreamingBitrate` mechanism for audio playback.
 Done when: audio streaming quality is selectable.
 
@@ -97,11 +97,11 @@ Done when: audio streaming quality is selectable.
 
 ### Queue
 
-**`QUE-1` — Save current queue as a playlist** · Surfaced · `not started` · seq 17 · depends: —
+**`QUE-1` — Save current queue as a playlist** · Surfaced · `done` · seq 17 · depends: —
 Design: enable the disabled button in `QueueButton.vue`; call the SDK playlists API `createPlaylist` with the queue item ids.
 Done when: the queue becomes a server playlist.
 
-**`QUE-2` — Accurate "Playing from …" source text** · Surfaced · `not started` · seq 18 · depends: —
+**`QUE-2` — Accurate "Playing from …" source text** · Surfaced · `done` · seq 18 · depends: —
 Design: fix `sourceText` in `QueueButton.vue` (the existing TODO; search is now confirmed functional, so it no longer blocks this).
 Done when: the queue header shows the correct source.
 
