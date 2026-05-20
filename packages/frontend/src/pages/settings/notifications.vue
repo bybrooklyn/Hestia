@@ -78,22 +78,24 @@ meta:
 </route>
 
 <script setup lang="ts">
-import type { Api } from '@jellyfin/sdk';
-import { NotificationsApi } from '@jellyfin/sdk/lib/generated-client/api/notifications-api';
+import type { NameIdPair } from '@jellyfin/sdk/lib/generated-client';
+import type { NotificationTypeInfo } from '@jellyfin/sdk/lib/generated-client/models/notification-type-info';
 import { useTranslation } from 'i18next-vue';
 import { remote } from '#/plugins/remote/index.ts';
 
 const { t } = useTranslation();
 
-const getNotificationsApi = (api: Api): NotificationsApi =>
-  new NotificationsApi(api.configuration, undefined, api.axiosInstance);
-
-const api = remote.sdk.newUserApi(getNotificationsApi);
-
+/**
+ * The SDK ships `notifications-api.d.ts` but not its `.js` companion, so we
+ * can't instantiate the generated class at runtime. Hit the endpoints
+ * directly via the axios instance — same pattern `playback-manager.ts`
+ * uses for `/MediaSegments`, the other endpoint missing from `utils/api/`.
+ */
+const axios = remote.sdk.api?.axiosInstance;
 const [servicesRes, typesRes] = await Promise.all([
-  api.getNotificationServices(),
-  api.getNotificationTypes()
+  axios?.get<NameIdPair[]>('/Notifications/Services'),
+  axios?.get<NotificationTypeInfo[]>('/Notifications/Types')
 ]);
-const services = servicesRes.data;
-const types = typesRes.data;
+const services = servicesRes?.data ?? [];
+const types = typesRes?.data ?? [];
 </script>
