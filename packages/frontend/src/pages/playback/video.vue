@@ -198,9 +198,17 @@ const overlay = computed({
   set: newValue => (osd.value = newValue)
 });
 
+/**
+ * `useTimeoutFn` defaults to `immediate: true` — it would normally auto-
+ * start during setup. Disable that and let the `staticOverlay` watcher
+ * below own when the timer runs: this way the initial state ("playing,
+ * fade after 5 s" vs. "paused, stay visible") is always set explicitly
+ * on mount, not as a race between setup-time auto-start and a later
+ * watcher firing.
+ */
 const timeout = useTimeoutFn(() => {
   overlay.value = false;
-}, 5000);
+}, 5000, { immediate: false });
 
 /**
  * Shows the overlay on mouse move and starts the timeout to hide it, unless the overlay must stay static
@@ -260,13 +268,21 @@ useSwipe(videoContainerRef, {
   }
 });
 
+/**
+ * The OSD's auto-hide timer mirrors `staticOverlay`: stays running when the
+ * overlay is dynamic (playing, no menu open) so it can fade after 5 s of
+ * inactivity, and is paused while the overlay must remain visible. Running
+ * `immediate: true` ensures the timer is in the right state on mount —
+ * without it, a player opened in the "playing, no static condition" state
+ * had no scheduled fade until the user moved the mouse.
+ */
 watch(staticOverlay, (val) => {
   if (val) {
     timeout.stop();
   } else {
     timeout.start();
   }
-});
+}, { immediate: true });
 </script>
 
 <style scoped>
