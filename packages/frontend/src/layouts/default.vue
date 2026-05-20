@@ -21,12 +21,13 @@ import { computed, onBeforeMount, onUnmounted, provide, ref, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 import type { DrawerItem } from '#/components/Layout/Navigation/NavigationDrawer.vue';
 import { playbackManager } from '#/store/playback-manager.ts';
-import { fetchIndexPage, getLibraryIcon } from '#/utils/items.ts';
+import { getLibraryIcon } from '#/utils/items.ts';
+import { useIndexPage } from '#/composables/use-index-page.ts';
 
 const display = useDisplay();
 const navDrawer = ref(!display.mobile.value);
 
-const { views } = await fetchIndexPage();
+const { views } = await useIndexPage();
 
 const drawerItems = computed<DrawerItem[]>(() => {
   return views.value.map((view: BaseItemDto) => {

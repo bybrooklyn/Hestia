@@ -568,7 +568,7 @@ export function formatBitRate(bitrate: number): string {
 /**
  * Gets all the items that need to be resolved to populate the interface
  */
-interface IndexPageQueries {
+export interface IndexPageQueries {
   views: ComputedRef<BaseItemDto[]>;
   resumeVideo: ComputedRef<BaseItemDto[]>;
   carousel: ComputedRef<BaseItemDto[]>;

@@ -41,8 +41,9 @@ import type { BaseItemDto } from '@jellyfin/sdk/lib/generated-client';
 import { computed } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { isNil } from '@jellyfin-vue/shared/validation';
-import { CardShapes, fetchIndexPage, getShapeFromCollectionType } from '#/utils/items.ts';
+import { CardShapes, getShapeFromCollectionType } from '#/utils/items.ts';
 import { usePageTitle } from '#/composables/page-title.ts';
+import { useIndexPage } from '#/composables/use-index-page.ts';
 
 interface HomeSection {
   title: string;
@@ -55,7 +56,7 @@ const { t } = useTranslation();
 
 usePageTitle(() => t('home'));
 
-const { carousel, nextUp, views, resumeVideo, latestPerLibrary } = await fetchIndexPage();
+const { carousel, nextUp, views, resumeVideo, latestPerLibrary } = await useIndexPage();
 
 const latestMediaSections = computed(() => {
   return views.value.map((userView) => {

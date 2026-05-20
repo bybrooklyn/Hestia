@@ -23,7 +23,7 @@ Cross-referenced with `FORK_ROADMAP.md` §5 (P1–P10).
 |---|---|---|---|
 | P1 | Route blocks until *all* data is ready | Top-level `await` in every page `<script setup>` + per-route `<Suspense>` in `MainView.vue` | High — primary "loading feel" |
 | P2 | Every navigation re-mounts the page | No `<KeepAlive>`; component + Suspense re-created each visit | High |
-| P3 | Home data fetched twice | `fetchIndexPage()` called in both `layouts/default.vue` and `pages/index.vue` | Medium — easy win |
+| P3 | Home data fetched twice | `fetchIndexPage()` called in both `layouts/default.vue` and `pages/index.vue` | **fixed** — `composables/use-index-page.ts` memoises the call for the session; both call sites share one Promise. |
 | P4 | Slow first home load | `fetchIndexPage` awaits `1 + N(libraries) + 3` requests together before mount | Medium–High |
 | P5 | Oversized API responses | `apis.ts` always requests every `ItemFields` value and every image type | Medium — needs measurement |
 | P6 | Constant revalidation traffic | SWR refreshes on every composable use even with a warm 1-week cache | Low–Medium |
@@ -75,7 +75,7 @@ Implementation sketch (no code written yet): a lightweight metrics store (a `Bas
 
 These change no user-visible behavior and need no Experimental gate:
 
-- **P3 — De-duplicate `fetchIndexPage`.** Share one home-data fetch between layout and route (lift it to a shared composable / single call site). Pure reduction in requests.
+- ~~**P3 — De-duplicate `fetchIndexPage`.**~~ Done — `composables/use-index-page.ts` memoises the call for the session; both call sites share one Promise. Clears on logout via `remote.auth.onBeforeLogout`.
 - **P10 — Scroll-to-top after Suspense resolve.** Already a router TODO; also avoids a layout/scroll thrash. (`FORK_ROADMAP.md` PR-10.)
 - **Targeted rerender fixes** — once profiled: convert heavy `computed`/`watch` to narrower dependencies, `shallowRef` where deep reactivity is unnecessary, stable `:key`s in large `v-for`s. Each only after a profiler confirms it.
 - **Image lazy-loading** — ensure off-screen posters use native `loading="lazy"` / intersection-gated decode (verify current state in `utils/images.ts` and `Layout/Images/*` before claiming a win).
