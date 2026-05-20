@@ -69,6 +69,11 @@ Routes are generated from `packages/frontend/src/pages/` by `vue-router/vite` (`
 - Styling is UnoCSS (preset in `@jellyfin-vue/configs/uno`) plus Vuetify; CSS is processed with Lightning CSS, browser targets from `browserslist`.
 - provide/inject keys are centralised as typed `InjectionKey` symbols in `store/keys.ts` files.
 
+### Settings pages
+- User-facing settings pages (`pages/settings/account.vue`, `experimental.vue`, `subtitles.vue`) wrap their content in `SettingsPage` (`components/Layout/SettingsPage.vue`) — slots `#title`, `#actions`, `#content`.
+- Admin pages wrap in `AdminSettingsLayout` instead — same slot API, but adds a persistent left sidebar (a temporary right drawer on mobile) listing every admin section. New admin pages **must** use `AdminSettingsLayout` to keep the sidebar from popping in/out across navigations, and must carry a `<route lang="yaml">meta: admin: true</route>` block so `adminGuard` (`plugins/router/middlewares/admin-pages.ts`) enforces access.
+- The sidebar entries come from a single source: `composables/use-admin-sections.ts`. Add new admin pages there (and to `pages/settings/index.vue` via the same composable).
+
 ### Build-time targets
 `main.ts` relies on top-level `await` (ES2022) and `Object.groupBy` (ES2024) — keep the TS `target` in sync if touching `tsconfig.json`.
 
