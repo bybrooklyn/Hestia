@@ -75,7 +75,7 @@ Done when: ratio modes are selectable and applied.
 Design: offset controls in `PlaybackSettingsButton.vue`; apply the subtitle offset in `player-element.ts`.
 Done when: offsets visibly shift sync.
 
-**`VID-13` — Secondary subtitle track** · Absent · `not started` · seq 13 · depends: —
+**`VID-13` — Secondary subtitle track** · Absent · `done` · seq 13 · depends: —
 Design: allow a second active track in `player-element.ts` rendering.
 Done when: two subtitle tracks render simultaneously.
 

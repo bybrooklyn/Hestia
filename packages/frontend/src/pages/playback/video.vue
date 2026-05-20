@@ -146,7 +146,7 @@ meta:
 
 <script setup lang="ts">
 import { BaseItemKind } from '@jellyfin/sdk/lib/generated-client';
-import { useTimeoutFn } from '@vueuse/core';
+import { useTimeoutFn, useSwipe } from '@vueuse/core';
 import { computed, shallowRef, watch } from 'vue';
 import { playbackGuard } from '#/plugins/router/middlewares/playback.ts';
 import {
@@ -226,6 +226,39 @@ function handleClick(e: MouseEvent): void {
 
   playbackManager.playPause();
 }
+
+let swipeTargetValid = true;
+
+useSwipe(videoContainerRef, {
+  threshold: 40,
+  onSwipeStart(e) {
+    swipeTargetValid = !(e.target instanceof Element && e.target.closest('.osd-top, .osd-bottom, .skip-segment-container'));
+  },
+  onSwipeEnd(_e, direction) {
+    if (!swipeTargetValid) {
+      return;
+    }
+
+    switch (direction) {
+      case 'LEFT': {
+        playbackManager.skipBackward();
+        break;
+      }
+      case 'RIGHT': {
+        playbackManager.skipForward();
+        break;
+      }
+      case 'UP': {
+        playbackManager.volumeUp();
+        break;
+      }
+      case 'DOWN': {
+        playbackManager.volumeDown();
+        break;
+      }
+    }
+  }
+});
 
 watch(staticOverlay, (val) => {
   if (val) {
