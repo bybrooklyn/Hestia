@@ -120,32 +120,27 @@ const listHeight = computed(() => `${size}vh`);
 
 const sourceText = computed(() => {
   /**
-   * TODO: Properly refactor this once search and other missing features are implemented, as discussed in
-   * https://github.com/jellyfin/jellyfin-vue/pull/609
+   * The initiator is whatever the user clicked play on — an album, library,
+   * playlist, search result, person, etc. Whenever we have its name, use it;
+   * fall back to "unknown" only if no initiator was recorded.
    */
-  const unknownSource = t('unknown');
-  const isFromAlbum = playbackManager.currentItem.value?.AlbumId
-    === playbackManager.initiator.value?.Id;
-  const substitution = {
-    item: playbackManager.initiator.value?.Name
-  };
+  const initiatorName = playbackManager.initiator.value?.Name;
+  const substitution = { item: initiatorName };
 
   switch (playbackManager.playbackInitMode.value) {
     case InitMode.Unknown: {
-      return unknownSource;
+      return t('unknown');
     }
     case InitMode.Item: {
-      return isFromAlbum
-        ? t('playingFrom', substitution)
-        : unknownSource;
+      return initiatorName ? t('playingFrom', substitution) : t('unknown');
     }
     case InitMode.Shuffle: {
       return t('playinginShuffle');
     }
     case InitMode.ShuffleItem: {
-      return isFromAlbum
+      return initiatorName
         ? t('playingItemInShuffle', substitution)
-        : unknownSource;
+        : t('playinginShuffle');
     }
   }
 });
