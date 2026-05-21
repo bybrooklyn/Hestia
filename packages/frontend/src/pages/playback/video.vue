@@ -89,7 +89,9 @@
               class="player-controls justify-md-center uno-flex uno-items-center uno-justify-start">
               <PreviousChapterButton class="uno-mx-1" />
               <PreviousTrackButton class="uno-mx-1" />
+              <RewindButton class="uno-mx-1" />
               <PlayPauseButton class="uno-mx-1" />
+              <FastForwardButton class="uno-mx-1" />
               <NextTrackButton class="uno-mx-1" />
               <NextChapterButton class="uno-mx-1" />
             </div>

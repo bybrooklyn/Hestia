@@ -91,8 +91,8 @@ Done when: both buttons appear in the OSD with tooltips and behave like the keys
 Design: new `PreviousChapterButton.vue` / `NextChapterButton.vue` consume the same `item.Chapters` array `TimeSlider.vue` reads. Slotted next to prev/next-track in the OSD center group. The "previous" button uses a 2 s grace window — within the first 2 s of a chapter it jumps to the previous one, after that it restarts the current. Both disabled when the item has no chapters.
 Done when: chapter-skip buttons jump cleanly forward / back.
 
-**`VID-17` — Rewind / fast-forward buttons** · Absent · `not started` · seq 17 · depends: —
-Design: visible counterparts to the existing `J` / `L` keys (±15 s), wired to `playbackManager.skipForward` / `skipBackward`.
+**`VID-17` — Rewind / fast-forward buttons** · Absent · `done` · seq 17 · depends: —
+Design: new `RewindButton.vue` / `FastForwardButton.vue` wrap `playbackManager.skipBackward` / `skipForward` (±15 s, same path the `J` / `L` keys take via `use-playback.ts`). Slotted around the play/pause button in the OSD center group with `i-mdi:rewind-15` / `i-mdi:fast-forward-15` icons.
 Done when: both buttons appear in the OSD and skip ±15 s.
 
 **`VID-18` — End-at clock + position counter in the scrubber row** · Absent · `not started` · seq 18 · depends: —
