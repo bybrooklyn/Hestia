@@ -100,6 +100,11 @@
               <VolumeSlider
                 v-if="$vuetify.display.smAndUp"
                 class="uno-mr-2" />
+              <LikeButton
+                v-if="playbackManager.currentItem.value"
+                :key="playbackManager.currentItemId.value"
+                :item="playbackManager.currentItem.value"
+                size="default" />
               <QueueButton close-on-click />
               <SubtitleSelectionButton
                 v-if="$vuetify.display.smAndUp"

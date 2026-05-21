@@ -103,8 +103,8 @@ Done when: the clock + counter render and update with playback.
 Design: new `MuteButton.vue` next to the volume slider, calling `playbackManager.toggleMute`. Icon tiers (`volume-off` / `volume-mute` / `volume-low` / `volume-medium` / `volume-high`) follow VLC's convention so the loudspeaker bars reflect the current level. Tooltip flips between "Mute" and "Unmute".
 Done when: clicking the mute button toggles audio off and back on.
 
-**`VID-20` — User-rating button in the OSD** · Absent · `not started` · seq 20 · depends: —
-Design: reuse the existing `LikeButton` (already used in `music.vue`) inside the video OSD so the user can favourite while watching.
+**`VID-20` — User-rating button in the OSD** · Absent · `done` · seq 20 · depends: —
+Design: `<LikeButton>` (already used in `music.vue` and across detail pages) mounted in the right-hand OSD group, bound to `playbackManager.currentItem.value` with `:key="currentItemId"` so the async `useApi` instance refreshes on track changes.
 Done when: the button appears, reflects current state, and toggles favourite on click.
 
 ### Music
