@@ -254,16 +254,7 @@ Done when: the reset flow completes.
 
 # Tier 3 — Extended client
 
-### Live TV *(entirely Absent — jellyfin-vue excludes `livetv`)*
-
-**`LTV-1` — Channel list** · Absent · seq 1 · Design: new page, live-tv channels endpoint. Done when: channels list and are playable to `LTV-3`.
-**`LTV-2` — Program guide grid** · Absent · seq 2 · depends: `LTV-1` · Design: new guide page. Done when: the EPG grid renders.
-**`LTV-3` — Watch a live channel** · Absent · seq 3 · depends: `LTV-1` · Design: route a channel into `playback-manager`. Done when: a channel plays.
-**`LTV-4` — Recordings list & playback** · Absent · seq 4 · Design: new page. Done when: recordings list and play.
-**`LTV-5` — Schedule a recording** · Absent · seq 5 · depends: `LTV-2` · Design: timer-create from the guide. Done when: a recording can be scheduled.
-**`LTV-6` — Series timers** · Absent · seq 6 · depends: `LTV-5` · Done when: a series can be set to record.
-**`LTV-7` — Live TV suggested / landing** · Absent · seq 7 · depends: `LTV-1` · Done when: a landing page exists.
-**`LTV-8` — Channel favorites** · Absent · seq 8 · depends: `LTV-1` · Done when: channels can be favorited.
+> *Live TV (formerly `LTV-1…8`) is **deferred to `FORK_ROADMAP.md` §9** — jellyfin-vue already excludes upstream's `livetv` app, and the fork ships parity without it rather than block the queue behind a from-scratch live-TV implementation. The IDs are preserved verbatim there so they can return if priorities change.*
 
 ### Collections & Playlists
 
@@ -368,3 +359,5 @@ Done when: a collection's contents are fully browsable.
 
 - jellyfin-web `apps/experimental`.
 - UI parity (visual match) — except the admin-dashboard information architecture.
+- Live TV (formerly `LTV-1…8`) — see `FORK_ROADMAP.md` §9.
+- Standard video-player polish beyond jellyfin-web (keyboard help overlay, frame-step, autoplay countdown, resume dialog, A-B loop, PiP state, HDR matching) — also `FORK_ROADMAP.md` §9.

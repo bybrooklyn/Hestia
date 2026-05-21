@@ -197,6 +197,33 @@ Not implemented. Likely useful for the fork but uncertain or unlikely upstream.
 
 **Hard constraints for all of the above:** no server API changes, no custom backend, no required third-party service, Jellyfin API compatibility preserved.
 
+### Live TV (deferred from PARITY.md)
+
+These were previously **Tier 3 / LTV-1…8** in `PARITY.md`. jellyfin-vue already excludes upstream's `livetv` app, and the fork's owner has chosen to ship parity *without* Live TV rather than block the rest of the parity push behind a from-scratch implementation. The IDs are preserved verbatim so they can be moved back to `PARITY.md` if priorities change.
+
+- **`LTV-1` — Channel list** · Absent · Design: new page, live-tv channels endpoint. Done when: channels list and are playable to `LTV-3`.
+- **`LTV-2` — Program guide grid** · Absent · depends: `LTV-1` · Design: new guide page. Done when: the EPG grid renders.
+- **`LTV-3` — Watch a live channel** · Absent · depends: `LTV-1` · Design: route a channel into `playback-manager`. Done when: a channel plays.
+- **`LTV-4` — Recordings list & playback** · Absent · Design: new page. Done when: recordings list and play.
+- **`LTV-5` — Schedule a recording** · Absent · depends: `LTV-2` · Design: timer-create from the guide. Done when: a recording can be scheduled.
+- **`LTV-6` — Series timers** · Absent · depends: `LTV-5` · Done when: a series can be set to record.
+- **`LTV-7` — Live TV suggested / landing** · Absent · depends: `LTV-1` · Done when: a landing page exists.
+- **`LTV-8` — Channel favorites** · Absent · depends: `LTV-1` · Done when: channels can be favorited.
+
+### Standard video-player polish (beyond jellyfin-web baseline)
+
+Seven gaps surfaced from a 2026-05-20 survey of jellyfin-vue against the wider video-player / media-server standard (jellyfin-web + Plex + Netflix + YouTube + VLC). These are *additions to the standard*, not parity items, so they live here rather than in `PARITY.md`. None of them have a `seq` — pick them up opportunistically once the parity queue is closer to drained.
+
+1. **Keyboard shortcuts help overlay (`?` key).** Tap `?` (or click a help icon) to open a Vuetify dialog listing every shortcut. Source the list from `composables/use-playback.ts` — the only `useMagicKeys` site today, so the dialog can read from that registry directly to stay in sync.
+2. **Frame-by-frame stepping (`,` / `.`).** Only while paused. Implement via `mediaControls.currentTime.value ±= 1/24` as the baseline; use `HTMLVideoElement.requestVideoFrameCallback` for true frame accuracy when the API is available. Add to `use-playback.ts`.
+3. **Auto-play-next countdown overlay.** Replace the silent next-episode hand-off (`playback-manager.ts:863-878`) with a `components/Playback/UpNextPrompt.vue` shown in the last 10–15 s of a TV episode when `nextItem.value` is the next episode of the same series. Auto-advance unless dismissed.
+4. **Explicit resume-from-position dialog.** `PlayButton.vue:70-82` currently just relabels the button to "Resume"; show a tiny dialog ("Resume from H:MM:SS" / "Play from start") when `PlaybackPositionTicks > 0`. Gate behind an Experimental toggle initially.
+5. **A-B loop / segment repeat.** Two scrubber markers (`A` / `B` keys to set, `Shift+A` to clear) and a watcher in `playback-manager.ts` that seeks back to A when `currentTime >= B`.
+6. **Picture-in-picture as managed app state.** Today PiP is just the browser's native `togglePictureInPicture`; promote it to a `playerElement.ts` field so the PiP window persists when the user navigates away from `/playback/video` and reflects state across the rest of the UI.
+7. **HDR / Dolby Vision capability matching.** The metadata already renders in `MediaInfo` (`MediaDetailContent.vue:77-80`) but isn't *used* to pick a playback path. Combine `screen.colorDepth`, `matchMedia('(dynamic-range: high)')`, and the existing `MediaCapabilities` work (eventual replacement for `playback-profiles/`) to refuse HDR transcodes the display can't handle.
+
+**Hard constraints for all of the above:** no server API changes, no custom backend, no required third-party service, Jellyfin API compatibility preserved.
+
 ---
 
 ## Open uncertainties (consolidated)
