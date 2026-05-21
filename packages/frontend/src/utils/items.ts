@@ -575,8 +575,12 @@ export function formatBitRate(bitrate: number): string {
 export interface IndexPageQueries {
   views: ComputedRef<BaseItemDto[]>;
   resumeVideo: ComputedRef<BaseItemDto[]>;
+  resumeAudio: ComputedRef<BaseItemDto[]>;
   carousel: ComputedRef<BaseItemDto[]>;
   nextUp: ComputedRef<BaseItemDto[]>;
+  favoriteAlbums: ComputedRef<BaseItemDto[]>;
+  favoriteArtists: ComputedRef<BaseItemDto[]>;
+  favoriteSongs: ComputedRef<BaseItemDto[]>;
   latestPerLibrary: Map<BaseItemDto['Id'], ComputedRef<BaseItemDto[]>>;
 }
 
@@ -605,7 +609,41 @@ export async function fetchIndexPage(): Promise<IndexPageQueries> {
       mediaTypes: ['Video']
     })),
     useBaseItem(getUserLibraryApi, 'getLatestMedia')(),
-    useBaseItem(getTvShowsApi, 'getNextUp')()
+    useBaseItem(getTvShowsApi, 'getNextUp')(),
+    /**
+     * Continue Listening — mirrors the video resume row but for audio
+     * (`mediaTypes: ['Audio']`). Empty for users who don't have an
+     * audio library or who haven't started any tracks.
+     */
+    useBaseItem(getItemsApi, 'getResumeItems')(() => ({
+      mediaTypes: ['Audio']
+    })),
+    /**
+     * Favorites rows: items the user has hearted. Filtered by item
+     * type so the rows are homogenous. All three queries return empty
+     * for users without a music library.
+     */
+    useBaseItem(getItemsApi, 'getItems')(() => ({
+      filters: ['IsFavorite'],
+      includeItemTypes: [BaseItemKind.MusicAlbum],
+      recursive: true,
+      sortBy: [ItemSortBy.SortName],
+      limit: 16
+    })),
+    useBaseItem(getItemsApi, 'getItems')(() => ({
+      filters: ['IsFavorite'],
+      includeItemTypes: [BaseItemKind.MusicArtist],
+      recursive: true,
+      sortBy: [ItemSortBy.SortName],
+      limit: 16
+    })),
+    useBaseItem(getItemsApi, 'getItems')(() => ({
+      filters: ['IsFavorite'],
+      includeItemTypes: [BaseItemKind.Audio],
+      recursive: true,
+      sortBy: [ItemSortBy.SortName],
+      limit: 16
+    }))
   ];
 
   const results = (await Promise.all([
@@ -618,6 +656,10 @@ export async function fetchIndexPage(): Promise<IndexPageQueries> {
     resumeVideo: results[0]!.data,
     carousel: results[1]!.data,
     nextUp: results[2]!.data,
+    resumeAudio: results[3]!.data,
+    favoriteAlbums: results[4]!.data,
+    favoriteArtists: results[5]!.data,
+    favoriteSongs: results[6]!.data,
     latestPerLibrary
   };
 }

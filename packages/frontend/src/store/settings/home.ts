@@ -34,6 +34,16 @@ export interface HomeSettingsState {
    * @default true
    */
   showLatestMedia: boolean;
+  /**
+   * Render the "Continue listening" (resume-audio) row.
+   * @default true
+   */
+  showContinueListening: boolean;
+  /**
+   * Render the favorite-music rows (Favorite albums / artists / songs).
+   * @default true
+   */
+  showFavorites: boolean;
 }
 
 @sealed
@@ -45,7 +55,9 @@ class HomeSettingsStore extends CommonStore<HomeSettingsState, KeysOfUnion<HomeS
         showLibraries: false,
         showContinueWatching: true,
         showNextUp: true,
-        showLatestMedia: true
+        showLatestMedia: true,
+        showContinueListening: true,
+        showFavorites: true
       }),
       persistenceType: 'localStorage'
     });

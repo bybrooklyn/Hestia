@@ -50,14 +50,32 @@ interface HomeSection {
   title: string;
   libraryId: string;
   shape: CardShapes;
-  type: 'libraries' | 'resumevideo' | 'nextup' | 'latestmedia';
+  type:
+    | 'libraries'
+    | 'resumevideo'
+    | 'resumeaudio'
+    | 'nextup'
+    | 'latestmedia'
+    | 'favoritealbums'
+    | 'favoriteartists'
+    | 'favoritesongs';
 }
 
 const { t } = useTranslation();
 
 usePageTitle(() => t('home'));
 
-const { carousel, nextUp, views, resumeVideo, latestPerLibrary } = await useIndexPage();
+const {
+  carousel,
+  nextUp,
+  views,
+  resumeVideo,
+  resumeAudio,
+  favoriteAlbums,
+  favoriteArtists,
+  favoriteSongs,
+  latestPerLibrary
+} = await useIndexPage();
 
 const latestMediaSections = computed(() => {
   if (!homeSettings.state.value.showLatestMedia) {
@@ -100,6 +118,15 @@ const homeSections = computed<HomeSection[]>(() => {
     });
   }
 
+  if (homeSettings.state.value.showContinueListening) {
+    sections.push({
+      title: t('continueListening'),
+      libraryId: '',
+      shape: CardShapes.Square,
+      type: 'resumeaudio'
+    });
+  }
+
   if (homeSettings.state.value.showNextUp) {
     sections.push({
       title: t('nextUp'),
@@ -107,6 +134,29 @@ const homeSections = computed<HomeSection[]>(() => {
       shape: CardShapes.Thumb,
       type: 'nextup'
     });
+  }
+
+  if (homeSettings.state.value.showFavorites) {
+    sections.push(
+      {
+        title: t('favoriteAlbums'),
+        libraryId: '',
+        shape: CardShapes.Square,
+        type: 'favoritealbums'
+      },
+      {
+        title: t('favoriteArtists'),
+        libraryId: '',
+        shape: CardShapes.Square,
+        type: 'favoriteartists'
+      },
+      {
+        title: t('favoriteSongs'),
+        libraryId: '',
+        shape: CardShapes.Square,
+        type: 'favoritesongs'
+      }
+    );
   }
 
   sections.push(...latestMediaSections.value);
@@ -125,8 +175,20 @@ function getHomeSectionContent(section: HomeSection): BaseItemDto[] {
     case 'resumevideo': {
       return resumeVideo.value;
     }
+    case 'resumeaudio': {
+      return resumeAudio.value;
+    }
     case 'nextup': {
       return nextUp.value;
+    }
+    case 'favoritealbums': {
+      return favoriteAlbums.value;
+    }
+    case 'favoriteartists': {
+      return favoriteArtists.value;
+    }
+    case 'favoritesongs': {
+      return favoriteSongs.value;
     }
     case 'latestmedia': {
       return latestPerLibrary.get(section.libraryId)?.value ?? [];

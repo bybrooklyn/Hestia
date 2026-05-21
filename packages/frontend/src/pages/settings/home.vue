@@ -27,9 +27,19 @@
           :label="$t('showContinueWatching')"
           @update:model-value="homeSettings.state.value.showContinueWatching = $event ?? false" />
         <VSwitch
+          :model-value="homeSettings.state.value.showContinueListening"
+          :label="$t('showContinueListening')"
+          @update:model-value="homeSettings.state.value.showContinueListening = $event ?? false" />
+        <VSwitch
           :model-value="homeSettings.state.value.showNextUp"
           :label="$t('showNextUp')"
           @update:model-value="homeSettings.state.value.showNextUp = $event ?? false" />
+        <VSwitch
+          :model-value="homeSettings.state.value.showFavorites"
+          :label="$t('showFavorites')"
+          :hint="$t('showFavoritesHint')"
+          persistent-hint
+          @update:model-value="homeSettings.state.value.showFavorites = $event ?? false" />
         <VSwitch
           :model-value="homeSettings.state.value.showLatestMedia"
           :label="$t('showLatestMedia')"

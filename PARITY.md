@@ -144,8 +144,12 @@ Design: `pages/settings/experimental.vue` + `store/settings/experimental.ts` (de
 Design: new `pages/settings/home.vue` + `store/settings/home.ts` (device-local via `CommonStore` + `localStorage`) with four toggles — `showLibraries`, `showContinueWatching`, `showNextUp`, `showLatestMedia`. `pages/index.vue` reads each from the store before pushing the corresponding `HomeSection` into the list, so flipping a toggle reorders the home immediately without re-fetching. The `showLibraries` default is `false`, delivering `FORK_ROADMAP.md` §9's "drop Libraries section" default. Settings-index row in `use-user-settings-items.ts` now points to the new page.
 Done when: the page works and the home screen reflects the configuration.
 
-**`HOME-2` — Additional home section types** · Absent · `not started` · seq 3 · depends: `HOME-1` · **UNVERIFIED** (exact jellyfin-web section list)
-Design: add missing section types (e.g. genres, recommendations) in `utils/items.ts` / `index.vue`.
+**`HOME-2` — Additional home section types** · Absent · `done` · seq 3 · depends: `HOME-1`
+Design: `utils/items.ts` `fetchIndexPage` now fetches four additional sources alongside the existing carousel / resume-video / next-up / latest-per-library queries:
+- "Continue listening" via `getResumeItems({ mediaTypes: ['Audio'] })`
+- Favorite albums / artists / songs via `getItems({ filters: ['IsFavorite'], includeItemTypes: [MusicAlbum / MusicArtist / Audio], recursive: true, limit: 16 })`
+
+`pages/index.vue` reads `homeSettings.state.value.showContinueListening` / `showFavorites` before pushing the matching `HomeSection`s into the list (favorite-music renders as three `Square`-shaped rows). `store/settings/home.ts` gains `showContinueListening` / `showFavorites` toggles (both default `true`), and `pages/settings/home.vue` adds VSwitches for them — Continue listening alongside Continue watching, favorites with a hint. Server-wide upstream sections like Recordings / On Now are skipped per the Live TV deferral; recommendations (`getMovieRecommendations`) remains a fork-only candidate in `FORK_ROADMAP.md` §9.
 Done when: home section types match jellyfin-web.
 
 ### Libraries & browsing
