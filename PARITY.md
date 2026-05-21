@@ -271,7 +271,7 @@ Done when: the reset flow completes.
 Design: `pages/item/[itemId].vue` already renders BoxSet children via `CollectionTabs` — confirm full parity.
 Done when: a collection's contents are fully browsable.
 
-**`COLL-2` — Create a collection** · Absent · seq 10 · Design: collection-create action/dialog. Done when: a collection can be created.
+**`COLL-2` — Create a collection** · Absent · `done` · seq 10 · Design: new `components/Item/Collection/CreateCollectionDialog.vue` wraps `getCollectionApi.createCollection` with a name field (`required` rule mirrors the server validation) and an optional `seedItemIds` prop so a parent (`ITEM-3`'s `AddToCollectionDialog`) can create-and-populate in one round-trip. Emits `created` with the new collection id so the parent can chain. Auto-imported via the components registry — `ITEM-3` mounts it from the menu action. Done when: a collection can be created.
 **`COLL-3` — Add / remove items in a collection** · Absent · seq 11 · depends: `COLL-2` · (paired with `ITEM-3`). Done when: collection membership is editable.
 **`COLL-4` — View a playlist** · Absent · `not started` · seq 12 · **UNVERIFIED** — confirm whether a `Playlist` item routes through the generic item/library page; if not, a dedicated view is needed. Done when: a playlist's contents are browsable.
 **`COLL-5` — Create a playlist** · Absent · seq 13 · (shares the API with `QUE-1`). Done when: a playlist can be created.
