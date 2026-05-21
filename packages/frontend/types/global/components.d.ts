@@ -31,6 +31,7 @@ declare module 'vue' {
     CommitLink: typeof import('./../../src/components/Layout/Navigation/CommitLink.vue')['default']
     ConfirmDialog: typeof import('./../../src/components/Dialogs/ConfirmDialog.vue')['default']
     CreateCollectionDialog: typeof import('./../../src/components/Item/Collection/CreateCollectionDialog.vue')['default']
+    CreatePlaylistDialog: typeof import('./../../src/components/Item/Collection/CreatePlaylistDialog.vue')['default']
     DateInput: typeof import('./../../src/components/Item/Metadata/DateInput.vue')['default']
     DraggableQueue: typeof import('./../../src/components/Playback/DraggableQueue.vue')['default']
     FilterButton: typeof import('./../../src/components/Buttons/FilterButton.vue')['default']

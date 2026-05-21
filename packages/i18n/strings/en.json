@@ -89,6 +89,8 @@
   "create": "Create",
   "createCollection": "Create a collection",
   "createCollectionSeed": "Adding {{count}} item to the new collection. | Adding {{count}} items to the new collection.",
+  "createPlaylist": "Create a playlist",
+  "createPlaylistSeed": "Adding {{count}} item to the new playlist. | Adding {{count}} items to the new playlist.",
   "createKeyFailure": "Error creating a new API key",
   "createKeySuccess": "Successfully created a new API key",
   "crew": "Crew",
