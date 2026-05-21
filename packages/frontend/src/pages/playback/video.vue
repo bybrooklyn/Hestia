@@ -87,9 +87,11 @@
             </div>
             <div
               class="player-controls justify-md-center uno-flex uno-items-center uno-justify-start">
+              <PreviousChapterButton class="uno-mx-1" />
               <PreviousTrackButton class="uno-mx-1" />
               <PlayPauseButton class="uno-mx-1" />
               <NextTrackButton class="uno-mx-1" />
+              <NextChapterButton class="uno-mx-1" />
             </div>
             <div class="ml-md-0 uno-ml-auto uno-flex uno-items-center">
               <VolumeSlider

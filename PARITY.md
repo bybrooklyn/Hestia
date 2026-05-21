@@ -87,8 +87,8 @@ Done when: gestures work on a touch device.
 Design: `<PreviousTrackButton>` / `<NextTrackButton>` were already mounted in `video.vue` (and `music.vue`); this pass added top-positioned `<JTooltip>` wrappers and i18n labels so they meet the same affordance bar as the fullscreen / PiP buttons next to them.
 Done when: both buttons appear in the OSD with tooltips and behave like the keys.
 
-**`VID-16` — Previous / next chapter buttons in the OSD** · Absent · `not started` · seq 16 · depends: `VID-8`
-Design: jump to `item.Chapters[i].StartPositionTicks` relative to current time; reuse the chapter list already consumed by `VID-8`'s scrubber markers (`TimeSlider.vue`). Add two buttons to `video.vue`.
+**`VID-16` — Previous / next chapter buttons in the OSD** · Absent · `done` · seq 16 · depends: `VID-8`
+Design: new `PreviousChapterButton.vue` / `NextChapterButton.vue` consume the same `item.Chapters` array `TimeSlider.vue` reads. Slotted next to prev/next-track in the OSD center group. The "previous" button uses a 2 s grace window — within the first 2 s of a chapter it jumps to the previous one, after that it restarts the current. Both disabled when the item has no chapters.
 Done when: chapter-skip buttons jump cleanly forward / back.
 
 **`VID-17` — Rewind / fast-forward buttons** · Absent · `not started` · seq 17 · depends: —
