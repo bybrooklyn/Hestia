@@ -96,6 +96,7 @@
               <NextChapterButton class="uno-mx-1" />
             </div>
             <div class="ml-md-0 uno-ml-auto uno-flex uno-items-center">
+              <MuteButton />
               <VolumeSlider
                 v-if="$vuetify.display.smAndUp"
                 class="uno-mr-2" />

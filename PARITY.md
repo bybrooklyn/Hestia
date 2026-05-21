@@ -99,8 +99,8 @@ Done when: both buttons appear in the OSD and skip ±15 s.
 Design: the "Ends at" line previously rendered inside the title block has been lifted under `<TimeSlider>` and paired with a running "M:SS / H:MM:SS" position counter on the left. Reuses `getEndsAtTime` + the existing `formatTime` (`utils/time.ts`). Hidden on `xs` to avoid cramping mobile.
 Done when: the clock + counter render and update with playback.
 
-**`VID-19` — Standalone mute button in the OSD** · Absent · `not started` · seq 19 · depends: —
-Design: separate mute toggle next to the volume slider, calling `playbackManager.toggleMute`. The slider works today but there's no quick-mute affordance.
+**`VID-19` — Standalone mute button in the OSD** · Absent · `done` · seq 19 · depends: —
+Design: new `MuteButton.vue` next to the volume slider, calling `playbackManager.toggleMute`. Icon tiers (`volume-off` / `volume-mute` / `volume-low` / `volume-medium` / `volume-high`) follow VLC's convention so the loudspeaker bars reflect the current level. Tooltip flips between "Mute" and "Unmute".
 Done when: clicking the mute button toggles audio off and back on.
 
 **`VID-20` — User-rating button in the OSD** · Absent · `not started` · seq 20 · depends: —
