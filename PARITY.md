@@ -154,8 +154,8 @@ Done when: home section types match jellyfin-web.
 Design: new `components/Item/ItemList.vue` renders the same `BaseItemDto[]` as a `VList` of `VListItem` rows (64px thumbnail via `BlurhashImage`, title + per-type subtitle that picks the most useful disambiguator — album artist for music, series name for episodes, year otherwise — and the existing `ItemMenu` in the append slot). `library/[itemId].vue` gains a `VBtnToggle` between the filter button and the play actions that flips `viewMode` between `grid` and `list`; the choice is persisted globally in `localStorage` via `useStorage('library-view-mode', 'grid')`. `ItemGrid.vue` stays grid-only (the name is correct now that the list renderer is its own component).
 Done when: the user can switch between grid and list.
 
-**`LIB-2` — Suggestions tab per library** · Absent · `not started` · seq 5 · depends: —
-Design: add a Suggestions tab to `library/[itemId].vue` using suggestions/latest/next-up endpoints.
+**`LIB-2` — Suggestions tab per library** · Absent · `done` · seq 5 · depends: —
+Design: new `components/Library/LibrarySuggestions.vue` fetches `getResumeItems`, `getNextUp` (TV only) and `getLatestMedia` scoped to the current library via `parentId` and stacks them as `SwiperSection`s; `pages/library/[itemId].vue` renders a `VTabs` switch ("Browse" / "Suggestions") above the body and lazy-mounts the Suspense'd `<LibrarySuggestions>` only when the Suggestions tab is active. Tabs only appear when the library collection type supports it (movies / tvshows / music); the Browse-only AppBar controls (TypeButton, SortButton, FilterButton, view-mode toggle) are hidden when the Suggestions tab is active.
 Done when: suggestions show for a library.
 
 **`LIB-3` — Studios / Tags / Years browse views** · Absent · `not started` · seq 6 · depends: —

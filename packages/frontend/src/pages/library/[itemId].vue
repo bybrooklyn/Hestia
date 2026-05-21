@@ -25,49 +25,51 @@
         vertical
         inset
         class="uno-mx-2 uno-hidden uno-min-[960px]:flex" />
-      <TypeButton
-        v-if="hasViewTypes"
-        v-model="viewType"
-        :type="library.CollectionType" />
-      <VDivider
-        v-if="isSortable && hasViewTypes"
-        inset
-        vertical
-        class="uno-mx-2" />
-      <SortButton
-        v-if="isSortable"
-        :ascending="sortAscending"
-        @change="onChangeSort" />
-      <FilterButton
-        v-if="library && viewType && isSortable"
-        :item="library"
-        @change="onChangeFilter" />
-      <VBtnToggle
-        v-model="viewMode"
-        mandatory
-        density="compact"
-        variant="text"
-        divided
-        class="uno-ml-2">
-        <VBtn
-          :value="'grid'"
-          icon
-          size="small">
-          <JTooltip position="bottom">
-            {{ t('viewModeGrid') }}
-          </JTooltip>
-          <JIcon class="i-mdi:view-grid" />
-        </VBtn>
-        <VBtn
-          :value="'list'"
-          icon
-          size="small">
-          <JTooltip position="bottom">
-            {{ t('viewModeList') }}
-          </JTooltip>
-          <JIcon class="i-mdi:view-list" />
-        </VBtn>
-      </VBtnToggle>
+      <template v-if="currentTab === 'browse'">
+        <TypeButton
+          v-if="hasViewTypes"
+          v-model="viewType"
+          :type="library.CollectionType" />
+        <VDivider
+          v-if="isSortable && hasViewTypes"
+          inset
+          vertical
+          class="uno-mx-2" />
+        <SortButton
+          v-if="isSortable"
+          :ascending="sortAscending"
+          @change="onChangeSort" />
+        <FilterButton
+          v-if="library && viewType && isSortable"
+          :item="library"
+          @change="onChangeFilter" />
+        <VBtnToggle
+          v-model="viewMode"
+          mandatory
+          density="compact"
+          variant="text"
+          divided
+          class="uno-ml-2">
+          <VBtn
+            :value="'grid'"
+            icon
+            size="small">
+            <JTooltip position="bottom">
+              {{ t('viewModeGrid') }}
+            </JTooltip>
+            <JIcon class="i-mdi:view-grid" />
+          </VBtn>
+          <VBtn
+            :value="'list'"
+            icon
+            size="small">
+            <JTooltip position="bottom">
+              {{ t('viewModeList') }}
+            </JTooltip>
+            <JIcon class="i-mdi:view-list" />
+          </VBtn>
+        </VBtnToggle>
+      </template>
       <VSpacer />
       <PlayButton
         v-if="library"
@@ -78,24 +80,46 @@
         :item="library" />
     </VAppBar>
     <VContainer>
-      <ItemList
-        v-if="viewMode === 'list'"
-        :items="items">
-        <h1
-          v-if="!hasFilters"
-          class="text-h5">
-          {{ hasFilters ? t('libraryEmptyFilters') : t('libraryEmpty') }}
-        </h1>
-      </ItemList>
-      <ItemGrid
-        v-else
-        :items="items">
-        <h1
-          v-if="!hasFilters"
-          class="text-h5">
-          {{ hasFilters ? t('libraryEmptyFilters') : t('libraryEmpty') }}
-        </h1>
-      </ItemGrid>
+      <VTabs
+        v-if="hasSuggestions"
+        v-model="currentTab"
+        bg-color="transparent"
+        class="uno-mb-2">
+        <VTab value="browse">
+          {{ t('browse') }}
+        </VTab>
+        <VTab value="suggestions">
+          {{ t('suggestions') }}
+        </VTab>
+      </VTabs>
+      <Suspense v-if="currentTab === 'suggestions'">
+        <LibrarySuggestions :library="library" />
+        <template #fallback>
+          <VRow justify="center">
+            <JProgressCircular indeterminate />
+          </VRow>
+        </template>
+      </Suspense>
+      <template v-else>
+        <ItemList
+          v-if="viewMode === 'list'"
+          :items="items">
+          <h1
+            v-if="!hasFilters"
+            class="text-h5">
+            {{ hasFilters ? t('libraryEmptyFilters') : t('libraryEmpty') }}
+          </h1>
+        </ItemList>
+        <ItemGrid
+          v-else
+          :items="items">
+          <h1
+            v-if="!hasFilters"
+            class="text-h5">
+            {{ hasFilters ? t('libraryEmptyFilters') : t('libraryEmpty') }}
+          </h1>
+        </ItemGrid>
+      </template>
     </VContainer>
     <ScrollToTopButton />
   </div>
@@ -142,6 +166,7 @@ const sortAscending = shallowRef(true);
  * once chosen. Defaults to grid to match the previous behaviour.
  */
 const viewMode = useStorage<LibraryViewMode>('library-view-mode', 'grid');
+const currentTab = shallowRef<'browse' | 'suggestions'>('browse');
 const queryLimit = shallowRef<number | undefined>(lazyLoadLimit);
 const filters = ref<Filters>({
   status: [],
@@ -192,6 +217,12 @@ const hasViewTypes = computed(
     library.value.CollectionType === 'movies'
     || library.value.CollectionType === 'music'
     || library.value.CollectionType === 'tvshows'
+);
+const hasSuggestions = computed(
+  () =>
+    library.value.CollectionType === 'movies'
+    || library.value.CollectionType === 'tvshows'
+    || library.value.CollectionType === 'music'
 );
 const isSortable = computed(
   () =>

@@ -44,6 +44,7 @@ declare module 'vue' {
     ItemGrid: typeof import('./../../src/components/Item/ItemGrid.vue')['default']
     ItemList: typeof import('./../../src/components/Item/ItemList.vue')['default']
     ItemMenu: typeof import('./../../src/components/Item/ItemMenu.vue')['default']
+    LibrarySuggestions: typeof import('./../../src/components/Library/LibrarySuggestions.vue')['default']
     ItemsCarousel: typeof import('./../../src/components/Layout/Carousel/Item/ItemsCarousel.vue')['default']
     ItemsCarouselTitle: typeof import('./../../src/components/Layout/Carousel/Item/ItemsCarouselTitle.vue')['default']
     JApp: typeof import('@jellyfin-vue/ui-toolkit/components')['JApp']
