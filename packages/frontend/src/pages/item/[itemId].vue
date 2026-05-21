@@ -268,6 +268,51 @@
           </div>
         </VCol>
       </VRow>
+      <VRow v-if="item.Chapters && item.Chapters.length > 0">
+        <VCol cols="12">
+          <h2 class="text-h6 text-sm-h5 uno-mb-2">
+            {{ $t('chapters') }}
+          </h2>
+          <VSlideGroup show-arrows>
+            <VSlideGroupItem
+              v-for="(chapter, index) in item.Chapters"
+              :key="`chapter-${index}`">
+              <button
+                type="button"
+                class="chapter-card uno-mr-3 uno-text-left"
+                @click="playFromChapter(chapter, index)">
+                <JImg
+                  v-if="chapter.ImageTag"
+                  :alt="chapter.Name ?? ''"
+                  :src="
+                    getItemImageUrl(item.Id ?? '', ImageType.Chapter, {
+                      tag: chapter.ImageTag,
+                      imageIndex: index
+                    })
+                  "
+                  class="chapter-thumb uno-rounded-md">
+                  <template #placeholder>
+                    <div class="chapter-thumb chapter-placeholder uno-flex uno-items-center uno-justify-center">
+                      <JIcon class="i-mdi:movie-open-outline uno-text-2xl" />
+                    </div>
+                  </template>
+                </JImg>
+                <div
+                  v-else
+                  class="chapter-thumb chapter-placeholder uno-flex uno-items-center uno-justify-center uno-rounded-md">
+                  <JIcon class="i-mdi:movie-open-outline uno-text-2xl" />
+                </div>
+                <div class="text-subtitle-2 uno-mt-1 uno-truncate">
+                  {{ chapter.Name || $t('chapterN', { n: index + 1 }) }}
+                </div>
+                <div class="text--secondary text-caption">
+                  {{ formatTicks(chapter.StartPositionTicks ?? 0) }}
+                </div>
+              </button>
+            </VSlideGroupItem>
+          </VSlideGroup>
+        </VCol>
+      </VRow>
       <VRow>
         <VCol
           v-if="item.Type === 'BoxSet'"
@@ -297,9 +342,11 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  BaseItemPerson,
-  MediaSourceInfo
+import {
+  ImageType,
+  type BaseItemPerson,
+  type ChapterInfo,
+  type MediaSourceInfo
 } from '@jellyfin/sdk/lib/generated-client';
 import { getItemsApi } from '@jellyfin/sdk/lib/utils/api/items-api';
 import { getLibraryApi } from '@jellyfin/sdk/lib/utils/api/library-api';
@@ -307,10 +354,13 @@ import { getUserLibraryApi } from '@jellyfin/sdk/lib/utils/api/user-library-api'
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { getItemDetailsLink, getMediaStreams } from '#/utils/items.ts';
+import { getItemImageUrl } from '#/utils/images.ts';
 import { getItemizedSelect } from '#/utils/forms.ts';
 import { useBaseItem } from '#/composables/apis.ts';
 import { useItemBackdrop } from '#/composables/backdrop.ts';
 import { useItemPageTitle } from '#/composables/page-title.ts';
+import { playbackManager } from '#/store/playback-manager.ts';
+import { formatTicks } from '#/utils/time.ts';
 
 const route = useRoute('/genre/[itemId]');
 
@@ -377,4 +427,44 @@ const currentSource = computed({
 
 useItemPageTitle(item);
 useItemBackdrop(item);
+
+/**
+ * Click handler for a chapter card. If the item is already playing,
+ * just seek; otherwise queue a fresh playback starting from the chapter's
+ * StartPositionTicks (converted to seconds for `play`).
+ */
+async function playFromChapter(chapter: ChapterInfo, _index: number): Promise<void> {
+  const startSeconds = (chapter.StartPositionTicks ?? 0) / 10_000_000;
+
+  if (playbackManager.currentItem.value?.Id === item.value.Id) {
+    playbackManager.currentTime.value = startSeconds;
+
+    return;
+  }
+
+  await playbackManager.play({
+    item: item.value,
+    startFromTime: startSeconds
+  });
+}
 </script>
+
+<style scoped>
+.chapter-card {
+  width: 200px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.chapter-thumb {
+  width: 200px;
+  height: 112px;
+  object-fit: cover;
+}
+
+.chapter-placeholder {
+  background-color: rgba(var(--j-theme-color-background), 0.4);
+}
+</style>

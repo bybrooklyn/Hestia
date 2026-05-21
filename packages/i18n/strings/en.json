@@ -60,6 +60,8 @@
   "changeServer": "Change server",
   "changeUser": "Change user",
   "channels": "Channels",
+  "chapterN": "Chapter {{n}}",
+  "chapters": "Chapters",
   "clearQueue": "Clear queue and stop playback",
   "clipboardSuccess": "Copied to clipboard",
   "clipboardUnsupported": "Copying to clipboard is unsupported in this browser",

@@ -192,8 +192,8 @@ Done when: extras are listed and playable.
 Design: surface `item.RemoteTrailers` / local trailers with a play action.
 Done when: a trailer is playable from the detail page.
 
-**`ITEM-7` — Chapters list on the detail page** · Absent · `not started` · seq 14 · depends: —
-Design: render `item.Chapters` with thumbnails on `pages/item/[itemId].vue`; click seeks during playback.
+**`ITEM-7` — Chapters list on the detail page** · Absent · `done` · seq 14 · depends: —
+Design: horizontal `<VSlideGroup>` of chapter cards on `pages/item/[itemId].vue`, each showing the server-side chapter thumbnail (`ImageType.Chapter` via `getItemImageUrl(itemId, ImageType.Chapter, { tag, imageIndex })`), the chapter name (falling back to `Chapter N`), and the formatted start time. Click → seek if the item is currently playing, otherwise start playback with `startFromTime`.
 Done when: chapters are listed and clickable.
 
 ### Search
