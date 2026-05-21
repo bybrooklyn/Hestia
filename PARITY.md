@@ -95,8 +95,8 @@ Done when: chapter-skip buttons jump cleanly forward / back.
 Design: new `RewindButton.vue` / `FastForwardButton.vue` wrap `playbackManager.skipBackward` / `skipForward` (±15 s, same path the `J` / `L` keys take via `use-playback.ts`). Slotted around the play/pause button in the OSD center group with `i-mdi:rewind-15` / `i-mdi:fast-forward-15` icons.
 Done when: both buttons appear in the OSD and skip ±15 s.
 
-**`VID-18` — End-at clock + position counter in the scrubber row** · Absent · `not started` · seq 18 · depends: —
-Design: jellyfin-web shows an "Ends at HH:MM" clock and a standalone running-position counter alongside the slider. Compute end-at from `Date.now() + (runtime - currentTime)`; we already render start / end on the slider.
+**`VID-18` — End-at clock + position counter in the scrubber row** · Absent · `done` · seq 18 · depends: —
+Design: the "Ends at" line previously rendered inside the title block has been lifted under `<TimeSlider>` and paired with a running "M:SS / H:MM:SS" position counter on the left. Reuses `getEndsAtTime` + the existing `formatTime` (`utils/time.ts`). Hidden on `xs` to avoid cramping mobile.
 Done when: the clock + counter render and update with playback.
 
 **`VID-19` — Standalone mute button in the OSD** · Absent · `not started` · seq 19 · depends: —

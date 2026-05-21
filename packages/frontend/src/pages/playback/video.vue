@@ -50,6 +50,12 @@
         <div class="uno-p-4">
           <TimeSlider />
           <div
+            v-if="$vuetify.display.smAndUp"
+            class="osd-clockrow text--secondary text-subtitle-2 uno-mt-1 uno-flex uno-items-center uno-justify-between">
+            <span>{{ positionLabel }}</span>
+            <span v-if="endsAtLabel">{{ endsAtLabel }}</span>
+          </div>
+          <div
             class="uno-relative uno-flex uno-items-stretch uno-justify-between">
             <div
               v-if="$vuetify.display.mdAndUp"
@@ -78,12 +84,6 @@
               <template v-else>
                 <span>{{ playbackManager.currentItem.value?.Name }}</span>
               </template>
-              <br>
-              <span
-                v-if="playbackManager.currentItem.value?.RunTimeTicks"
-                class="text-subtitle-2 text--secondary uno-truncate">
-                {{ getEndsAtTime((playbackManager.currentItem.value?.RunTimeTicks ?? 0) - msToTicks(playbackManager.currentTime.value * 1000)) }}
-              </span>
             </div>
             <div
               class="player-controls justify-md-center uno-flex uno-items-center uno-justify-start">
@@ -157,7 +157,7 @@ import {
 } from '#/store/index.ts';
 import { playbackManager } from '#/store/playback-manager.ts';
 import { playerElement, videoContainerRef } from '#/store/player-element.ts';
-import { getEndsAtTime, msToTicks } from '#/utils/time.ts';
+import { formatTime, getEndsAtTime, msToTicks } from '#/utils/time.ts';
 import { usePlayback } from '#/composables/use-playback.ts';
 
 defineOptions({
@@ -170,6 +170,33 @@ const currentSegment = computed(() => {
   return playbackManager.currentSegments.value.find(
     seg => timeInTicks >= Number(seg.StartTicks) && timeInTicks < Number(seg.EndTicks)
   );
+});
+
+/**
+ * "0:34:21 / 1:42:15" — the running position alongside total runtime.
+ * Mirrors jellyfin-web's scrubber-row layout so the user always has the
+ * numeric counterpart to the slider.
+ */
+const positionLabel = computed(() => {
+  const runtimeSecs = (playbackManager.currentItemRuntime.value ?? 0) / 1000;
+
+  return `${formatTime(playbackManager.currentTime.value)} / ${formatTime(runtimeSecs)}`;
+});
+
+/**
+ * "Ends at 9:42 PM" — wall-clock time when playback will finish.
+ * Updates in real time via `now.value` inside `getEndsAtTime`.
+ */
+const endsAtLabel = computed(() => {
+  const total = playbackManager.currentItem.value?.RunTimeTicks;
+
+  if (!total) {
+    return '';
+  }
+
+  const remaining = total - msToTicks(playbackManager.currentTime.value * 1000);
+
+  return getEndsAtTime(remaining);
 });
 
 /**
