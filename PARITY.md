@@ -83,9 +83,9 @@ Done when: two subtitle tracks render simultaneously.
 Design: touch handlers in `video.vue` for seek / volume / brightness.
 Done when: gestures work on a touch device.
 
-**`VID-15` — Previous / next track buttons in the OSD** · Absent · `not started` · seq 15 · depends: —
-Design: wire existing `playbackManager.setPreviousItem` / `setNextItem` to two new OSD buttons in `pages/playback/video.vue`. The keys (`Shift+P` / `Shift+N`) already work via `use-playback.ts`.
-Done when: both buttons appear in the OSD and behave like the keys.
+**`VID-15` — Previous / next track buttons in the OSD** · Absent · `done` · seq 15 · depends: —
+Design: `<PreviousTrackButton>` / `<NextTrackButton>` were already mounted in `video.vue` (and `music.vue`); this pass added top-positioned `<JTooltip>` wrappers and i18n labels so they meet the same affordance bar as the fullscreen / PiP buttons next to them.
+Done when: both buttons appear in the OSD with tooltips and behave like the keys.
 
 **`VID-16` — Previous / next chapter buttons in the OSD** · Absent · `not started` · seq 16 · depends: `VID-8`
 Design: jump to `item.Chapters[i].StartPositionTicks` relative to current time; reuse the chapter list already consumed by `VID-8`'s scrubber markers (`TimeSlider.vue`). Add two buttons to `video.vue`.
