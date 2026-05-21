@@ -188,8 +188,8 @@ Done when: an item can be added to a playlist.
 Design: fetch special features; show a row on `pages/item/[itemId].vue`.
 Done when: extras are listed and playable.
 
-**`ITEM-6` — Trailers** · Absent · `not started` · seq 13 · depends: —
-Design: surface `item.RemoteTrailers` / local trailers with a play action.
+**`ITEM-6` — Trailers** · Absent · `done` · seq 13 · depends: —
+Design: `pages/item/[itemId].vue` now fetches local trailers in parallel with the rest of the detail page (`useBaseItem(getUserLibraryApi, 'getLocalTrailers')`) and reads `item.RemoteTrailers` (a `MediaUrl[]` of external links — typically YouTube). When either array is non-empty a "Trailers" section renders before the related-items / collection row: local trailers as a `VSlideGroup` of `ItemCard`s (clickable, play via the card's inline `PlayButton`), and remote trailers as outlined `VBtn`s wrapped in native `<a target="_blank" rel="noopener noreferrer">` (VBtn doesn't type `target`/`rel`).
 Done when: a trailer is playable from the detail page.
 
 **`ITEM-7` — Chapters list on the detail page** · Absent · `done` · seq 14 · depends: —

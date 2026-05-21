@@ -313,6 +313,51 @@
           </VSlideGroup>
         </VCol>
       </VRow>
+      <VRow v-if="localTrailers.length > 0 || remoteTrailers.length > 0">
+        <VCol cols="12">
+          <h2 class="text-h6 text-sm-h5 uno-mb-2">
+            {{ $t('trailers') }}
+          </h2>
+          <VSlideGroup
+            v-if="localTrailers.length > 0"
+            show-arrows
+            class="uno-mb-2">
+            <VSlideGroupItem
+              v-for="trailer in localTrailers"
+              :key="trailer.Id">
+              <div class="trailer-card uno-mr-3">
+                <ItemCard
+                  :item="trailer"
+                  text
+                  overlay />
+              </div>
+            </VSlideGroupItem>
+          </VSlideGroup>
+          <div
+            v-if="remoteTrailers.length > 0"
+            class="uno-flex uno-flex-wrap uno-gap-2">
+            <!--
+              We use a native <a> here (not the VBtn `href` prop) because
+              VBtn doesn't type the `rel`/`target` attributes, and we want
+              both for safe external navigation.
+            -->
+            <a
+              v-for="(trailer, index) in remoteTrailers"
+              :key="`remote-trailer-${index}`"
+              :href="trailer.Url ?? undefined"
+              rel="noopener noreferrer"
+              target="_blank"
+              class="trailer-external-link">
+              <VBtn
+                variant="outlined"
+                size="small">
+                <JIcon class="i-mdi:open-in-new uno-mr-1" />
+                {{ trailer.Name || $t('trailer') }}
+              </VBtn>
+            </a>
+          </div>
+        </VCol>
+      </VRow>
       <VRow>
         <VCol
           v-if="item.Type === 'BoxSet'"
@@ -367,7 +412,8 @@ const route = useRoute('/genre/[itemId]');
 const [
   { data: item },
   { data: relatedItems },
-  { data: childItems }
+  { data: childItems },
+  { data: localTrailers }
 ] = await Promise.all([
   useBaseItem(getUserLibraryApi, 'getItem')(() => ({
     itemId: route.params.itemId
@@ -378,8 +424,13 @@ const [
   })),
   useBaseItem(getItemsApi, 'getItems')(() => ({
     parentId: route.params.itemId
+  })),
+  useBaseItem(getUserLibraryApi, 'getLocalTrailers')(() => ({
+    itemId: route.params.itemId
   }))
 ]);
+
+const remoteTrailers = computed(() => item.value.RemoteTrailers ?? []);
 
 const { data: currentSeries } = await useBaseItem(getUserLibraryApi, 'getItem')(() => ({
   itemId: item.value.SeriesId ?? ''
@@ -466,5 +517,13 @@ async function playFromChapter(chapter: ChapterInfo, _index: number): Promise<vo
 
 .chapter-placeholder {
   background-color: rgba(var(--j-theme-color-background), 0.4);
+}
+
+.trailer-card {
+  width: 180px;
+}
+
+.trailer-external-link {
+  text-decoration: none;
 }
 </style>

@@ -433,6 +433,7 @@
   "thumb": "Thumb",
   "title": "Title",
   "trailer": "Trailer",
+  "trailers": "Trailers",
   "transcodingAndStreaming": "Transcoding & streaming",
   "transcodingSettingsDescription": "Manage how this server handles transcoding and streaming to clients",
   "type": "Type",
