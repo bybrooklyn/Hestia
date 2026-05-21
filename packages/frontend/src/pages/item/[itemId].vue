@@ -313,6 +313,25 @@
           </VSlideGroup>
         </VCol>
       </VRow>
+      <VRow v-if="specialFeatures.length > 0">
+        <VCol cols="12">
+          <h2 class="text-h6 text-sm-h5 uno-mb-2">
+            {{ $t('specialFeatures') }}
+          </h2>
+          <VSlideGroup show-arrows>
+            <VSlideGroupItem
+              v-for="extra in specialFeatures"
+              :key="extra.Id">
+              <div class="trailer-card uno-mr-3">
+                <ItemCard
+                  :item="extra"
+                  text
+                  overlay />
+              </div>
+            </VSlideGroupItem>
+          </VSlideGroup>
+        </VCol>
+      </VRow>
       <VRow v-if="localTrailers.length > 0 || remoteTrailers.length > 0">
         <VCol cols="12">
           <h2 class="text-h6 text-sm-h5 uno-mb-2">
@@ -413,7 +432,8 @@ const [
   { data: item },
   { data: relatedItems },
   { data: childItems },
-  { data: localTrailers }
+  { data: localTrailers },
+  { data: specialFeatures }
 ] = await Promise.all([
   useBaseItem(getUserLibraryApi, 'getItem')(() => ({
     itemId: route.params.itemId
@@ -426,6 +446,9 @@ const [
     parentId: route.params.itemId
   })),
   useBaseItem(getUserLibraryApi, 'getLocalTrailers')(() => ({
+    itemId: route.params.itemId
+  })),
+  useBaseItem(getUserLibraryApi, 'getSpecialFeatures')(() => ({
     itemId: route.params.itemId
   }))
 ]);

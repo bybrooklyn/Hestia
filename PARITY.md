@@ -184,8 +184,8 @@ Done when: an item can be added to a (new or existing) collection.
 Design: new action in `Item/ItemMenu.vue` using the playlists API.
 Done when: an item can be added to a playlist.
 
-**`ITEM-5` — Special features / extras** · Absent · `not started` · seq 12 · depends: —
-Design: fetch special features; show a row on `pages/item/[itemId].vue`.
+**`ITEM-5` — Special features / extras** · Absent · `done` · seq 12 · depends: —
+Design: `pages/item/[itemId].vue` now fetches `getUserLibraryApi.getSpecialFeatures` alongside the rest of the detail-page queries and renders a "Special features" row above the trailers section (same `VSlideGroup` + `ItemCard` pattern used by `ITEM-6`). Each extra is a `BaseItemDto`, so playback is handled by the card's inline `PlayButton`.
 Done when: extras are listed and playable.
 
 **`ITEM-6` — Trailers** · Absent · `done` · seq 13 · depends: —
