@@ -213,6 +213,27 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/studio/[itemId]': RouteRecordInfo<
+      '/studio/[itemId]',
+      '/studio/:itemId',
+      { itemId: ParamValue<true> },
+      { itemId: ParamValue<false> },
+      | never
+    >,
+    '/tag/[tag]': RouteRecordInfo<
+      '/tag/[tag]',
+      '/tag/:tag',
+      { tag: ParamValue<true> },
+      { tag: ParamValue<false> },
+      | never
+    >,
+    '/year/[year]': RouteRecordInfo<
+      '/year/[year]',
+      '/year/:year',
+      { year: ParamValue<true> },
+      { year: ParamValue<false> },
+      | never
+    >,
     '/wizard': RouteRecordInfo<
       '/wizard',
       '/wizard',
@@ -386,6 +407,24 @@ declare module 'vue-router/auto-routes' {
     'src/pages/settings/users/new.vue': {
       routes:
         | '/settings/users/new'
+      views:
+        | never
+    }
+    'src/pages/studio/[itemId].vue': {
+      routes:
+        | '/studio/[itemId]'
+      views:
+        | never
+    }
+    'src/pages/tag/[tag].vue': {
+      routes:
+        | '/tag/[tag]'
+      views:
+        | never
+    }
+    'src/pages/year/[year].vue': {
+      routes:
+        | '/year/[year]'
       views:
         | never
     }

@@ -158,8 +158,13 @@ Done when: the user can switch between grid and list.
 Design: new `components/Library/LibrarySuggestions.vue` fetches `getResumeItems`, `getNextUp` (TV only) and `getLatestMedia` scoped to the current library via `parentId` and stacks them as `SwiperSection`s; `pages/library/[itemId].vue` renders a `VTabs` switch ("Browse" / "Suggestions") above the body and lazy-mounts the Suspense'd `<LibrarySuggestions>` only when the Suggestions tab is active. Tabs only appear when the library collection type supports it (movies / tvshows / music); the Browse-only AppBar controls (TypeButton, SortButton, FilterButton, view-mode toggle) are hidden when the Suggestions tab is active.
 Done when: suggestions show for a library.
 
-**`LIB-3` — Studios / Tags / Years browse views** · Absent · `not started` · seq 6 · depends: —
-Design: new pages mirroring the existing `genre`/`person` pages.
+**`LIB-3` — Studios / Tags / Years browse views** · Absent · `done` · seq 6 · depends: —
+Design: three new pages mirror the existing `genre/[itemId].vue` template:
+- `pages/studio/[itemId].vue` — filters via `getItems({ studioIds: [itemId] })`; resolves the studio's display name through `getUserLibraryApi.getItem`. `getItemDetailsLink` now routes `Type === 'Studio'` items here so studio cards in the library (`viewType=Studio`) become useful.
+- `pages/tag/[tag].vue` — tags are free-form strings, not entities, so the route parameter is the URL-encoded tag name; the page filters via `getItems({ tags: [decoded] })`.
+- `pages/year/[year].vue` — parses the param to a number, then filters via `getItems({ years: [n] })`; non-numeric params yield zero results rather than 500s.
+
+`pages/item/[itemId].vue` now also renders Studios + Tags chip rows (same `VSlideGroup` + `VChip` pattern as the existing Genres row), each linking into the new facet pages so the item detail surfaces the navigation entry points.
 Done when: these facets are browsable.
 
 **`LIB-4` — Trigger a library scan from the UI** · Absent · `done` · seq 7 · depends: —

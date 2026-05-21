@@ -98,6 +98,62 @@
               </VCol>
             </VRow>
             <VRow
+              v-if="item && item.Studios && item.Studios.length"
+              align="center">
+              <VCol
+                :cols="12"
+                :sm="2"
+                class="uno-truncate uno-px-0">
+                <label class="text--secondary">{{ $t('studios') }}</label>
+              </VCol>
+              <VCol
+                class="uno-px-0"
+                :cols="12"
+                :sm="10">
+                <VSlideGroup>
+                  <VSlideGroupItem
+                    v-for="(studio, index) in item.Studios"
+                    :key="`studio-${studio.Id}`">
+                    <VChip
+                      size="small"
+                      link
+                      :class="{ 'uno-ml-2': index > 0 }"
+                      :to="`/studio/${studio.Id}?type=${item.Type}`">
+                      {{ studio.Name }}
+                    </VChip>
+                  </VSlideGroupItem>
+                </VSlideGroup>
+              </VCol>
+            </VRow>
+            <VRow
+              v-if="item && item.Tags && item.Tags.length"
+              align="center">
+              <VCol
+                :cols="12"
+                :sm="2"
+                class="uno-truncate uno-px-0">
+                <label class="text--secondary">{{ $t('tags') }}</label>
+              </VCol>
+              <VCol
+                class="uno-px-0"
+                :cols="12"
+                :sm="10">
+                <VSlideGroup>
+                  <VSlideGroupItem
+                    v-for="(tag, index) in item.Tags"
+                    :key="`tag-${tag}`">
+                    <VChip
+                      size="small"
+                      link
+                      :class="{ 'uno-ml-2': index > 0 }"
+                      :to="`/tag/${encodeURIComponent(tag)}?type=${item.Type}`">
+                      {{ tag }}
+                    </VChip>
+                  </VSlideGroupItem>
+                </VSlideGroup>
+              </VCol>
+            </VRow>
+            <VRow
               v-if="item && directors.length && !$vuetify.display.smAndUp"
               align="center">
               <VCol

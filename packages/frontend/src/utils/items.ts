@@ -334,6 +334,10 @@ export function getItemDetailsLink(
         routeName = '/genre/[itemId]';
         break;
       }
+      case 'Studio': {
+        routeName = '/studio/[itemId]';
+        break;
+      }
       default: {
         routeName = '/item/[itemId]';
         break;
