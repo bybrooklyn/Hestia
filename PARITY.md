@@ -150,8 +150,8 @@ Done when: home section types match jellyfin-web.
 
 ### Libraries & browsing
 
-**`LIB-1` — List / alternate view mode** · Absent · `not started` · seq 4 · depends: —
-Design: add a grid/list toggle to `library/[itemId].vue`; add a list renderer to `Item/ItemGrid.vue` (currently grid-only; `viewType` there is an item-*type* filter, not a layout).
+**`LIB-1` — List / alternate view mode** · Absent · `done` · seq 4 · depends: —
+Design: new `components/Item/ItemList.vue` renders the same `BaseItemDto[]` as a `VList` of `VListItem` rows (64px thumbnail via `BlurhashImage`, title + per-type subtitle that picks the most useful disambiguator — album artist for music, series name for episodes, year otherwise — and the existing `ItemMenu` in the append slot). `library/[itemId].vue` gains a `VBtnToggle` between the filter button and the play actions that flips `viewMode` between `grid` and `list`; the choice is persisted globally in `localStorage` via `useStorage('library-view-mode', 'grid')`. `ItemGrid.vue` stays grid-only (the name is correct now that the list renderer is its own component).
 Done when: the user can switch between grid and list.
 
 **`LIB-2` — Suggestions tab per library** · Absent · `not started` · seq 5 · depends: —

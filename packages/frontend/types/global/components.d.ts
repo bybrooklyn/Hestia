@@ -42,6 +42,7 @@ declare module 'vue' {
     ItemCard: typeof import('./../../src/components/Item/Card/ItemCard.vue')['default']
     ItemCols: typeof import('./../../src/components/Layout/ItemCols.vue')['default']
     ItemGrid: typeof import('./../../src/components/Item/ItemGrid.vue')['default']
+    ItemList: typeof import('./../../src/components/Item/ItemList.vue')['default']
     ItemMenu: typeof import('./../../src/components/Item/ItemMenu.vue')['default']
     ItemsCarousel: typeof import('./../../src/components/Layout/Carousel/Item/ItemsCarousel.vue')['default']
     ItemsCarouselTitle: typeof import('./../../src/components/Layout/Carousel/Item/ItemsCarouselTitle.vue')['default']

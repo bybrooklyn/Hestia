@@ -42,6 +42,32 @@
         v-if="library && viewType && isSortable"
         :item="library"
         @change="onChangeFilter" />
+      <VBtnToggle
+        v-model="viewMode"
+        mandatory
+        density="compact"
+        variant="text"
+        divided
+        class="uno-ml-2">
+        <VBtn
+          :value="'grid'"
+          icon
+          size="small">
+          <JTooltip position="bottom">
+            {{ t('viewModeGrid') }}
+          </JTooltip>
+          <JIcon class="i-mdi:view-grid" />
+        </VBtn>
+        <VBtn
+          :value="'list'"
+          icon
+          size="small">
+          <JTooltip position="bottom">
+            {{ t('viewModeList') }}
+          </JTooltip>
+          <JIcon class="i-mdi:view-list" />
+        </VBtn>
+      </VBtnToggle>
       <VSpacer />
       <PlayButton
         v-if="library"
@@ -52,7 +78,17 @@
         :item="library" />
     </VAppBar>
     <VContainer>
+      <ItemList
+        v-if="viewMode === 'list'"
+        :items="items">
+        <h1
+          v-if="!hasFilters"
+          class="text-h5">
+          {{ hasFilters ? t('libraryEmptyFilters') : t('libraryEmpty') }}
+        </h1>
+      </ItemList>
       <ItemGrid
+        v-else
         :items="items">
         <h1
           v-if="!hasFilters"
@@ -78,9 +114,12 @@ import { getStudiosApi } from '@jellyfin/sdk/lib/utils/api/studios-api';
 import { computed, onBeforeMount, ref, shallowRef } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { useRoute } from 'vue-router';
+import { useStorage } from '@vueuse/core';
 import { useBaseItem } from '#/composables/apis.ts';
 import type { Filters } from '#/components/Buttons/FilterButton.vue';
 import { useItemPageTitle } from '#/composables/page-title.ts';
+
+type LibraryViewMode = 'grid' | 'list';
 
 const { t } = useTranslation();
 const route = useRoute('/library/[itemId]');
@@ -98,6 +137,11 @@ const COLLECTION_TYPES_MAPPINGS: Record<string, BaseItemKind> = {
 const innerItemKind = shallowRef<BaseItemKind>();
 const sortBy = shallowRef<string>();
 const sortAscending = shallowRef(true);
+/**
+ * Persisted across libraries via localStorage so the preference sticks
+ * once chosen. Defaults to grid to match the previous behaviour.
+ */
+const viewMode = useStorage<LibraryViewMode>('library-view-mode', 'grid');
 const queryLimit = shallowRef<number | undefined>(lazyLoadLimit);
 const filters = ref<Filters>({
   status: [],
