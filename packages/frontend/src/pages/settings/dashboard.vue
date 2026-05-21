@@ -3,6 +3,20 @@
     <template #title>
       {{ t('dashboard') }}
     </template>
+    <template #actions>
+      <JTooltip
+        position="bottom"
+        :text="t('scanAllLibrariesHint')">
+        <VBtn
+          variant="tonal"
+          color="primary"
+          :loading="scanLoading"
+          @click="scanAllLibraries">
+          <JIcon class="i-mdi:database-refresh-outline uno-mr-1" />
+          {{ t('scanAllLibraries') }}
+        </VBtn>
+      </JTooltip>
+    </template>
     <template #content>
       <VCol
         md="8"
@@ -172,14 +186,37 @@ meta:
 import type { SessionInfoDto, UserDto } from '@jellyfin/sdk/lib/generated-client';
 import { getSystemApi } from '@jellyfin/sdk/lib/utils/api/system-api';
 import { getSessionApi } from '@jellyfin/sdk/lib/utils/api/session-api';
+import { getLibraryApi } from '@jellyfin/sdk/lib/utils/api/library-api';
 import { useIntervalFn } from '@vueuse/core';
 import { computed, onScopeDispose, shallowRef, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { useApi } from '#/composables/apis.ts';
+import { useSnackbar } from '#/composables/use-snackbar.ts';
 import { remote } from '#/plugins/remote/index.ts';
 import { ticksToMs } from '#/utils/time.ts';
 
 const { t } = useTranslation();
+
+const scanLoading = shallowRef(false);
+
+/**
+ * Triggers a server-wide library scan via the SDK. The endpoint is
+ * fire-and-forget on the server side; the snackbar reports that the scan
+ * has been queued rather than waiting for completion (it can take minutes
+ * to hours and is tracked under Scheduled Tasks).
+ */
+async function scanAllLibraries(): Promise<void> {
+  scanLoading.value = true;
+
+  try {
+    await remote.sdk.newUserApi(getLibraryApi).refreshLibrary();
+    useSnackbar(t('libraryScanQueued'), 'success');
+  } catch {
+    useSnackbar(t('libraryScanFailed'), 'error');
+  } finally {
+    scanLoading.value = false;
+  }
+}
 
 /**
  * SystemInfo is a one-shot read — version, paths and encoders don't change

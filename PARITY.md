@@ -162,8 +162,8 @@ Done when: suggestions show for a library.
 Design: new pages mirroring the existing `genre`/`person` pages.
 Done when: these facets are browsable.
 
-**`LIB-4` — Trigger a library scan from the UI** · Absent · `not started` · seq 7 · depends: —
-Design: a refresh action calling the SDK library `refreshLibrary`.
+**`LIB-4` — Trigger a library scan from the UI** · Absent · `done` · seq 7 · depends: —
+Design: "Scan all libraries" action button in `pages/settings/dashboard.vue`'s `#actions` slot, calling `getLibraryApi.refreshLibrary` via the `remote` SDK. Reports queued/failure via `useSnackbar` — fire-and-forget on the server side.
 Done when: a scan can be triggered from the UI.
 
 ### Item details
