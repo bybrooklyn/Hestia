@@ -204,8 +204,8 @@ Done when: chapters are listed and clickable.
 Design: add filter controls (genre/year/etc.) to `search.vue`.
 Done when: results can be filtered.
 
-**`SRCH-2` — Recent searches / suggestions** · Absent · `not started` · seq 16 · depends: —
-Design: persist recent queries; show suggestions on focus.
+**`SRCH-2` — Recent searches / suggestions** · Absent · `done` · seq 16 · depends: —
+Design: persist the last 8 queries via `useStorage` (`search-recent-queries` localStorage key). When `pages/search.vue` is opened with no `?q=`, render the recents as closable chips at the top of the page; clicking one pushes the query back into the route. The `searchDebounced` watcher records every distinct query (case-insensitive dedupe) once it lands.
 Done when: recent searches appear.
 
 ### User preferences

@@ -37,7 +37,35 @@
       </VTabs>
     </VAppBar>
     <VContainer class="after-second-toolbar">
-      <VRow>
+      <VRow
+        v-if="!searchQuery && recentQueries.length > 0">
+        <VCol>
+          <div class="uno-mb-3 uno-flex uno-items-center uno-justify-between">
+            <h3 class="text-h6">
+              {{ $t('recentSearches') }}
+            </h3>
+            <VBtn
+              variant="text"
+              size="small"
+              @click="clearRecents">
+              {{ $t('clear') }}
+            </VBtn>
+          </div>
+          <div class="uno-flex uno-flex-wrap uno-gap-2">
+            <VChip
+              v-for="q in recentQueries"
+              :key="q"
+              link
+              prepend-icon="i-mdi:history"
+              closable
+              @click="runSearch(q)"
+              @click:close="removeRecent(q)">
+              {{ q }}
+            </VChip>
+          </div>
+        </VCol>
+      </VRow>
+      <VRow v-else>
         <VCol>
           <VWindow
             v-model="searchTab"
@@ -74,8 +102,8 @@
 import { BaseItemKind } from '@jellyfin/sdk/lib/generated-client';
 import { getItemsApi } from '@jellyfin/sdk/lib/utils/api/items-api';
 import { getPersonsApi } from '@jellyfin/sdk/lib/utils/api/persons-api';
-import { computedAsync, refDebounced } from '@vueuse/core';
-import { computed } from 'vue';
+import { computedAsync, refDebounced, useStorage } from '@vueuse/core';
+import { computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { defu } from 'defu';
 import { apiStore } from '#/store/dbs/api/index.ts';
@@ -98,6 +126,52 @@ const searchTab = computed({
 });
 const searchQuery = computed(() => route.query.q?.toString() ?? '');
 const searchDebounced = refDebounced(searchQuery, 400);
+
+/**
+ * Persist the user's last queries in `localStorage` so re-running a recent
+ * search is one click away. The list is capped at 8, deduped case-insensitively,
+ * most-recent first.
+ */
+const RECENT_LIMIT = 8;
+const recentQueries = useStorage<string[]>('search-recent-queries', []);
+
+watch(searchDebounced, (q) => {
+  const trimmed = q.trim();
+
+  if (!trimmed) {
+    return;
+  }
+
+  const lower = trimmed.toLowerCase();
+  const filtered = recentQueries.value.filter(
+    existing => existing.toLowerCase() !== lower
+  );
+
+  recentQueries.value = [trimmed, ...filtered].slice(0, RECENT_LIMIT);
+});
+
+/**
+ * Re-run a search by pushing the chosen query back into the URL — the
+ * existing `searchQuery` computed listens to `route.query.q` and the rest
+ * of the pipeline follows.
+ */
+function runSearch(q: string): void {
+  void router.replace(defu({ query: { q } }, router.currentRoute.value));
+}
+
+/**
+ * Drop a single query from the recents list (close icon on the chip).
+ */
+function removeRecent(q: string): void {
+  recentQueries.value = recentQueries.value.filter(existing => existing !== q);
+}
+
+/**
+ * Empty the recents list (the "Clear" button next to the heading).
+ */
+function clearRecents(): void {
+  recentQueries.value = [];
+}
 const itemSearchMethod = computed(() => searchDebounced.value ? 'getItems' : undefined);
 const peopleSearchMethod = computed(() => searchDebounced.value ? 'getPersons' : undefined);
 const [
