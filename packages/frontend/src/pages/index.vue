@@ -44,6 +44,7 @@ import { isNil } from '@jellyfin-vue/shared/validation';
 import { CardShapes, getShapeFromCollectionType } from '#/utils/items.ts';
 import { usePageTitle } from '#/composables/page-title.ts';
 import { useIndexPage } from '#/composables/use-index-page.ts';
+import { homeSettings } from '#/store/settings/home.ts';
 
 interface HomeSection {
   title: string;
@@ -59,6 +60,10 @@ usePageTitle(() => t('home'));
 const { carousel, nextUp, views, resumeVideo, latestPerLibrary } = await useIndexPage();
 
 const latestMediaSections = computed(() => {
+  if (!homeSettings.state.value.showLatestMedia) {
+    return [];
+  }
+
   return views.value.map((userView) => {
     if (
       userView.CollectionType
@@ -75,39 +80,38 @@ const latestMediaSections = computed(() => {
 });
 
 const homeSections = computed<HomeSection[]>(() => {
-  return [
-    /**
-     * Library tiles
-     */
-    {
+  const sections: HomeSection[] = [];
+
+  if (homeSettings.state.value.showLibraries) {
+    sections.push({
       title: t('libraries'),
       libraryId: '',
       shape: CardShapes.Thumb,
       type: 'libraries'
-    },
-    /**
-     * Resume video
-     */
-    {
+    });
+  }
+
+  if (homeSettings.state.value.showContinueWatching) {
+    sections.push({
       title: t('continueWatching'),
       libraryId: '',
       shape: CardShapes.Thumb,
       type: 'resumevideo'
-    },
-    /**
-     * Next up
-     */
-    {
+    });
+  }
+
+  if (homeSettings.state.value.showNextUp) {
+    sections.push({
       title: t('nextUp'),
       libraryId: '',
       shape: CardShapes.Thumb,
       type: 'nextup'
-    },
-    /**
-     * Latest media
-     */
-    ...latestMediaSections.value
-  ];
+    });
+  }
+
+  sections.push(...latestMediaSections.value);
+
+  return sections;
 });
 
 /**

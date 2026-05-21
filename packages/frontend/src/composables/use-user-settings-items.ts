@@ -5,7 +5,7 @@
  *
  * Entries with `link: undefined` are surfaced but disabled — they
  * correspond to capabilities in PARITY.md that don't yet have a page
- * (Home Screen, Playback, Media Players).
+ * (Playback, Media Players).
  */
 import { computed, type ComputedRef } from 'vue';
 import { useTranslation } from 'i18next-vue';
@@ -32,7 +32,7 @@ export function useUserSettingsItems(): ComputedRef<UserSettingsItem[]> {
       icon: 'i-mdi:home',
       name: t('homeScreen'),
       description: t('homeScreenSettingsDescription'),
-      link: undefined
+      link: '/settings/home'
     },
     {
       icon: 'i-mdi:play-pause',

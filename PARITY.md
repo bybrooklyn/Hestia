@@ -140,8 +140,8 @@ Design: `pages/settings/experimental.vue` + `store/settings/experimental.ts` (de
 
 ### Home
 
-**`HOME-1` — Home Screen settings page** · Surfaced · `not started` · seq 2 · depends: —
-Design: new `pages/settings/home.vue` + store; enable the disabled "Home Screen" settings-index row; configure section visibility/order consumed by `utils/items.ts` / `pages/index.vue`. (Also delivers the owner's "drop Libraries section" default — `FORK_ROADMAP.md` §9.)
+**`HOME-1` — Home Screen settings page** · Surfaced · `done` · seq 2 · depends: —
+Design: new `pages/settings/home.vue` + `store/settings/home.ts` (device-local via `CommonStore` + `localStorage`) with four toggles — `showLibraries`, `showContinueWatching`, `showNextUp`, `showLatestMedia`. `pages/index.vue` reads each from the store before pushing the corresponding `HomeSection` into the list, so flipping a toggle reorders the home immediately without re-fetching. The `showLibraries` default is `false`, delivering `FORK_ROADMAP.md` §9's "drop Libraries section" default. Settings-index row in `use-user-settings-items.ts` now points to the new page.
 Done when: the page works and the home screen reflects the configuration.
 
 **`HOME-2` — Additional home section types** · Absent · `not started` · seq 3 · depends: `HOME-1` · **UNVERIFIED** (exact jellyfin-web section list)
