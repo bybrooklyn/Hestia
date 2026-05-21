@@ -54,6 +54,10 @@
     :item="item"
     :media-source-index="mediaSourceIndex"
     @close="mediaInfoDialog = false" />
+  <SubtitleSearchDialog
+    v-if="subtitleSearchDialog && item.Id"
+    :item="item"
+    @close="subtitleSearchDialog = false" />
 </template>
 
 <script lang="ts">
@@ -137,13 +141,15 @@ const metadataDialog = shallowRef(false);
 const refreshDialog = shallowRef(false);
 const identifyItemDialog = shallowRef(false);
 const mediaInfoDialog = shallowRef(false);
+const subtitleSearchDialog = shallowRef(false);
 
 const isActive = computed(() => [
   show.value,
   metadataDialog.value,
   refreshDialog.value,
   identifyItemDialog.value,
-  mediaInfoDialog.value
+  mediaInfoDialog.value,
+  subtitleSearchDialog.value
 ].some(Boolean));
 
 watch(isActive, newVal =>
@@ -314,6 +320,13 @@ const identifyItemAction = {
     identifyItemDialog.value = true;
   }
 };
+const subtitleSearchAction = {
+  title: t('searchSubtitles'),
+  icon: 'i-mdi:closed-caption',
+  action: (): void => {
+    subtitleSearchDialog.value = true;
+  }
+};
 const copyDownloadURLAction = {
   title: t('copyStreamURL'),
   icon: 'i-mdi:content-copy',
@@ -466,6 +479,13 @@ function getLibraryOptions(): MenuOption[] {
     libraryOptions.push(refreshAction);
   }
 
+  if (
+    remote.auth.currentUser.value?.Policy?.IsAdministrator
+    && supportsSubtitleSearch(item)
+  ) {
+    libraryOptions.push(subtitleSearchAction);
+  }
+
   if (remote.auth.currentUser.value?.Policy?.IsAdministrator) {
     libraryOptions.push(editMetadataAction);
 
@@ -482,6 +502,16 @@ function getLibraryOptions(): MenuOption[] {
   }
 
   return libraryOptions;
+}
+
+/**
+ * The Jellyfin server only supports remote subtitle search for the
+ * three video kinds that have an OpenSubtitles / OMDB lookup path —
+ * movies, episodes, and standalone videos. Books, music, etc. would
+ * 404. Gate the menu option to keep it relevant.
+ */
+function supportsSubtitleSearch(it: BaseItemDto): boolean {
+  return it.Type === 'Movie' || it.Type === 'Episode' || it.Type === 'Video';
 }
 
 const options = computed(() => {

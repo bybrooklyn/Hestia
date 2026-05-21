@@ -107,6 +107,7 @@ declare module 'vue' {
     Snackbar: typeof import('./../../src/components/System/Snackbar.vue')['default']
     SortButton: typeof import('./../../src/components/Buttons/SortButton.vue')['default']
     Splashscreen: typeof import('./../../src/components/Layout/Splashscreen.vue')['default']
+    SubtitleSearchDialog: typeof import('./../../src/components/Item/SubtitleSearchDialog.vue')['default']
     SubtitleSelectionButton: typeof import('./../../src/components/Buttons/SubtitleSelectionButton.vue')['default']
     SubtitleTrack: typeof import('./../../src/components/Playback/SubtitleTrack.vue')['default']
     SwiperSection: typeof import('./../../src/components/Layout/SwiperSection.vue')['default']

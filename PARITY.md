@@ -177,8 +177,8 @@ Done when: a scan can be triggered from the UI.
 Design: wrap the editor's fields in a `<VForm v-model="formValid">` and attach `:rules` to the fields the server validates: Name required, ProductionYear in [1800, 2200], CommunityRating in [0, 10], CriticRating in [0, 100]. Save button is `:disabled="formValid === false"` so it stays usable on initial mount when Vuetify hasn't yet emitted a validation result. The catch-block fallback for server-side `400` is kept as a safety net.
 Done when: invalid input is blocked client-side.
 
-**`ITEM-2` — Download / search subtitles for an item** · Absent · `not started` · seq 9 · depends: —
-Design: a subtitle-search dialog using the SDK subtitle API.
+**`ITEM-2` — Download / search subtitles for an item** · Absent · `done` · seq 9 · depends: —
+Design: new `components/Item/SubtitleSearchDialog.vue` drives `getSubtitleApi.searchRemoteSubtitles` with an ISO 639-2 (three-letter) language code; results render as a `VList` showing provider / frame rate / forced / machine-translated flags, with a per-row Download button that calls `downloadRemoteSubtitles`. `ItemMenu.vue` adds a "Search subtitles" library action gated behind `policy.IsAdministrator && Type ∈ {Movie, Episode, Video}` so the option only appears where the API will accept the call.
 Done when: subtitles can be searched and downloaded per item.
 
 **`ITEM-3` — Add item to a collection** · Absent · `not started` · seq 10 · depends: `COLL-2`
