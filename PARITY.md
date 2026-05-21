@@ -189,8 +189,8 @@ Done when: subtitles can be searched and downloaded per item.
 Design: new `components/Item/Collection/AddToCollectionDialog.vue` lists the user's existing BoxSets (`getItems({ includeItemTypes: ['BoxSet'], recursive: true })`) in a `VSelect`, with a sentinel "New collection…" option at the top that mounts the `CreateCollectionDialog` from `COLL-2` with the current item seeded — so creating-with-seed and adding-to-existing share one entry point. `ItemMenu.vue` adds the "Add to collection" library action gated on item type (`Movie | Series | Video | MusicAlbum | MusicArtist | Audio | Book` — the kinds the server accepts as collection members) and hides it in the queue context to avoid offering an obviously-broken option.
 Done when: an item can be added to a (new or existing) collection.
 
-**`ITEM-4` — Add item to a playlist** · Absent · `not started` · seq 11 · depends: `COLL-5`
-Design: new action in `Item/ItemMenu.vue` using the playlists API.
+**`ITEM-4` — Add item to a playlist** · Absent · `done` · seq 11 · depends: `COLL-5`
+Design: new `components/Item/Collection/AddToPlaylistDialog.vue` lists the user's existing playlists (`getItems({ includeItemTypes: ['Playlist'], recursive: true })`) in a `VSelect`, with a sentinel "New playlist…" option that mounts the `CreatePlaylistDialog` from `COLL-5` seeded with the current item. Adding to an existing playlist calls `getPlaylistsApi.addItemToPlaylist({ playlistId, ids: [item.Id], userId })`. `ItemMenu.vue` exposes the "Add to playlist" library action gated on a slightly broader item-type set than collections (adds Season + Episode — playlists can span series structure) and hidden in the queue context where "Add to queue" already lives.
 Done when: an item can be added to a playlist.
 
 **`ITEM-5` — Special features / extras** · Absent · `done` · seq 12 · depends: —

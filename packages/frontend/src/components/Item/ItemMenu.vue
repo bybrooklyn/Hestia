@@ -62,6 +62,10 @@
     v-if="addToCollectionDialog && item.Id"
     :item="item"
     @close="addToCollectionDialog = false" />
+  <AddToPlaylistDialog
+    v-if="addToPlaylistDialog && item.Id"
+    :item="item"
+    @close="addToPlaylistDialog = false" />
 </template>
 
 <script lang="ts">
@@ -147,6 +151,7 @@ const identifyItemDialog = shallowRef(false);
 const mediaInfoDialog = shallowRef(false);
 const subtitleSearchDialog = shallowRef(false);
 const addToCollectionDialog = shallowRef(false);
+const addToPlaylistDialog = shallowRef(false);
 
 const isActive = computed(() => [
   show.value,
@@ -155,7 +160,8 @@ const isActive = computed(() => [
   identifyItemDialog.value,
   mediaInfoDialog.value,
   subtitleSearchDialog.value,
-  addToCollectionDialog.value
+  addToCollectionDialog.value,
+  addToPlaylistDialog.value
 ].some(Boolean));
 
 watch(isActive, newVal =>
@@ -340,6 +346,13 @@ const addToCollectionAction = {
     addToCollectionDialog.value = true;
   }
 };
+const addToPlaylistAction = {
+  title: t('addToPlaylist'),
+  icon: 'i-mdi:playlist-plus',
+  action: (): void => {
+    addToPlaylistDialog.value = true;
+  }
+};
 const copyDownloadURLAction = {
   title: t('copyStreamURL'),
   icon: 'i-mdi:content-copy',
@@ -503,6 +516,10 @@ function getLibraryOptions(): MenuOption[] {
     libraryOptions.push(addToCollectionAction);
   }
 
+  if (canAddToPlaylist(item)) {
+    libraryOptions.push(addToPlaylistAction);
+  }
+
   if (remote.auth.currentUser.value?.Policy?.IsAdministrator) {
     libraryOptions.push(editMetadataAction);
 
@@ -547,6 +564,27 @@ function canAddToCollection(it: BaseItemDto): boolean {
     || it.Type === 'Video'
     || it.Type === 'MusicAlbum'
     || it.Type === 'MusicArtist'
+    || it.Type === 'Audio'
+    || it.Type === 'Book';
+}
+
+/**
+ * Playlists accept playable item types — broadly the same set as
+ * collections plus episodes / seasons (the server lets a playlist span
+ * series structure). Hidden from the queue context where "add to
+ * queue" already lives in `getQueueOptions`.
+ */
+function canAddToPlaylist(it: BaseItemDto): boolean {
+  if (queue) {
+    return false;
+  }
+
+  return it.Type === 'Movie'
+    || it.Type === 'Series'
+    || it.Type === 'Season'
+    || it.Type === 'Episode'
+    || it.Type === 'Video'
+    || it.Type === 'MusicAlbum'
     || it.Type === 'Audio'
     || it.Type === 'Book';
 }

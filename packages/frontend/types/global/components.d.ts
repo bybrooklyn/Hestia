@@ -14,6 +14,7 @@ declare module 'vue' {
     AboutLinks: typeof import('./../../src/components/System/AboutLinks.vue')['default']
     AddApiKey: typeof import('./../../src/components/System/AddApiKey.vue')['default']
     AddToCollectionDialog: typeof import('./../../src/components/Item/Collection/AddToCollectionDialog.vue')['default']
+    AddToPlaylistDialog: typeof import('./../../src/components/Item/Collection/AddToPlaylistDialog.vue')['default']
     AdminSettingsLayout: typeof import('./../../src/components/Layout/AdminSettingsLayout.vue')['default']
     AddServerForm: typeof import('./../../src/components/Forms/AddServerForm.vue')['default']
     AppBar: typeof import('./../../src/components/Layout/AppBar/AppBar.vue')['default']
