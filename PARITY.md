@@ -185,8 +185,8 @@ Done when: invalid input is blocked client-side.
 Design: new `components/Item/SubtitleSearchDialog.vue` drives `getSubtitleApi.searchRemoteSubtitles` with an ISO 639-2 (three-letter) language code; results render as a `VList` showing provider / frame rate / forced / machine-translated flags, with a per-row Download button that calls `downloadRemoteSubtitles`. `ItemMenu.vue` adds a "Search subtitles" library action gated behind `policy.IsAdministrator && Type ∈ {Movie, Episode, Video}` so the option only appears where the API will accept the call.
 Done when: subtitles can be searched and downloaded per item.
 
-**`ITEM-3` — Add item to a collection** · Absent · `not started` · seq 10 · depends: `COLL-2`
-Design: new action in `Item/ItemMenu.vue` (verified: no such action today) using the collection API.
+**`ITEM-3` — Add item to a collection** · Absent · `done` · seq 10 · depends: `COLL-2`
+Design: new `components/Item/Collection/AddToCollectionDialog.vue` lists the user's existing BoxSets (`getItems({ includeItemTypes: ['BoxSet'], recursive: true })`) in a `VSelect`, with a sentinel "New collection…" option at the top that mounts the `CreateCollectionDialog` from `COLL-2` with the current item seeded — so creating-with-seed and adding-to-existing share one entry point. `ItemMenu.vue` adds the "Add to collection" library action gated on item type (`Movie | Series | Video | MusicAlbum | MusicArtist | Audio | Book` — the kinds the server accepts as collection members) and hides it in the queue context to avoid offering an obviously-broken option.
 Done when: an item can be added to a (new or existing) collection.
 
 **`ITEM-4` — Add item to a playlist** · Absent · `not started` · seq 11 · depends: `COLL-5`

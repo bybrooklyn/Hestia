@@ -58,6 +58,10 @@
     v-if="subtitleSearchDialog && item.Id"
     :item="item"
     @close="subtitleSearchDialog = false" />
+  <AddToCollectionDialog
+    v-if="addToCollectionDialog && item.Id"
+    :item="item"
+    @close="addToCollectionDialog = false" />
 </template>
 
 <script lang="ts">
@@ -142,6 +146,7 @@ const refreshDialog = shallowRef(false);
 const identifyItemDialog = shallowRef(false);
 const mediaInfoDialog = shallowRef(false);
 const subtitleSearchDialog = shallowRef(false);
+const addToCollectionDialog = shallowRef(false);
 
 const isActive = computed(() => [
   show.value,
@@ -149,7 +154,8 @@ const isActive = computed(() => [
   refreshDialog.value,
   identifyItemDialog.value,
   mediaInfoDialog.value,
-  subtitleSearchDialog.value
+  subtitleSearchDialog.value,
+  addToCollectionDialog.value
 ].some(Boolean));
 
 watch(isActive, newVal =>
@@ -327,6 +333,13 @@ const subtitleSearchAction = {
     subtitleSearchDialog.value = true;
   }
 };
+const addToCollectionAction = {
+  title: t('addToCollection'),
+  icon: 'i-mdi:folder-multiple-plus',
+  action: (): void => {
+    addToCollectionDialog.value = true;
+  }
+};
 const copyDownloadURLAction = {
   title: t('copyStreamURL'),
   icon: 'i-mdi:content-copy',
@@ -486,6 +499,10 @@ function getLibraryOptions(): MenuOption[] {
     libraryOptions.push(subtitleSearchAction);
   }
 
+  if (canAddToCollection(item)) {
+    libraryOptions.push(addToCollectionAction);
+  }
+
   if (remote.auth.currentUser.value?.Policy?.IsAdministrator) {
     libraryOptions.push(editMetadataAction);
 
@@ -512,6 +529,26 @@ function getLibraryOptions(): MenuOption[] {
  */
 function supportsSubtitleSearch(it: BaseItemDto): boolean {
   return it.Type === 'Movie' || it.Type === 'Episode' || it.Type === 'Video';
+}
+
+/**
+ * Collections (BoxSet) accept top-level library items as members.
+ * Hiding the action for the BoxSet itself, virtual folders (libraries
+ * proper), and the queue context keeps the menu from offering an
+ * obviously-broken option.
+ */
+function canAddToCollection(it: BaseItemDto): boolean {
+  if (queue) {
+    return false;
+  }
+
+  return it.Type === 'Movie'
+    || it.Type === 'Series'
+    || it.Type === 'Video'
+    || it.Type === 'MusicAlbum'
+    || it.Type === 'MusicArtist'
+    || it.Type === 'Audio'
+    || it.Type === 'Book';
 }
 
 const options = computed(() => {
