@@ -168,8 +168,8 @@ Done when: a scan can be triggered from the UI.
 
 ### Item details
 
-**`ITEM-1` — Metadata editor: finish client-side validation** · Surfaced · `not started` · seq 8 · depends: —
-Design: validate input in `Item/Metadata/MetadataEditor.vue` before POST (the existing TODOs).
+**`ITEM-1` — Metadata editor: finish client-side validation** · Surfaced · `done` · seq 8 · depends: —
+Design: wrap the editor's fields in a `<VForm v-model="formValid">` and attach `:rules` to the fields the server validates: Name required, ProductionYear in [1800, 2200], CommunityRating in [0, 10], CriticRating in [0, 100]. Save button is `:disabled="formValid === false"` so it stays usable on initial mount when Vuetify hasn't yet emitted a validation result. The catch-block fallback for server-side `400` is kept as a safety net.
 Done when: invalid input is blocked client-side.
 
 **`ITEM-2` — Download / search subtitles for an item** · Absent · `not started` · seq 9 · depends: —

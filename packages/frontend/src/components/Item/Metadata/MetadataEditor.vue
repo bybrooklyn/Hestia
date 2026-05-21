@@ -32,165 +32,171 @@
           {{ t('images') }}
         </VTab>
       </VTabs>
-      <VWindow
-        v-model="tabName"
+      <VForm
+        v-model="formValid"
         class="pa-2 flex-fill">
-        <VWindowItem value="general">
-          <VSelect
-            v-if="contentOptions.length"
-            v-model="contentOption"
-            :items="contentOptions"
-            :label="t('contentType')"
-            item-title="key"
-            item-value="value"
-            return-object />
-          <VTextField
-            v-model="metadata.Name"
-            variant="outlined"
-            :label="t('title')" />
-          <VTextField
-            v-model="metadata.OriginalTitle"
-            variant="outlined"
-            :label="t('originalTitle')" />
-          <VTextField
-            v-model="metadata.ForcedSortName"
-            variant="outlined"
-            :label="t('sortTitle')" />
-          <VTextField
-            v-model="tagLine"
-            variant="outlined"
-            :label="t('tagline')" />
-          <VTextarea
-            v-model="metadata.Overview"
-            variant="outlined"
-            no-resize
-            rows="4"
-            :label="t('overview')" />
-        </VWindowItem>
-        <VWindowItem value="details">
-          <DateInput
-            :value="dateCreated"
-            :label="t('dateAdded')"
-            @update:date="
-              (value) => {
-                metadata!.DateCreated = formatISO(new Date(value))
-              }
-            " />
-          <VRow>
-            <VCol
-              sm="6"
-              cols="12">
-              <VTextField
-                v-model="metadata.CommunityRating"
-                variant="outlined"
-                :label="t('communityRating')" />
-            </VCol>
-            <VCol
-              sm="6"
-              cols="12">
-              <VTextField
-                v-model="metadata.CriticRating"
-                variant="outlined"
-                :label="t('criticRating')" />
-            </VCol>
-          </VRow>
+        <VWindow v-model="tabName">
+          <VWindowItem value="general">
+            <VSelect
+              v-if="contentOptions.length"
+              v-model="contentOption"
+              :items="contentOptions"
+              :label="t('contentType')"
+              item-title="key"
+              item-value="value"
+              return-object />
+            <VTextField
+              v-model="metadata.Name"
+              variant="outlined"
+              :label="t('title')"
+              :rules="[requiredRule]" />
+            <VTextField
+              v-model="metadata.OriginalTitle"
+              variant="outlined"
+              :label="t('originalTitle')" />
+            <VTextField
+              v-model="metadata.ForcedSortName"
+              variant="outlined"
+              :label="t('sortTitle')" />
+            <VTextField
+              v-model="tagLine"
+              variant="outlined"
+              :label="t('tagline')" />
+            <VTextarea
+              v-model="metadata.Overview"
+              variant="outlined"
+              no-resize
+              rows="4"
+              :label="t('overview')" />
+          </VWindowItem>
+          <VWindowItem value="details">
+            <DateInput
+              :value="dateCreated"
+              :label="t('dateAdded')"
+              @update:date="
+                (value) => {
+                  metadata!.DateCreated = formatISO(new Date(value))
+                }
+              " />
+            <VRow>
+              <VCol
+                sm="6"
+                cols="12">
+                <VTextField
+                  v-model="metadata.CommunityRating"
+                  variant="outlined"
+                  :label="t('communityRating')"
+                  :rules="[ratingRule(0, 10)]" />
+              </VCol>
+              <VCol
+                sm="6"
+                cols="12">
+                <VTextField
+                  v-model="metadata.CriticRating"
+                  variant="outlined"
+                  :label="t('criticRating')"
+                  :rules="[ratingRule(0, 100)]" />
+              </VCol>
+            </VRow>
 
-          <DateInput
-            :value="premiereDate"
-            :label="t('releaseDate')"
-            @update:date="
-              (value) => {
-                metadata!.PremiereDate = formatISO(new Date(value))
-              }
-            " />
-          <VTextField
-            v-model="metadata.ProductionYear"
-            variant="outlined"
-            :label="t('year')" />
-          <VTextField
-            v-model="metadata.OfficialRating"
-            variant="outlined"
-            :label="t('parentalRating')" />
-          <VTextField
-            v-model="metadata.CustomRating"
-            variant="outlined"
-            :label="t('customRating')" />
-          <VCombobox
-            v-model="genresModel"
-            :items="genres"
-            :label="t('genres')"
-            hide-selected
-            multiple
-            variant="outlined"
-            :hide-no-data="false"
-            chips
-            closable-chips />
-          <VCombobox
-            v-model="tagsModel"
-            :label="t('tags')"
-            multiple
-            variant="outlined"
-            chips
-            closable-chips />
-        </VWindowItem>
-        <VWindowItem value="castAndCrew">
-          <VList lines="two">
-            <VListItem
-              :title="t('addNewPerson')"
-              @click="onPersonAdd">
-              <template #append>
-                <VAvatar>
-                  <JIcon class="i-mdi:plus-circle" />
-                </VAvatar>
-              </template>
-            </VListItem>
-            <VListItem
-              v-for="(item, i) in metadata.People"
-              :key="`${item.Id}-${i}`"
-              :title="item.Name ?? undefined"
-              :subtitle="(item.Role || item.Type) ?? undefined"
-              @click="onPersonEdit(item)">
-              <template #prepend>
-                <VAvatar>
-                  <JImg
-                    v-if="item.Id && item.PrimaryImageTag"
-                    :alt="$t('person')"
-                    :src="
-                      getItemImageUrl(
-                        item.Id,
-                        ImageType.Primary
-                      )
-                    ">
-                    <template #placeholder>
-                      <JIcon
-                        class="bg-grey-darken-3 i-mdi:account" />
-                    </template>
-                  </JImg>
-                </VAvatar>
-              </template>
-              <template #append>
-                <VAvatar @click.stop="onPersonDel(i)">
-                  <JIcon class="i-mdi:delete" />
-                </VAvatar>
-              </template>
-            </VListItem>
-          </VList>
-          <PersonEditor
-            :person="person"
-            @update:person="onPersonSave"
-            @close="person = undefined" />
-        </VWindowItem>
-        <VWindowItem value="images">
-          <ImageEditor
-            :metadata="metadata"
-            @add-image="isImageDialogVisible = true" />
-          <UploadImageDialog
-            :item-id="itemId"
-            :is-image-dialog-visible="isImageDialogVisible"
-            @close="isImageDialogVisible = false"
-            @upload-image="onImageUpload" />
-        </VWindowItem>
-      </VWindow>
+            <DateInput
+              :value="premiereDate"
+              :label="t('releaseDate')"
+              @update:date="
+                (value) => {
+                  metadata!.PremiereDate = formatISO(new Date(value))
+                }
+              " />
+            <VTextField
+              v-model="metadata.ProductionYear"
+              variant="outlined"
+              :label="t('year')"
+              :rules="[yearRule]" />
+            <VTextField
+              v-model="metadata.OfficialRating"
+              variant="outlined"
+              :label="t('parentalRating')" />
+            <VTextField
+              v-model="metadata.CustomRating"
+              variant="outlined"
+              :label="t('customRating')" />
+            <VCombobox
+              v-model="genresModel"
+              :items="genres"
+              :label="t('genres')"
+              hide-selected
+              multiple
+              variant="outlined"
+              :hide-no-data="false"
+              chips
+              closable-chips />
+            <VCombobox
+              v-model="tagsModel"
+              :label="t('tags')"
+              multiple
+              variant="outlined"
+              chips
+              closable-chips />
+          </VWindowItem>
+          <VWindowItem value="castAndCrew">
+            <VList lines="two">
+              <VListItem
+                :title="t('addNewPerson')"
+                @click="onPersonAdd">
+                <template #append>
+                  <VAvatar>
+                    <JIcon class="i-mdi:plus-circle" />
+                  </VAvatar>
+                </template>
+              </VListItem>
+              <VListItem
+                v-for="(item, i) in metadata.People"
+                :key="`${item.Id}-${i}`"
+                :title="item.Name ?? undefined"
+                :subtitle="(item.Role || item.Type) ?? undefined"
+                @click="onPersonEdit(item)">
+                <template #prepend>
+                  <VAvatar>
+                    <JImg
+                      v-if="item.Id && item.PrimaryImageTag"
+                      :alt="$t('person')"
+                      :src="
+                        getItemImageUrl(
+                          item.Id,
+                          ImageType.Primary
+                        )
+                      ">
+                      <template #placeholder>
+                        <JIcon
+                          class="bg-grey-darken-3 i-mdi:account" />
+                      </template>
+                    </JImg>
+                  </VAvatar>
+                </template>
+                <template #append>
+                  <VAvatar @click.stop="onPersonDel(i)">
+                    <JIcon class="i-mdi:delete" />
+                  </VAvatar>
+                </template>
+              </VListItem>
+            </VList>
+            <PersonEditor
+              :person="person"
+              @update:person="onPersonSave"
+              @close="person = undefined" />
+          </VWindowItem>
+          <VWindowItem value="images">
+            <ImageEditor
+              :metadata="metadata"
+              @add-image="isImageDialogVisible = true" />
+            <UploadImageDialog
+              :item-id="itemId"
+              :is-image-dialog-visible="isImageDialogVisible"
+              @close="isImageDialogVisible = false"
+              @upload-image="onImageUpload" />
+          </VWindowItem>
+        </VWindow>
+      </VForm>
     </VCardText>
 
     <VDivider />
@@ -213,6 +219,7 @@
         width="8em"
         color="primary"
         :loading="loading"
+        :disabled="formValid === false"
         @click="saveMetadata">
         {{ t('save') }}
       </VBtn>
@@ -265,6 +272,39 @@ const tabName = ref<string>();
 const contentOptions = ref<ContentOption[]>([]);
 const contentOption = ref<ContentOption>();
 const contentType = ref<string>();
+/**
+ * VForm emits `null` while validation is still pending. We only block Save
+ * on a hard `false` so the button stays enabled during initial mount.
+ */
+// eslint-disable-next-line unicorn/no-null
+const formValid = shallowRef<boolean | null>(null);
+
+const requiredRule = (v: unknown): true | string =>
+  (typeof v === 'string' ? v.trim().length > 0 : !isNil(v)) || t('required');
+
+const yearRule = (v: unknown): true | string => {
+  if (isNil(v) || v === '') {
+    return true;
+  }
+
+  const n = Number(v);
+
+  return Number.isInteger(n) && n >= 1800 && n <= 2200
+    ? true
+    : t('mustBeInRange', { min: 1800, max: 2200 });
+};
+
+const ratingRule = (min: number, max: number) => (v: unknown): true | string => {
+  if (isNil(v) || v === '') {
+    return true;
+  }
+
+  const n = Number(v);
+
+  return Number.isFinite(n) && n >= min && n <= max
+    ? true
+    : t('mustBeInRange', { min, max });
+};
 const isImageDialogVisible = shallowRef<boolean>(false);
 const genresModel = computed({
   get() {
