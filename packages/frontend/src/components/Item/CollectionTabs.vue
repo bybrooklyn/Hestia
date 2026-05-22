@@ -1,5 +1,5 @@
 <template>
-  <div v-if="children">
+  <div v-if="items && items.length > 0">
     <VTabs
       v-model="currentTab"
       class="mb-3"
@@ -11,11 +11,6 @@
         {{ type }} ({{ baseItems?.length ?? '' }})
       </VTab>
     </VTabs>
-    <h1
-      v-if="!children"
-      class="text-center text-h5">
-      {{ $t('collectionEmpty') }}
-    </h1>
     <VWindow
       v-model="currentTab"
       class="bg-transparent">
@@ -32,6 +27,16 @@
         </VContainer>
       </VWindowItem>
     </VWindow>
+  </div>
+  <div v-else class="uno-text-center uno-py-12">
+    <div class="uno-flex uno-justify-center uno-mb-4">
+      <div class="uno-bg-slate-800/50 uno-text-slate-400 uno-p-4 uno-rounded-full uno-border uno-border-slate-700/50">
+        <div class="i-mdi:folder-open-outline uno-text-4xl" />
+      </div>
+    </div>
+    <h1 class="text-h5 uno-text-slate-400">
+      {{ $t('collectionEmpty') }}
+    </h1>
   </div>
 </template>
 

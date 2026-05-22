@@ -70,6 +70,8 @@
 
 <script lang="ts">
 import type { BaseItemDto } from '@jellyfin/sdk/lib/generated-client';
+import { getCollectionApi } from '@jellyfin/sdk/lib/utils/api/collection-api';
+import { getPlaylistsApi } from '@jellyfin/sdk/lib/utils/api/playlists-api';
 import { useClipboard, useEventListener } from '@vueuse/core';
 import { computed, getCurrentInstance, onMounted, shallowRef, useId, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
@@ -106,17 +108,20 @@ const openMenu = shallowRef<string>();
 </script>
 
 <script setup lang="ts">
-const { item, outlined, zIndex = 1000, queue, mediaSourceIndex } = defineProps<{
+const { item, outlined, zIndex = 1000, queue, mediaSourceIndex, collectionId, playlistId } = defineProps<{
   item: BaseItemDto;
   outlined?: boolean;
   zIndex?: number;
   queue?: boolean;
   mediaSourceIndex?: number;
+  collectionId?: string;
+  playlistId?: string;
 }>();
 
 const emit = defineEmits<{
   active: [];
   inactive: [];
+  removed: [];
 }>();
 
 const { t } = useTranslation();
@@ -164,9 +169,13 @@ const isActive = computed(() => [
   addToPlaylistDialog.value
 ].some(Boolean));
 
-watch(isActive, newVal =>
-  emit(newVal ? 'active' : 'inactive')
-);
+watch(isActive, (newVal) => {
+  if (newVal) {
+    emit('active');
+  } else {
+    emit('inactive');
+  }
+});
 
 const errorMessage = t('anErrorHappened');
 const isItemRefreshing = computed(
@@ -353,6 +362,46 @@ const addToPlaylistAction = {
     addToPlaylistDialog.value = true;
   }
 };
+const removeFromCollectionAction = {
+  title: t('removeFromCollection'),
+  icon: 'i-mdi:folder-minus',
+  action: async (): Promise<void> => {
+    if (!collectionId || !item.Id) {
+      return;
+    }
+
+    try {
+      await remote.sdk.newUserApi(getCollectionApi).removeFromCollection({
+        collectionId,
+        ids: [item.Id]
+      });
+      useSnackbar(t('itemRemovedFromCollection'), 'success');
+      emit('removed');
+    } catch {
+      useSnackbar(errorMessage, 'error');
+    }
+  }
+};
+const removeFromPlaylistAction = {
+  title: t('removeFromPlaylist'),
+  icon: 'i-mdi:playlist-remove',
+  action: async (): Promise<void> => {
+    if (!playlistId || !item.PlaylistItemId) {
+      return;
+    }
+
+    try {
+      await remote.sdk.newUserApi(getPlaylistsApi).removeItemFromPlaylist({
+        playlistId,
+        entryIds: [item.PlaylistItemId]
+      });
+      useSnackbar(t('itemRemovedFromPlaylist'), 'success');
+      emit('removed');
+    } catch {
+      useSnackbar(errorMessage, 'error');
+    }
+  }
+};
 const copyDownloadURLAction = {
   title: t('copyStreamURL'),
   icon: 'i-mdi:content-copy',
@@ -496,6 +545,14 @@ function getCopyOptions(): MenuOption[] {
  */
 function getLibraryOptions(): MenuOption[] {
   const libraryOptions: MenuOption[] = [];
+
+  if (collectionId) {
+    libraryOptions.push(removeFromCollectionAction);
+  }
+
+  if (playlistId) {
+    libraryOptions.push(removeFromPlaylistAction);
+  }
 
   if (item.MediaSources) {
     libraryOptions.push(mediaInfoAction);
