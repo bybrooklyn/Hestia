@@ -34,7 +34,8 @@
         position="top">
         <div
           class="chapter-marker"
-          :style="{ left: `${chapter.position}%` }" />
+          :style="{ left: `${chapter.position}%` }"
+          @click.stop="seekTo(chapter.time)" />
       </JTooltip>
     </div>
   </div>
@@ -70,7 +71,8 @@ const chapters = computed(() => {
     .filter(ch => ch.StartPositionTicks !== undefined && ch.StartPositionTicks > 0)
     .map(ch => ({
       name: ch.Name ?? '',
-      position: (ticksToMs(ch.StartPositionTicks) / totalMs) * 100
+      position: (ticksToMs(ch.StartPositionTicks) / totalMs) * 100,
+      time: ticksToMs(ch.StartPositionTicks) / 1000
     }));
 });
 
@@ -87,7 +89,7 @@ const trickplayData = computed(() => {
     return;
   }
 
-  const widthKey = widthKeys[0];
+  const widthKey = widthKeys[0]!;
   const sourcesObj = trickplayObj[widthKey];
 
   if (!sourcesObj) {
@@ -142,11 +144,11 @@ const trickplayImageStyle = computed(() => {
   }
 
   return {
-    width: `${data.info.Width}px`,
-    height: `${data.info.Height}px`,
+    width: `${data.info.Width!}px`,
+    height: `${data.info.Height!}px`,
     backgroundImage: `url('${url}')`,
-    backgroundPosition: `-${col * data.info.Width}px -${row * data.info.Height}px`,
-    backgroundSize: `${data.info.TileWidth * data.info.Width}px ${data.info.TileHeight * data.info.Height}px`
+    backgroundPosition: `-${col * data.info.Width!}px -${row * data.info.Height!}px`,
+    backgroundSize: `${data.info.TileWidth! * data.info.Width!}px ${data.info.TileHeight! * data.info.Height!}px`
   };
 });
 
@@ -157,6 +159,15 @@ const trickplayImageStyle = computed(() => {
 function onRelease(): void {
   playbackManager.currentTime.value = currentInput.value;
   clicked.value = false;
+}
+
+/**
+ * Seeks to a specific timestamp in the media.
+ *
+ * @param time - The target playback time in seconds.
+ */
+function seekTo(time: number): void {
+  playbackManager.currentTime.value = time;
 }
 </script>
 

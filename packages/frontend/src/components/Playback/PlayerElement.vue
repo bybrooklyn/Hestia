@@ -25,7 +25,7 @@
           @loadeddata="onLoadedData">
           <track
             v-for="sub in playerElement.currentItemVttParsedSubtitleTracks.value"
-            :key="`${playbackManager.currentSourceUrl.value}-${sub.srcIndex}`"
+            :key="`${playbackManager.currentSourceUrl.value}-${sub.Index}`"
             kind="subtitles"
             :label="sub.label"
             :srclang="sub.srcLang"
@@ -189,13 +189,15 @@ watch(mediaElementRef, () => {
   void webAudioQueue.add(() => detachWebAudio());
 
   if (mediaElementRef.value) {
+    const mediaEl = mediaElementRef.value;
+
     if (playbackManager.isVideo.value && hls) {
-      hls.attachMedia(mediaElementRef.value);
+      hls.attachMedia(mediaEl);
       hls.on(Events.ERROR, onHlsEror);
     }
 
     if (playbackManager.isAudio.value) {
-      void webAudioQueue.add(() => attachWebAudio(mediaElementRef.value));
+      void webAudioQueue.add(() => attachWebAudio(mediaEl));
     }
   }
 });

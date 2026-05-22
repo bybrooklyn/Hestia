@@ -23,13 +23,13 @@
           <VListSubheader>Primary Subtitle</VListSubheader>
           <VListItem
             v-for="track of tracks"
-            :key="`primary-${track.srcIndex}`"
+            :key="`primary-${track.Index}`"
             :title="track.label"
             @click="
-              playbackManager.currentSubtitleTrack.value = track.srcIndex
+              playbackManager.currentSubtitleTrack.value = track.Index ?? -1
             ">
             <template
-              v-if="track.srcIndex === (playbackManager.currentSubtitleTrack.value?.Index ?? -1)"
+              v-if="(track.Index ?? -1) === (playbackManager.currentSubtitleTrack.value?.Index ?? -1)"
               #prepend>
               <JIcon class="i-mdi:check uno-w-10" />
             </template>
@@ -38,13 +38,13 @@
           <VListSubheader>Secondary Subtitle</VListSubheader>
           <VListItem
             v-for="track of tracks"
-            :key="`secondary-${track.srcIndex}`"
+            :key="`secondary-${track.Index}`"
             :title="track.label"
             @click="
-              playbackManager.currentSecondarySubtitleTrack.value = track.srcIndex
+              playbackManager.currentSecondarySubtitleTrack.value = track.Index ?? -1
             ">
             <template
-              v-if="track.srcIndex === (playbackManager.currentSecondarySubtitleTrack.value?.Index ?? -1)"
+              v-if="(track.Index ?? -1) === (playbackManager.currentSecondarySubtitleTrack.value?.Index ?? -1)"
               #prepend>
               <JIcon class="i-mdi:check uno-w-10" />
             </template>
@@ -73,6 +73,7 @@ const tracks = computed(() => {
     {
       label: t('disabled'),
       srcIndex: -1,
+      Index: -1,
       type: SubtitleDeliveryMethod.External
     },
     ...(subs ?? [])

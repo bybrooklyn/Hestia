@@ -42,6 +42,7 @@ interface PlaybackTrack {
   srcIndex: number;
   type: SubtitleDeliveryMethod;
   codec?: string;
+  Index?: number;
 }
 
 export interface PlaybackExternalTrack extends PlaybackTrack {
@@ -111,7 +112,8 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
         srcLang: sub.Language ?? undefined,
         type: sub.DeliveryMethod ?? SubtitleDeliveryMethod.Drop,
         srcIndex: sub.srcIndex,
-        codec: sub.Codec?.toLowerCase()
+        codec: sub.Codec?.toLowerCase(),
+        Index: sub.Index
       }))
   );
 
@@ -126,7 +128,7 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
 
   public readonly currentExternalSubtitleTrack = computedAsync(async () => {
     const el = this.currentItemExternalParsedSubtitleTracks.value?.find(
-      sub => sub.srcIndex === playbackManager.currentSubtitleTrack.value?.Index
+      sub => sub.Index === playbackManager.currentSubtitleTrack.value?.Index
     ) as SubtitleExternalTrack | undefined;
 
     if (this._useCustomSubtitleTrack.value && el && !el.parsed) {
@@ -140,7 +142,7 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
 
   public readonly currentSecondaryExternalSubtitleTrack = computedAsync(async () => {
     const el = this.currentItemExternalParsedSubtitleTracks.value?.find(
-      sub => sub.srcIndex === playbackManager.currentSecondarySubtitleTrack.value?.Index
+      sub => sub.Index === playbackManager.currentSecondarySubtitleTrack.value?.Index
     ) as SubtitleExternalTrack | undefined;
 
     if (this._useCustomSubtitleTrack.value && el && !el.parsed) {
@@ -176,15 +178,15 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
   );
 
   private readonly _usingVtt = computed(() =>
-    this.currentItemVttParsedSubtitleTracks.value?.some(s => s.srcIndex === playbackManager.currentSubtitleTrack.value?.Index)
+    this.currentItemVttParsedSubtitleTracks.value?.some(s => s.Index === playbackManager.currentSubtitleTrack.value?.Index)
   );
 
   private readonly _usingAss = computed(() =>
-    this.currentItemAssParsedSubtitleTracks.value?.some(s => s.srcIndex === playbackManager.currentSubtitleTrack.value?.Index)
+    this.currentItemAssParsedSubtitleTracks.value?.some(s => s.Index === playbackManager.currentSubtitleTrack.value?.Index)
   );
 
   private readonly _usingPgs = computed(() =>
-    this.currentItemPgsParsedSubtitleTracks.value?.some(s => s.srcIndex === playbackManager.currentSubtitleTrack.value?.Index)
+    this.currentItemPgsParsedSubtitleTracks.value?.some(s => s.Index === playbackManager.currentSubtitleTrack.value?.Index)
   );
 
   /**
@@ -230,7 +232,7 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
           {
             resampling: 'video_width',
             timeOffset: (playbackManager.subtitleOffset.value ?? 0) / 1000
-          }
+          } as any
         );
 
         this._cleanups.add(() => {
@@ -280,10 +282,16 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
        * Check if client is able to display custom subtitle track
        * otherwise show default subtitle track
        */
-      const track = mediaElementRef.value.textTracks[subtitleTrack.srcIndex];
+      const vttIndex = this.currentItemVttParsedSubtitleTracks.value?.findIndex(
+        sub => sub.Index === subtitleTrack.Index
+      );
 
-      if (!this._useCustomSubtitleTrack.value && !isNil(track)) {
-        track.mode = 'showing';
+      if (vttIndex !== undefined && vttIndex !== -1) {
+        const track = mediaElementRef.value.textTracks[vttIndex];
+
+        if (!this._useCustomSubtitleTrack.value && !isNil(track)) {
+          track.mode = 'showing';
+        }
       }
     }
   };
@@ -375,7 +383,7 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
 
     watch(() => playbackManager.subtitleOffset.value, (newOffset) => {
       if (this._asssub) {
-        this._asssub.timeOffset = (newOffset ?? 0) / 1000;
+        (this._asssub as unknown as { timeOffset: number }).timeOffset = (newOffset ?? 0) / 1000;
       }
     });
   }

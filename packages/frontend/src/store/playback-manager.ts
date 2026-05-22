@@ -33,6 +33,8 @@ import { msToTicks } from '#/utils/time.ts';
 import { mediaControls, mediaElementRef } from '#/store/index.ts';
 import { CommonStore } from '#/store/super/common-store.ts';
 import { runGenericWorkerFunc } from '#/plugins/workers/index.ts';
+import { playbackSettings } from '#/store/settings/playback.ts';
+import { mediaPlayersSettings } from '#/store/settings/media-players.ts';
 
 /**
  * == INTERFACES AND TYPES ==
@@ -199,6 +201,7 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
   public readonly currentSubtitleTrack = computed({
     get: () => {
       if (!isNil(this._state.value.mediaSourceIndexes.subtitle)
+        && this._state.value.mediaSourceIndexes.subtitle !== -1
       ) {
         return this.currentMediaSource.value?.MediaStreams?.find(
           stream =>
@@ -374,26 +377,42 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
   private readonly _previousItemIndex = computed(() => {
     const idx: number | undefined = this._state.value.currentItemIndex;
 
-    if (this.isRepeatingAll.value && idx === 0) {
-      return this.queueLength.value - 1;
-    } else if (!isNil(idx)) {
-      return idx - 1;
+    if (isNil(idx)) {
+      return;
     }
+
+    if (idx === 0) {
+      return this.isRepeatingAll.value ? this.queueLength.value - 1 : undefined;
+    }
+
+    return idx - 1;
   });
 
-  public readonly previousItem = computed(() => this.queue.value[this._previousItemIndex.value ?? -1]);
+  public readonly previousItem = computed(() => {
+    const idx = this._previousItemIndex.value;
+
+    return isNil(idx) ? undefined : this.queue.value[idx];
+  });
 
   private readonly _nextItemIndex = computed(() => {
     const idx: number | undefined = this._state.value.currentItemIndex;
 
-    if (this.isRepeatingAll.value && idx === this.queueLength.value - 1) {
-      return 0;
-    } else if (!isNil(idx)) {
-      return idx + 1;
+    if (isNil(idx)) {
+      return;
     }
+
+    if (idx === this.queueLength.value - 1) {
+      return this.isRepeatingAll.value ? 0 : undefined;
+    }
+
+    return idx + 1;
   });
 
-  public readonly nextItem = computed(() => this.queue.value[this._nextItemIndex.value ?? -1]);
+  public readonly nextItem = computed(() => {
+    const idx = this._nextItemIndex.value;
+
+    return isNil(idx) ? undefined : this.queue.value[idx];
+  });
 
   /**
    * Get the types of the currently playing item
@@ -532,6 +551,113 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
   };
 
   /**
+   * Helper to automatically select audio and subtitle tracks based on user playback preferences.
+   */
+  private readonly _selectDefaultTracks = (): void => {
+    const audioStreams = this.currentItemAudioTracks.value ?? [];
+    const subtitleStreams = this.currentItemSubtitleTracks.value ?? [];
+
+    const isLanguageMatch = (streamLang: string | null | undefined, prefLang: string): boolean => {
+      if (!streamLang) {
+        return false;
+      }
+
+      const s = streamLang.toLowerCase().trim();
+      const p = prefLang.toLowerCase().trim();
+
+      if (p === 'any') {
+        return true;
+      }
+
+      if (s === p) {
+        return true;
+      }
+
+      return s.slice(0, 2) === p.slice(0, 2);
+    };
+
+    // 1. Audio track auto-selection
+    if (this._state.value.mediaSourceIndexes.audio === undefined && audioStreams.length > 0) {
+      const preferredAudioLanguage = playbackSettings.state.value.preferredAudioLanguage || 'any';
+      let selectedAudioIndex = -1;
+
+      // Try to find matching language
+      const langMatch = audioStreams.find(s => isLanguageMatch(s.Language, preferredAudioLanguage));
+
+      if (langMatch?.Index !== undefined) {
+        selectedAudioIndex = langMatch.Index;
+      }
+
+      // Fallback to default track
+      if (selectedAudioIndex === -1) {
+        const defaultAudio = audioStreams.find(s => s.IsDefault);
+
+        if (defaultAudio?.Index !== undefined) {
+          selectedAudioIndex = defaultAudio.Index;
+        }
+      }
+
+      // Fallback to first audio stream
+      if (selectedAudioIndex === -1 && audioStreams[0]?.Index !== undefined) {
+        selectedAudioIndex = audioStreams[0].Index;
+      }
+
+      if (selectedAudioIndex !== -1) {
+        this._state.value.mediaSourceIndexes.audio = selectedAudioIndex;
+      }
+    }
+
+    // 2. Subtitle track auto-selection
+    if (this._state.value.mediaSourceIndexes.subtitle === undefined) {
+      const preferredSubtitleLanguage = playbackSettings.state.value.preferredSubtitleLanguage || 'any';
+      const autoEnableForcedSubtitles = playbackSettings.state.value.autoEnableForcedSubtitles;
+      let selectedSubIndex = -1;
+
+      if (preferredSubtitleLanguage !== 'none') {
+        // A. Try to find a forced subtitle track in preferred language
+        if (autoEnableForcedSubtitles) {
+          const forcedMatch = subtitleStreams.find(s => s.IsForced && isLanguageMatch(s.Language, preferredSubtitleLanguage));
+
+          if (forcedMatch?.Index !== undefined) {
+            selectedSubIndex = forcedMatch.Index;
+          }
+        }
+
+        // B. Try to find standard subtitle matching preferred language
+        if (selectedSubIndex === -1) {
+          const stdMatch = subtitleStreams.find(s => isLanguageMatch(s.Language, preferredSubtitleLanguage));
+
+          if (stdMatch?.Index !== undefined) {
+            selectedSubIndex = stdMatch.Index;
+          }
+        }
+
+        // C. If autoEnableForcedSubtitles is true, try to find any forced subtitle track
+        if (selectedSubIndex === -1 && autoEnableForcedSubtitles) {
+          const anyForced = subtitleStreams.find(s => s.IsForced);
+
+          if (anyForced?.Index !== undefined) {
+            selectedSubIndex = anyForced.Index;
+          }
+        }
+
+        // D. If preferredSubtitleLanguage is 'any' and no track found yet, find default or first
+        if (selectedSubIndex === -1 && preferredSubtitleLanguage === 'any') {
+          const defaultSub = subtitleStreams.find(s => s.IsDefault);
+
+          if (defaultSub?.Index !== undefined) {
+            selectedSubIndex = defaultSub.Index;
+          } else if (subtitleStreams.length > 0 && subtitleStreams[0]?.Index !== undefined) {
+            selectedSubIndex = subtitleStreams[0].Index;
+          }
+        }
+      }
+
+      this._state.value.mediaSourceIndexes.subtitle = selectedSubIndex;
+    }
+  };
+
+  /**
    * Plays an item and initializes playbackManager's state
    */
   public readonly play = async ({
@@ -582,6 +708,13 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
       this._state.value.mediaSourceIndexes.subtitle = subtitleTrackIndex;
       this._state.value.mediaSourceIndexes.secondarySubtitle = secondarySubtitleTrackIndex;
       this._state.value.currentItemIndex = startFromIndex;
+
+      // Apply defaults from playbackSettings if not explicitly provided
+      this.playbackSpeed.value = playbackSettings.state.value.defaultSpeed;
+
+      if (playbackSettings.state.value.defaultQuality !== undefined) {
+        this.maxStreamingBitrate.value = playbackSettings.state.value.defaultQuality;
+      }
 
       if (startShuffled) {
         await this.toggleShuffle(false);
@@ -652,6 +785,10 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
 
   public readonly setNextItem = (): void => {
     if (this.nextItem.value) {
+      this._state.value.mediaSourceIndexes.video = undefined;
+      this._state.value.mediaSourceIndexes.audio = undefined;
+      this._state.value.mediaSourceIndexes.subtitle = undefined;
+      this._state.value.mediaSourceIndexes.secondarySubtitle = undefined;
       this.currentItemIndex.value = this._nextItemIndex.value;
     } else {
       this.stop();
@@ -668,7 +805,11 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
    * regardless of runtime.
    */
   public readonly setPreviousItem = (force = false): void => {
-    if (!isNil(this.previousItem) && (force || this.currentTime.value < 5)) {
+    if (!isNil(this.previousItem.value) && (force || this.currentTime.value < 5)) {
+      this._state.value.mediaSourceIndexes.video = undefined;
+      this._state.value.mediaSourceIndexes.audio = undefined;
+      this._state.value.mediaSourceIndexes.subtitle = undefined;
+      this._state.value.mediaSourceIndexes.secondarySubtitle = undefined;
       this.currentItemIndex.value = this._previousItemIndex.value;
     }
 
@@ -713,17 +854,19 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
    */
   public readonly skipForward = (): void => {
     const t: number = this.currentTime.value ?? 0;
+    const duration = mediaPlayersSettings.state.value.skipForwardDuration ?? 30;
 
-    this.currentTime.value = t + 15;
+    this.currentTime.value = t + duration;
   };
 
   /**
-   * Seek backwards 15 seconds
+   * Seek backwards
    */
   public readonly skipBackward = (): void => {
     const t: number = this.currentTime.value ?? 0;
+    const duration = mediaPlayersSettings.state.value.skipBackwardDuration ?? 10;
 
-    this.currentTime.value = t > 15 ? t - 15 : 0;
+    this.currentTime.value = t > duration ? t - duration : 0;
   };
 
   /**
@@ -893,7 +1036,7 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
       remote.sdk.api?.basePath
       && remote.auth.currentUserToken.value
       && mediaType
-      && mediaSource?.SupportsDirectStream
+      && (mediaSource?.SupportsDirectStream || mediaSource?.SupportsDirectPlay)
       && mediaSource.Type
       && mediaSource.Id
       && mediaSource.Container
@@ -991,7 +1134,7 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
             album: this.currentItem.value.Album ?? t('unknownAlbum'),
             artwork: [96, 128, 192, 256, 384, 512].map(size => ({
               src:
-                getImageInfo(this.currentItem.value, {
+                getImageInfo(this.currentItem.value!, {
                   width: size
                 }).url ?? '',
               sizes: `${size}x${size}`
@@ -1109,6 +1252,10 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
       }
     });
 
+    watch(this.currentMediaSource, () => {
+      this._selectDefaultTracks();
+    });
+
     watchThrottled(
       this.currentTime,
       this._reportPlaybackProgress,
@@ -1150,7 +1297,11 @@ class PlaybackManagerStore extends CommonStore<PlaybackManagerState> {
 
     watch(mediaControls.ended, () => {
       if (mediaControls.ended.value && !this.isRemotePlayer.value) {
-        this.setNextItem();
+        if (mediaPlayersSettings.state.value.autoPlayNextEpisode) {
+          this.setNextItem();
+        } else {
+          this.stop();
+        }
       }
     });
 

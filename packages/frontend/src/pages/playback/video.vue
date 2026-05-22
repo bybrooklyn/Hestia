@@ -218,8 +218,8 @@ function skipSegment() {
 const { fullscreen } = usePlayback();
 
 const osd = shallowRef(true);
-const subtitleSelectionButtonOpened = shallowRef(false);
-const playbackSettingsButtonOpened = shallowRef(false);
+const subtitleSelectionButtonOpened = shallowRef<boolean | undefined>(false);
+const playbackSettingsButtonOpened = shallowRef<boolean | undefined>(false);
 const playbackStats = shallowRef(false);
 const staticOverlay = computed(() => [
   playbackManager.isPaused.value,
@@ -320,19 +320,19 @@ useSwipe(videoContainerRef, {
     }
 
     switch (direction) {
-      case 'LEFT': {
+      case 'left': {
         playbackManager.skipBackward();
         break;
       }
-      case 'RIGHT': {
+      case 'right': {
         playbackManager.skipForward();
         break;
       }
-      case 'UP': {
+      case 'up': {
         playbackManager.volumeUp();
         break;
       }
-      case 'DOWN': {
+      case 'down': {
         playbackManager.volumeDown();
         break;
       }

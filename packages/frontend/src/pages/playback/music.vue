@@ -1,7 +1,7 @@
 <template>
   <JMain v-if="playbackManager.queue">
     <VAppBar color="transparent">
-      <AppBarButtonLayout @click="$router.back()">
+      <AppBarButtonLayout @click="goBack">
         <template #icon>
           <JIcon class="i-mdi:arrow-left" />
         </template>
@@ -105,6 +105,7 @@ import { A11y, EffectCoverflow, Virtual } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { computed, shallowRef, watchEffect, onMounted } from 'vue';
 import { isNil } from '@jellyfin-vue/shared/validation';
+import { router } from '#/plugins/router/index.ts';
 import { playbackGuard } from '#/plugins/router/middlewares/playback.ts';
 import { playbackManager } from '#/store/playback-manager.ts';
 import { usePlayback } from '#/composables/use-playback.ts';
@@ -114,6 +115,17 @@ import { useItemPageTitle } from '#/composables/page-title.ts';
 defineOptions({
   beforeRouteEnter: playbackGuard
 });
+
+/**
+ * Handles back navigation to the previous page or playback source route.
+ */
+function goBack(): void {
+  if (playbackManager.sourceRoute.value) {
+    void router.push(playbackManager.sourceRoute.value);
+  } else {
+    void router.push('/');
+  }
+}
 
 usePlayback();
 
