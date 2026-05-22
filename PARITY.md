@@ -330,10 +330,10 @@ Done when: a collection's contents are fully browsable.
 
 ### Playback (admin)
 
-**`PBA-1` — Transcoding settings** · Surfaced · seq 13 · disabled "Transcoding & Streaming" row. Done when: transcoding settings editable.
-**`PBA-2` — Streaming settings** · Absent · seq 14 · Done when: streaming settings editable.
-**`PBA-3` — Resume settings** · Absent · seq 15 · Done when: resume settings editable.
-**`PBA-4` — Trickplay settings** · Absent · seq 16 · Done when: trickplay settings editable.
+**`PBA-1` — Transcoding settings** · Surfaced · `done` · seq 13 · Design: covered by the new `pages/settings/transcoding.vue` (HW acceleration / encoder preset / H.264+HEVC CRF / threads / temp path / VBR audio / fallback font), backed by `getNamedConfiguration({ key: 'encoding' })`. Settings-index row now linked. Done when: transcoding settings editable.
+**`PBA-2` — Streaming settings** · Absent · `done` · seq 14 · Design: same `transcoding.vue` exposes the HLS streaming knobs from `EncodingOptions` — throttling toggle + delay seconds, segment-deletion toggle + keep seconds. Done when: streaming settings editable.
+**`PBA-3` — Resume settings** · Absent · `done` · seq 15 · Design: resume thresholds (min/max %, min duration, audiobook min/max) edit `ServerConfiguration` via the same page's third section, sharing the auto-save signal with the encoding/trickplay edits. Done when: resume settings editable.
+**`PBA-4` — Trickplay settings** · Absent · `done` · seq 16 · Design: trickplay generation options (`getNamedConfiguration({ key: 'trickplay' })`) — HW acceleration, key-frame-only mode, interval, JPEG quality — live in the page's fourth section. Done when: trickplay settings editable.
 
 ### Live TV / DVR (admin)
 

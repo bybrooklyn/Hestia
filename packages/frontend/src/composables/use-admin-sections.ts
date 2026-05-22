@@ -80,7 +80,7 @@ export function useAdminSections(): ComputedRef<AdminSection[]> {
         icon: 'i-mdi:play-network',
         name: t('transcodingAndStreaming'),
         description: t('transcodingSettingsDescription'),
-        link: undefined
+        link: '/settings/transcoding'
       },
       {
         icon: 'i-mdi:dlna',
