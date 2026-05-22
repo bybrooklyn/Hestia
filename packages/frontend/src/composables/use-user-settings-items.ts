@@ -35,16 +35,22 @@ export function useUserSettingsItems(): ComputedRef<UserSettingsItem[]> {
       link: '/settings/home'
     },
     {
+      icon: 'i-mdi:monitor',
+      name: t('display'),
+      description: t('displaySettingsDescription'),
+      link: '/settings/display'
+    },
+    {
       icon: 'i-mdi:play-pause',
       name: t('playback'),
       description: t('playbackSettingsDescription'),
-      link: undefined
+      link: '/settings/playback'
     },
     {
       icon: 'i-mdi:disc-player',
       name: t('mediaPlayers'),
       description: t('mediaPlayersSettingsDescription'),
-      link: undefined
+      link: '/settings/media-players'
     },
     {
       icon: 'i-mdi:subtitles',
