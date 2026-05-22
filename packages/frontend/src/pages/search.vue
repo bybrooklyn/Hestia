@@ -3,40 +3,94 @@
     <VAppBar
       flat
       :class="useResponsiveClasses('second-toolbar')">
-      <VTabs
-        v-model="searchTab"
-        class="uno-mx-auto">
-        <VTab
-          :disabled="movies.length <= 0">
-          {{ $t('movies') }}
-        </VTab>
-        <VTab
-          :disabled="series.length <= 0">
-          {{ $t('shows') }}
-        </VTab>
-        <VTab
-          :disabled="albums.length <= 0">
-          {{ $t('albums') }}
-        </VTab>
-        <VTab
-          :disabled="tracks.length <= 0">
-          {{ $t('songs') }}
-        </VTab>
-        <VTab
-          :disabled="books.length <= 0">
-          {{ $t('books') }}
-        </VTab>
-        <VTab
-          :disabled="people.length <= 0">
-          {{ $t('people') }}
-        </VTab>
-        <VTab
-          :disabled="artists.length <= 0">
-          {{ $t('artists') }}
-        </VTab>
-      </VTabs>
+      <div class="uno-w-full uno-flex uno-items-center uno-px-4">
+        <div class="uno-flex-grow" />
+        <VTabs
+          v-model="searchTab"
+          class="uno-mx-auto">
+          <VTab
+            :disabled="movies.length <= 0">
+            {{ $t('movies') }}
+          </VTab>
+          <VTab
+            :disabled="series.length <= 0">
+            {{ $t('shows') }}
+          </VTab>
+          <VTab
+            :disabled="albums.length <= 0">
+            {{ $t('albums') }}
+          </VTab>
+          <VTab
+            :disabled="tracks.length <= 0">
+            {{ $t('songs') }}
+          </VTab>
+          <VTab
+            :disabled="books.length <= 0">
+            {{ $t('books') }}
+          </VTab>
+          <VTab
+            :disabled="people.length <= 0">
+            {{ $t('people') }}
+          </VTab>
+          <VTab
+            :disabled="artists.length <= 0">
+            {{ $t('artists') }}
+          </VTab>
+        </VTabs>
+        <div class="uno-flex uno-flex-grow uno-justify-end">
+          <VBtn
+            v-if="searchQuery"
+            icon="i-mdi:filter-variant"
+            :color="showFilters ? 'primary' : undefined"
+            variant="text"
+            @click="showFilters = !showFilters" />
+        </div>
+      </div>
     </VAppBar>
     <VContainer class="after-second-toolbar">
+      <!-- Glassmorphic Filter Card -->
+      <VExpandTransition>
+        <div
+          v-if="showFilters && searchQuery"
+          class="glass-filter-card uno-mb-6 uno-p-4">
+          <VRow>
+            <VCol
+              cols="12"
+              sm="4">
+              <VSelect
+                v-model="selectedGenre"
+                :items="genreOptions"
+                :label="t('genre')"
+                variant="outlined"
+                density="compact"
+                hide-details />
+            </VCol>
+            <VCol
+              cols="12"
+              sm="4">
+              <VSelect
+                v-model="selectedYear"
+                :items="yearOptions"
+                :label="t('year')"
+                variant="outlined"
+                density="compact"
+                hide-details />
+            </VCol>
+            <VCol
+              cols="12"
+              sm="4">
+              <VSelect
+                v-model="selectedSort"
+                :items="sortOptions"
+                :label="t('sortBy')"
+                variant="outlined"
+                density="compact"
+                hide-details />
+            </VCol>
+          </VRow>
+        </div>
+      </VExpandTransition>
+
       <VRow
         v-if="!searchQuery && recentQueries.length > 0">
         <VCol>
@@ -67,7 +121,21 @@
       </VRow>
       <VRow v-else>
         <VCol>
+          <div
+            v-if="filteredItems.length === 0"
+            class="glass-filter-card uno-p-6 uno-py-12 uno-text-center">
+            <div class="text-h6 text-medium-emphasis uno-mb-4">
+              {{ t('libraryEmptyFilters') }}
+            </div>
+            <VBtn
+              color="primary"
+              variant="flat"
+              @click="resetFilters">
+              {{ t('clear') }}
+            </VBtn>
+          </div>
           <VWindow
+            v-else
             v-model="searchTab"
             class="uno-bg-transparent">
             <VWindowItem>
@@ -103,8 +171,9 @@ import { BaseItemKind } from '@jellyfin/sdk/lib/generated-client';
 import { getItemsApi } from '@jellyfin/sdk/lib/utils/api/items-api';
 import { getPersonsApi } from '@jellyfin/sdk/lib/utils/api/persons-api';
 import { computedAsync, refDebounced, useStorage } from '@vueuse/core';
-import { computed, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useTranslation } from 'i18next-vue';
 import { defu } from 'defu';
 import { apiStore } from '#/store/dbs/api/index.ts';
 import { useResponsiveClasses } from '#/composables/use-responsive-classes.ts';
@@ -112,6 +181,12 @@ import { useBaseItem } from '#/composables/apis.ts';
 
 const route = useRoute();
 const router = useRouter();
+const { t } = useTranslation();
+
+const showFilters = ref(false);
+const selectedGenre = ref('all');
+const selectedYear = ref('all');
+const selectedSort = ref('relevance');
 
 const searchTab = computed({
   get: () => Number(route.query.tab ?? 0),
@@ -137,6 +212,11 @@ const recentQueries = useStorage<string[]>('search-recent-queries', []);
 
 watch(searchDebounced, (q) => {
   const trimmed = q.trim();
+
+  // Reset filters on new search query
+  selectedGenre.value = 'all';
+  selectedYear.value = 'all';
+  selectedSort.value = 'relevance';
 
   if (!trimmed) {
     return;
@@ -238,25 +318,148 @@ const items = computed(() => {
 
   return result;
 });
+const availableGenres = computed(() => {
+  const genresSet = new Set<string>();
+
+  for (const item of items.value) {
+    if (item.Genres) {
+      for (const g of item.Genres) {
+        if (g) {
+          genresSet.add(g);
+        }
+      }
+    }
+  }
+
+  return [...genresSet].toSorted((a, b) => a.localeCompare(b));
+});
+
+const availableYears = computed(() => {
+  const yearsSet = new Set<number>();
+
+  for (const item of items.value) {
+    if (item.ProductionYear) {
+      yearsSet.add(item.ProductionYear);
+    }
+  }
+
+  return [...yearsSet].toSorted((a, b) => b - a);
+});
+
+const genreOptions = computed(() => {
+  const options = [{ title: t('all'), value: 'all' }];
+
+  for (const genre of availableGenres.value) {
+    options.push({ title: genre, value: genre });
+  }
+
+  return options;
+});
+
+const yearOptions = computed(() => {
+  const options = [{ title: t('all'), value: 'all' }];
+
+  for (const year of availableYears.value) {
+    options.push({ title: String(year), value: String(year) });
+  }
+
+  return options;
+});
+
+const sortOptions = computed(() => [
+  { title: t('relevance'), value: 'relevance' },
+  { title: `${t('alphabetical')} (A-Z)`, value: 'alpha-asc' },
+  { title: `${t('alphabetical')} (Z-A)`, value: 'alpha-desc' },
+  { title: t('newest'), value: 'year-desc' },
+  { title: t('oldest'), value: 'year-asc' }
+]);
+
+const filteredItems = computed(() => {
+  let result = [...items.value];
+
+  if (selectedGenre.value !== 'all') {
+    result = result.filter(item =>
+      item.Genres?.includes(selectedGenre.value)
+    );
+  }
+
+  if (selectedYear.value !== 'all') {
+    const targetYear = Number(selectedYear.value);
+
+    result = result.filter(item =>
+      item.ProductionYear === targetYear
+    );
+  }
+
+  switch (selectedSort.value) {
+    case 'alpha-asc': {
+      return result.toSorted((a, b) => {
+        const nameA = a.Name ?? '';
+        const nameB = b.Name ?? '';
+
+        return nameA.localeCompare(nameB);
+      });
+    }
+    case 'alpha-desc': {
+      return result.toSorted((a, b) => {
+        const nameA = a.Name ?? '';
+        const nameB = b.Name ?? '';
+
+        return nameB.localeCompare(nameA);
+      });
+    }
+    case 'year-desc': {
+      return result.toSorted((a, b) => {
+        const yA = a.ProductionYear ?? 0;
+        const yB = b.ProductionYear ?? 0;
+
+        return yB - yA;
+      });
+    }
+    case 'year-asc': {
+      return result.toSorted((a, b) => {
+        const yA = a.ProductionYear ?? 0;
+        const yB = b.ProductionYear ?? 0;
+
+        return yA - yB;
+      });
+    }
+    default: {
+      return result;
+    }
+  }
+});
+
+/**
+ * Resets all search filters to their default values.
+ */
+function resetFilters(): void {
+  selectedGenre.value = 'all';
+  selectedYear.value = 'all';
+  selectedSort.value = 'relevance';
+}
+
 const movies = computed(() =>
-  items.value.filter(item => item.Type === BaseItemKind.Movie)
+  filteredItems.value.filter(item => item.Type === BaseItemKind.Movie)
 );
 const series = computed(() =>
-  items.value.filter(item => item.Type === BaseItemKind.Series)
+  filteredItems.value.filter(item => item.Type === BaseItemKind.Series)
 );
 const albums = computed(() =>
-  items.value.filter(item => item.Type === BaseItemKind.MusicAlbum)
+  filteredItems.value.filter(item => item.Type === BaseItemKind.MusicAlbum)
 );
 const tracks = computed(() =>
-  items.value.filter(item => item.Type === BaseItemKind.Audio)
+  filteredItems.value.filter(item => item.Type === BaseItemKind.Audio)
 );
 const books = computed(() =>
-  items.value.filter(item => item.Type === BaseItemKind.Book)
+  filteredItems.value.filter(item => item.Type === BaseItemKind.Book)
 );
 const artists = computed(() =>
-  items.value.filter(item => item.Type === BaseItemKind.MusicArtist)
+  filteredItems.value.filter(item => item.Type === BaseItemKind.MusicArtist)
 );
-const people = computed(() => items.value.filter(item => item.Type === BaseItemKind.Person));
+const people = computed(() =>
+  filteredItems.value.filter(item => item.Type === BaseItemKind.Person)
+);
 </script>
 
 <style scoped>
@@ -274,5 +477,13 @@ const people = computed(() => items.value.filter(item => item.Type === BaseItemK
 
 .after-second-toolbar {
   padding-top: 48px;
+}
+
+.glass-filter-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
 }
 </style>
