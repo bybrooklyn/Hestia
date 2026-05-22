@@ -323,10 +323,10 @@ Done when: a collection's contents are fully browsable.
 
 ### Libraries (admin)
 
-**`LIBA-1` — Library list / add / edit / delete** · Surfaced · seq 9 · disabled "Libraries" row. Done when: libraries are manageable.
-**`LIBA-2` — Library display settings** · Absent · seq 10 · depends: `LIBA-1` · Done when: display settings editable.
-**`LIBA-3` — Metadata settings** · Absent · seq 11 · depends: `LIBA-1` · Done when: metadata settings editable.
-**`LIBA-4` — NFO settings** · Absent · seq 12 · depends: `LIBA-1` · Done when: NFO settings editable.
+**`LIBA-1` — Library list / add / edit / delete** · Surfaced · `done` · seq 9 · Design: new `pages/settings/libraries.vue` lists every `VirtualFolder` (name, collection type, locations) and exposes add (`addVirtualFolder` with name + collection type + N paths), rename (`renameVirtualFolder`), delete (`removeVirtualFolder`, behind `useConfirmDialog`), and refresh (`getLibraryApi.refreshLibrary` — server-wide; per-library refresh isn't in the SDK today). Settings-index row now linked. Edit-options (`LIBA-2..4`) intentionally deferred — 42-field `LibraryOptions` warrants its own dialog. Done when: libraries are manageable.
+**`LIBA-2` — Library display settings** · Absent · `not started` · seq 10 · depends: `LIBA-1` · Design: a per-library options editor on the new `libraries.vue` (or a sub-route) carrying the display-related slice of `LibraryOptions` (display order, season-zero handling, image fetchers). Done when: display settings editable.
+**`LIBA-3` — Metadata settings** · Absent · `not started` · seq 11 · depends: `LIBA-1` · Design: same editor as `LIBA-2`, carrying the metadata-fetcher slice (preferred providers, savers, real-time monitor, language). Done when: metadata settings editable.
+**`LIBA-4` — NFO settings** · Absent · `not started` · seq 12 · depends: `LIBA-1` · Design: NFO-specific knobs from `LibraryOptions` (save NFO, image extraction, episode/season grouping). Done when: NFO settings editable.
 
 ### Playback (admin)
 
