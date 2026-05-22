@@ -85,7 +85,7 @@ export { isArray } from '@vue/shared';
  *
  * @type TypeScript Decorator
  */
-export function sealed(constructor: Class<unknown, unknown[]>): void {
+export function sealed(constructor: Class<unknown, any[]>): void {
   Object.seal(constructor);
   Object.seal(constructor.prototype);
 }

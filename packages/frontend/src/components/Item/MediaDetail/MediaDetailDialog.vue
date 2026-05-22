@@ -10,7 +10,7 @@
           :default-source-index="selectedMediaSourceIndex"
           :sources="mediaSources"
           :label="t('selectVersion')"
-          @input="selectedMediaSourceIndex = $event" />
+          @input="(idx: number) => selectedMediaSourceIndex = idx" />
       </VCardText>
       <VDivider />
     </template>
@@ -40,11 +40,10 @@
             :key="`mediaStreamTabVideo-${idx}-${String(_)}`"
             :value="`video-${idx}`">
             {{
-              t(
-                'mediaInfoTitlesVideoCodec',
-                [idx + 1],
-                selectedMediaStreamsVideo.length
-              )
+              t('mediaInfoTitlesVideoCodec', {
+                0: idx + 1,
+                count: selectedMediaStreamsVideo.length
+              })
             }}
           </VTab>
           <VTab
@@ -52,11 +51,10 @@
             :key="`mediaStreamTabAudio-${idx}-${String(_)}`"
             :value="`audio-${idx}`">
             {{
-              `${t(
-                'mediaInfoTitlesAudioCodec',
-                [idx + 1],
-                selectedMediaStreamsAudio.length
-              )} (${getDisplayLocaleName(
+              `${t('mediaInfoTitlesAudioCodec', {
+                0: idx + 1,
+                count: selectedMediaStreamsAudio.length
+              })} (${getDisplayLocaleName(
                 selectedMediaStreamsAudio[idx]?.Language
               )})`
             }}
@@ -66,11 +64,10 @@
             :key="`mediaStreamTabSubs-${idx}-${String(_)}`"
             :value="`subs-${idx}`">
             {{
-              `${t(
-                'mediaInfoTitlesSubtitleCodec',
-                [idx + 1],
-                selectedMediaStreamsSubs.length
-              )} (${getDisplayLocaleName(
+              `${t('mediaInfoTitlesSubtitleCodec', {
+                0: idx + 1,
+                count: selectedMediaStreamsSubs.length
+              })} (${getDisplayLocaleName(
                 selectedMediaStreamsSubs[idx]?.Language
               )})`
             }}
@@ -80,11 +77,10 @@
             :key="`mediaStreamTabEmbedImage-${idx}-${String(_)}`"
             :value="`image-${idx}`">
             {{
-              t(
-                'mediaInfoTitlesEmbeddedImageCodec',
-                [idx + 1],
-                selectedMediaStreamsImage.length
-              )
+              t('mediaInfoTitlesEmbeddedImageCodec', {
+                0: idx + 1,
+                count: selectedMediaStreamsImage.length
+              })
             }}
           </VTab>
         </VTabs>

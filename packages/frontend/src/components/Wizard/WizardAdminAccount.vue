@@ -69,7 +69,7 @@ const emit = defineEmits<{
 
 const { t } = useTranslation();
 
-const valid = ref(false);
+const valid = ref<boolean | null>(false);
 const admin = ref<StartupUserDto>({
   Name: '',
   Password: ''

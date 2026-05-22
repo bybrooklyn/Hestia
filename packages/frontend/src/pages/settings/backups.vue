@@ -178,7 +178,12 @@ await refresh();
 
 const creatingBackup = ref(false);
 const creating = ref(false);
-const newBackup = reactive<BackupOptionsDto>({
+const newBackup = reactive<{
+  Database: boolean | null;
+  Metadata: boolean | null;
+  Subtitles: boolean | null;
+  Trickplay: boolean | null;
+}>({
   Database: true,
   Metadata: true,
   Subtitles: false,
@@ -195,7 +200,12 @@ async function submitCreate(): Promise<void> {
 
   try {
     await remote.sdk.newUserApi(getBackupApi).createBackup({
-      backupOptionsDto: { ...newBackup }
+      backupOptionsDto: {
+        Database: newBackup.Database ?? false,
+        Metadata: newBackup.Metadata ?? false,
+        Subtitles: newBackup.Subtitles ?? false,
+        Trickplay: newBackup.Trickplay ?? false
+      }
     });
     useSnackbar(t('backupStarted'), 'success');
     creatingBackup.value = false;

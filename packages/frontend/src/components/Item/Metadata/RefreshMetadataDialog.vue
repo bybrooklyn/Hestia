@@ -77,7 +77,7 @@ const emit = defineEmits<{
 }>();
 const model = ref(true);
 const loading = ref(false);
-const replace = ref(false);
+const replace = ref<boolean | null>(false);
 const { t } = useTranslation();
 const selectedMethod = ref<RefreshMethod>({
   title: t('scanForNewAndUpdatedFiles'),
@@ -132,7 +132,7 @@ async function refreshMetadata(): Promise<void> {
       metadataRefreshMode: refreshMode.value,
       imageRefreshMode: refreshMode.value,
       replaceAllMetadata: replaceMetadata,
-      replaceAllImages: replace.value
+      replaceAllImages: replace.value ?? false
     });
 
     taskManager.startTask({

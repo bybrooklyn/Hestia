@@ -34,7 +34,7 @@ const drawerItems = computed<DrawerItem[]>(() => {
     return {
       icon: getLibraryIcon(view.CollectionType),
       title: view.Name ?? '',
-      to: `/library/${view.Id}`
+      to: `/library/${view.Id}` as DrawerItem['to']
     };
   });
 });

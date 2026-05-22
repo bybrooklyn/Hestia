@@ -39,8 +39,12 @@ const currentSource = ref(
 const selectSources = computed(() => getItemizedSelect(sources));
 
 watch(currentSource, () => {
+  if (!currentSource.value) {
+    return;
+  }
+
   const newIndex = sources.findIndex(
-    s => s.Id === currentSource.value.Id
+    s => s.Id === currentSource.value?.Id
   );
 
   emit('input', newIndex);

@@ -10,7 +10,7 @@
         @click="$emit('select', item)">
         <template #image>
           <JImg
-            :src="item.ImageUrl"
+            :src="item.ImageUrl ?? undefined"
             :alt="item.Name ?? $t('imageSearchResult')"
             once>
             <JIcon class="i-mdi:image" />

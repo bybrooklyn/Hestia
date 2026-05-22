@@ -16,7 +16,7 @@
             <span>
               {{ $t('nextItemPlayingIn') }}
               <span class="text-primary darken-2">
-                {{ $t('seconds', currentItemTimeLeft) }}
+                {{ $t('seconds', { count: currentItemTimeLeft }) }}
               </span>
             </span>
           </VCardTitle>

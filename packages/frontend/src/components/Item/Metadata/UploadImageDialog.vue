@@ -122,7 +122,7 @@ async function onSave(): Promise<void> {
   const payload: ImageApiSetItemImageRequest = {
     itemId,
     imageType: imageType.value,
-    body: base64FileContent
+    body: base64FileContent as unknown as File
   };
 
   const config: AxiosRequestConfig = {

@@ -64,6 +64,28 @@
             {{ t('changePassword') }}
           </VBtn>
         </div>
+
+        <div class="uno-mt-10 uno-pt-10 uno-border-t uno-border-slate-800">
+          <h3 class="uno-text-2xl uno-mb-2">{{ t('quickConnectAuthorize') }}</h3>
+          <p class="uno-text-slate-400 uno-mb-4 uno-text-sm">{{ t('quickConnectAuthorizeHelp') }}</p>
+          <VTextField
+            v-model="quickConnectCode"
+            v-bind="codeAttrs"
+            variant="outlined"
+            class="uno-mb-4"
+            :label="t('quickConnectCode')"
+            hide-details />
+          <VBtn
+            :loading="isQuickConnectAuthorizing"
+            :disabled="!quickConnectCode || quickConnectCode.length !== 6"
+            :block="$vuetify.display.mobile"
+            variant="flat"
+            size="large"
+            color="primary"
+            @click="authorizeQuickConnect">
+            {{ t('authorize') }}
+          </VBtn>
+        </div>
       </VCol>
     </template>
   </SettingsPage>
@@ -74,6 +96,7 @@ import { useTranslation } from 'i18next-vue';
 import { nextTick, ref, shallowRef, watch } from 'vue';
 import { getImageApi } from '@jellyfin/sdk/lib/utils/api/image-api';
 import { getUserApi } from '@jellyfin/sdk/lib/utils/api/user-api';
+import { getQuickConnectApi } from '@jellyfin/sdk/lib/utils/api/quick-connect-api';
 import type { UserApiUpdateUserPasswordRequest } from '@jellyfin/sdk/lib/generated-client/api/user-api';
 import type { ImageApiPostUserImageRequest } from '@jellyfin/sdk/lib/generated-client/api/image-api';
 import type { AxiosRequestConfig } from 'axios';
@@ -83,6 +106,8 @@ import { useSnackbar } from '#/composables/use-snackbar.ts';
 
 const { t } = useTranslation();
 
+const codeAttrs = { maxlength: '6' } as Record<string, string>;
+
 const currentPassword = shallowRef('');
 const newPassword = shallowRef('');
 const repeatNewPassword = shallowRef('');
@@ -91,8 +116,37 @@ const isChangePasswordLoading = shallowRef(false);
 const isChangeImageLoading = shallowRef(false);
 const isDeleteImageLoading = shallowRef(false);
 
-const fileUploadRef = ref(undefined);
+const fileUploadRef = ref<{ readSelectedFileAsBase64: () => Promise<string | undefined> }>();
 const selectedUserPicture = ref<File | undefined>(undefined);
+
+// Quick Connect variables and methods
+const quickConnectCode = ref('');
+const isQuickConnectAuthorizing = shallowRef(false);
+
+/**
+ * Authorizes a Quick Connect device.
+ */
+async function authorizeQuickConnect() {
+  isQuickConnectAuthorizing.value = true;
+
+  try {
+    const success = await remote.sdk.newUserApi(getQuickConnectApi).authorizeQuickConnect({
+      code: quickConnectCode.value.trim(),
+      userId: remote.auth.currentUserId.value
+    });
+
+    if (success.data) {
+      useSnackbar(t('quickConnectAuthorized'), 'green');
+      quickConnectCode.value = '';
+    } else {
+      useSnackbar(t('quickConnectAuthorizationFailed'), 'red');
+    }
+  } catch {
+    useSnackbar(t('quickConnectAuthorizationFailed'), 'red');
+  } finally {
+    isQuickConnectAuthorizing.value = false;
+  }
+}
 
 /**
  * Delete user's profile image
@@ -136,7 +190,7 @@ async function changeUserImage() {
 
   const payload: ImageApiPostUserImageRequest = {
     userId: remote.auth.currentUserId.value,
-    body: base64FileContent
+    body: base64FileContent as unknown as File
   };
 
   const config: AxiosRequestConfig = {

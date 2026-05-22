@@ -19,7 +19,7 @@ class GenericWorker {
       // eslint-disable-next-line sonarjs/pseudo-random
       const j = Math.floor(Math.random() * (i + 1));
 
-      [array[i], array[j]] = [array[j], array[i]];
+      [array[i], array[j]] = [array[j]!, array[i]!];
     }
 
     return array;

@@ -28,7 +28,7 @@ const { stream, videoTimestamp } = defineProps<{
   videoTimestamp?: TransportStreamTimestamp;
 }>();
 
-const { t, locale } = useTranslation();
+const { t, i18next } = useTranslation();
 
 const properties = computed(() => {
   const p = new Map<string, string | number | boolean | null | undefined>();
@@ -38,7 +38,7 @@ const properties = computed(() => {
       : undefined;
   const framerate = stream.AverageFrameRate ?? stream.RealFrameRate;
   const language = stream.Language
-    ? getLocaleName(stream.Language, locale.value)
+    ? getLocaleName(stream.Language, i18next.language)
     : undefined;
 
   p.set(t('mediaInfoFileTitle'), stream.DisplayTitle);

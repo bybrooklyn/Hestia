@@ -21,11 +21,10 @@
             <VListItem
               v-for="file in logs"
               :key="file.Name ?? undefined"
+              v-bind="anchorAttrs"
               :href="getLogFileLink(file.Name ?? '')"
               :title="file.Name ?? undefined"
-              :subtitle="getFormattedLogDate(file.DateModified)"
-              target="_blank"
-              rel="noopener">
+              :subtitle="getFormattedLogDate(file.DateModified)">
               <template #prepend>
                 <VAvatar>
                   <JIcon class="i-mdi:file" />
@@ -104,6 +103,8 @@ import { useDateFns } from '#/composables/use-datefns.ts';
 import { useApi } from '#/composables/apis.ts';
 
 const { t } = useTranslation();
+
+const anchorAttrs = { target: '_blank', rel: 'noopener' } as Record<string, string>;
 const theme = useTheme();
 
 /**
@@ -115,7 +116,7 @@ function getColorFromSeverity(severity: LogLevel | undefined): string {
       return theme.current.value.colors.success;
     }
     case LogLevel.Debug: {
-      return theme.current.value.colors.accent;
+      return theme.current.value.colors.accent ?? '';
     }
     case LogLevel.Information: {
       return theme.current.value.colors.info;

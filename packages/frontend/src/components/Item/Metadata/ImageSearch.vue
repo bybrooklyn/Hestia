@@ -135,7 +135,7 @@ const { t } = useTranslation();
 const providers = ref<ImageProviderInfo[]>([]);
 const type = ref<ImageType>(ImageType.Primary);
 const source = ref<ImageProviderInfo['Name']>();
-const allLanguages = ref(false);
+const allLanguages = ref<boolean | null>(false);
 const images = ref<RemoteImageInfo[]>([]);
 const loading = ref(false);
 
@@ -226,7 +226,7 @@ async function getImages(): Promise<void> {
         itemId: metadata.Id,
         type: type.value,
         providerName: source.value ?? undefined,
-        includeAllLanguages: allLanguages.value
+        includeAllLanguages: allLanguages.value ?? false
       })
     ).data.Images ?? [];
 

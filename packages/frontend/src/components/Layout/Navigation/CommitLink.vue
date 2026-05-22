@@ -1,10 +1,9 @@
 <template>
   <VListItem
     v-if="commit_hash"
+    v-bind="anchorAttrs"
     :title="'#' + commit_hash.slice(0, 7)"
-    :href="link"
-    target="_blank"
-    rel="noopener noreferrer">
+    :href="link">
     <template #prepend>
       <JIcon
         class="i-mdi:github uno-w-10" />
@@ -17,4 +16,5 @@ import { commit_hash } from 'virtual:commit';
 import { sanitizeHtml } from '@jellyfin-vue/shared/html';
 
 const link = commit_hash ? sanitizeHtml(`https://github.com/jellyfin/jellyfin-vue/commit/${commit_hash}`) : undefined;
+const anchorAttrs = { target: '_blank', rel: 'noopener noreferrer' } as Record<string, string>;
 </script>

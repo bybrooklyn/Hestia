@@ -140,9 +140,21 @@ const { t } = useTranslation();
 const { data } = await useApi(getConfigurationApi, 'getNamedConfiguration')(() => ({
   key: 'network'
 }));
-const net = shallowRef<NetworkConfiguration>(
-  data.value as NetworkConfiguration
-);
+type NetForm = Omit<NetworkConfiguration, 'EnableRemoteAccess' | 'AutoDiscovery' | 'EnableUPnP' | 'EnableIPv4' | 'EnableIPv6' | 'EnableHttps' | 'RequireHttps' | 'IsRemoteIPFilterBlacklist' | 'InternalHttpPort' | 'InternalHttpsPort' | 'PublicHttpPort' | 'PublicHttpsPort'> & {
+  EnableRemoteAccess?: boolean | null;
+  AutoDiscovery?: boolean | null;
+  EnableUPnP?: boolean | null;
+  EnableIPv4?: boolean | null;
+  EnableIPv6?: boolean | null;
+  EnableHttps?: boolean | null;
+  RequireHttps?: boolean | null;
+  IsRemoteIPFilterBlacklist?: boolean | null;
+  InternalHttpPort?: number | string;
+  InternalHttpsPort?: number | string;
+  PublicHttpPort?: number | string;
+  PublicHttpsPort?: number | string;
+};
+const net = shallowRef(data.value as NetForm);
 
 /**
  * Auto-save mirrors server.vue's pattern: the first edit flips the signal,

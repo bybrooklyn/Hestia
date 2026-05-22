@@ -14,10 +14,9 @@
         {{ t('deleteAll') }}
       </VBtn>
       <VBtn
+        v-bind="anchorAttrs"
         variant="elevated"
-        href="https://jellyfin.org/docs/general/server/devices.html"
-        rel="noreferrer noopener"
-        target="_blank">
+        href="https://jellyfin.org/docs/general/server/devices.html">
         {{ t('help') }}
       </VBtn>
     </template>
@@ -110,6 +109,8 @@ import { useSnackbar } from '#/composables/use-snackbar.ts';
 import { useDateFns } from '#/composables/use-datefns.ts';
 
 const { t } = useTranslation();
+
+const anchorAttrs = { target: '_blank', rel: 'noreferrer noopener' } as Record<string, string>;
 
 const devices = ref(
   (await remote.sdk.newUserApi(getDevicesApi).getDevices()).data.Items ?? []

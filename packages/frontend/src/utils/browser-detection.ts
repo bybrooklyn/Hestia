@@ -119,7 +119,7 @@ export function safariVersion(): number | undefined {
   let match = /Version\/(\d+)/.exec(userAgent);
 
   if (match) {
-    return Number.parseInt(match[1], /* Base= */ 10);
+    return Number.parseInt(match[1]!, /* Base= */ 10);
   }
 
   /*
@@ -129,7 +129,7 @@ export function safariVersion(): number | undefined {
   match = /OS (\d+)(?:_\d+)?/.exec(userAgent);
 
   if (match) {
-    return Number.parseInt(match[1], /* Base= */ 10);
+    return Number.parseInt(match[1]!, /* Base= */ 10);
   }
 }
 

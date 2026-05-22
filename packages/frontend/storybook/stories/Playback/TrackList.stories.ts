@@ -16,7 +16,7 @@ const mockTracks = [
     IndexNumber: 1,
     ParentIndexNumber: 1,
     RunTimeTicks: 2_000_000_000,
-    Type: 'Audio',
+    Type: 'Audio' as BaseItemKind,
     Artists: ['Artist 1'],
     AlbumArtist: 'Artist 1',
     ArtistItems: [{ Id: 'artist1', Name: 'Artist 1' }]
@@ -27,7 +27,7 @@ const mockTracks = [
     IndexNumber: 2,
     ParentIndexNumber: 1,
     RunTimeTicks: 3_000_000_000,
-    Type: 'Audio',
+    Type: 'Audio' as BaseItemKind,
     Artists: ['Artist 2'],
     AlbumArtist: 'Artist 1',
     ArtistItems: [{ Id: 'artist2', Name: 'Artist 2' }]
@@ -66,7 +66,7 @@ export const MultipleDiscs: Story = {
         IndexNumber: 1,
         ParentIndexNumber: 2,
         RunTimeTicks: 2_000_000_000,
-        Type: 'Audio',
+        Type: 'Audio' as BaseItemKind,
         Artists: ['Artist 1'],
         AlbumArtist: 'Artist 1',
         ArtistItems: [{ Id: 'artist1', Name: 'Artist 1' }]

@@ -7,7 +7,7 @@
     @close="close">
     <template #loader>
       <VProgressLinear
-        v-model="progress"
+        :model-value="progress"
         :indeterminate="isLoading" />
     </template>
 
@@ -27,14 +27,14 @@
         'flex-row': !$vuetify.display.mobile
       }">
       <VWindow
-        v-model="tabName"
+        :model-value="tabName"
         class="pa-2 flex-fill">
         <VWindowItem value="searchMenu">
           <VCol>
             <VTextField
               v-for="(field, idx) in searchFields"
               :key="field.key"
-              v-model="fieldsInputs[idx].value"
+              v-model="fieldsInputs[idx]!.value"
               variant="outlined"
               class="mb-2"
               :placeholder="field.value ?? undefined"
@@ -133,10 +133,10 @@ const availableProviders = (
 const model = shallowRef(true);
 const isLoading = shallowRef(false);
 const searchResults = ref<RemoteSearchResult[]>();
-const replaceImage = shallowRef(false);
+const replaceImage = shallowRef<boolean | null>(false);
 const errorMessage = t('anErrorHappened');
 const searchFields = computed<IdentifyField[]>(() => {
-  const result = [
+  const result: IdentifyField[] = [
     {
       key: 'search-name',
       title: t('name'),
@@ -390,7 +390,7 @@ async function applySelectedSearch(result: RemoteSearchResult): Promise<void> {
         await remote.sdk.newUserApi(getItemLookupApi).applySearchCriteria({
           itemId: item.Id ?? '',
           remoteSearchResult: result,
-          replaceAllImages: replaceImage.value
+          replaceAllImages: replaceImage.value ?? false
         });
       } catch (error) {
         console.error(error);

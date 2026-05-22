@@ -375,11 +375,11 @@ function _sharedInternalLogic<T extends Record<K, (...args: any[]) => any>, K ex
   });
   const data = computed<ReturnData<T, K, typeof ofBaseItem>>((previous) => {
     if (ops.skipCache.request && fetchResult.value) {
-      return ofBaseItem && !ops.skipCache.baseItem
+      return (ofBaseItem && !ops.skipCache.baseItem
         ? cachedItems?.ref.value ?? previous ?? fetchResult.value
-        : fetchResult.value;
+        : fetchResult.value) as ReturnData<T, K, typeof ofBaseItem>;
     } else {
-      return cachedData.value;
+      return cachedData.value as ReturnData<T, K, typeof ofBaseItem>;
     }
   });
   const isCached = computed(() =>

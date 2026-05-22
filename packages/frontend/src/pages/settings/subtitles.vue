@@ -9,12 +9,14 @@
         md="6"
         class="uno-pb-4 uno-pt-0">
         <VSwitch
-          v-model="subtitleSettings.state.value.enabled"
-          :label="$t('enableSubtitles')" />
+          :model-value="subtitleSettings.state.value.enabled"
+          :label="$t('enableSubtitles')"
+          @update:model-value="v => subtitleSettings.state.value.enabled = v ?? false" />
         <FontSelector
-          v-model="subtitleSettings.state.value.fontFamily"
+          :model-value="subtitleSettings.state.value.fontFamily"
           :label="$t('subtitleFont')"
-          :disabled="!subtitleSettings.state.value.enabled" />
+          :disabled="!subtitleSettings.state.value.enabled"
+          @update:model-value="v => { if (typeof v === 'string') { subtitleSettings.state.value.fontFamily = v; } }" />
 
         <VSlider
           v-model="subtitleSettings.state.value.fontSize"
@@ -33,14 +35,16 @@
           :disabled="!subtitleSettings.state.value.enabled" />
 
         <VCheckbox
-          v-model="subtitleSettings.state.value.backdrop"
+          :model-value="subtitleSettings.state.value.backdrop"
           :label="$t('backdrop')"
-          :disabled="!subtitleSettings.state.value.enabled" />
+          :disabled="!subtitleSettings.state.value.enabled"
+          @update:model-value="v => subtitleSettings.state.value.backdrop = v ?? false" />
 
         <VCheckbox
-          v-model="subtitleSettings.state.value.stroke"
+          :model-value="subtitleSettings.state.value.stroke"
           :label="$t('stroke')"
-          :disabled="!subtitleSettings.state.value.enabled" />
+          :disabled="!subtitleSettings.state.value.enabled"
+          @update:model-value="v => subtitleSettings.state.value.stroke = v ?? false" />
 
         <SubtitleTrack
           v-if="subtitleSettings.state.value.enabled"

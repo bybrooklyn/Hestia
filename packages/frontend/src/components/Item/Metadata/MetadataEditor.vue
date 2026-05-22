@@ -83,19 +83,23 @@
                 sm="6"
                 cols="12">
                 <VTextField
-                  v-model="metadata.CommunityRating"
+                  :model-value="metadata.CommunityRating"
                   variant="outlined"
+                  type="number"
                   :label="t('communityRating')"
-                  :rules="[ratingRule(0, 10)]" />
+                  :rules="[ratingRule(0, 10)]"
+                  @update:model-value="v => metadata!.CommunityRating = v === '' ? null : Number(v)" />
               </VCol>
               <VCol
                 sm="6"
                 cols="12">
                 <VTextField
-                  v-model="metadata.CriticRating"
+                  :model-value="metadata.CriticRating"
                   variant="outlined"
+                  type="number"
                   :label="t('criticRating')"
-                  :rules="[ratingRule(0, 100)]" />
+                  :rules="[ratingRule(0, 100)]"
+                  @update:model-value="v => metadata!.CriticRating = v === '' ? null : Number(v)" />
               </VCol>
             </VRow>
 
@@ -108,10 +112,12 @@
                 }
               " />
             <VTextField
-              v-model="metadata.ProductionYear"
+              :model-value="metadata.ProductionYear"
               variant="outlined"
+              type="number"
               :label="t('year')"
-              :rules="[yearRule]" />
+              :rules="[yearRule]"
+              @update:model-value="v => metadata!.ProductionYear = v === '' ? null : Number(v)" />
             <VTextField
               v-model="metadata.OfficialRating"
               variant="outlined"

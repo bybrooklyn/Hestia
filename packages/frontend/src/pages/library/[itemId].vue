@@ -127,7 +127,8 @@
 
 <script setup lang="ts">
 import {
-  BaseItemKind, SortOrder
+  BaseItemKind, SortOrder,
+  type BaseItemDto
 } from '@jellyfin/sdk/lib/generated-client';
 import { getArtistsApi } from '@jellyfin/sdk/lib/utils/api/artists-api';
 import { getGenresApi } from '@jellyfin/sdk/lib/utils/api/genres-api';
@@ -135,7 +136,7 @@ import { getItemsApi } from '@jellyfin/sdk/lib/utils/api/items-api';
 import { getMusicGenresApi } from '@jellyfin/sdk/lib/utils/api/music-genres-api';
 import { getPersonsApi } from '@jellyfin/sdk/lib/utils/api/persons-api';
 import { getStudiosApi } from '@jellyfin/sdk/lib/utils/api/studios-api';
-import { computed, onBeforeMount, ref, shallowRef } from 'vue';
+import { computed, onBeforeMount, ref, shallowRef, type Ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { useRoute } from 'vue-router';
 import { useStorage } from '@vueuse/core';
@@ -278,7 +279,7 @@ const method = computed(() => methods.value[1]);
 /**
  * TODO: Improve the type situation of this statement
  */
-const { loading, data: items } = await useBaseItem(api, method)(() => ({
+const { loading, data: items } = await (useBaseItem as any)(api, method)(() => ({
   parentId: parentId.value,
   personTypes: viewType.value === 'Person' ? ['Actor'] : undefined,
   includeItemTypes: viewType.value ? [viewType.value] : undefined,
@@ -298,7 +299,7 @@ const { loading, data: items } = await useBaseItem(api, method)(() => ({
   is4K: filters.value.types.includes('is4K') ? true : undefined,
   is3D: filters.value.types.includes('is3D') ? true : undefined,
   limit: queryLimit.value
-}));
+})) as { loading: Ref<boolean>; data: Ref<BaseItemDto[]> };
 
 useItemPageTitle(library);
 

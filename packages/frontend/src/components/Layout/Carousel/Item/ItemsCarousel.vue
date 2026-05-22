@@ -14,7 +14,7 @@
           <BlurhashImage
             v-if="relatedItems?.[item.Id!]"
             :key="`${item.Id}-image`"
-            :item="relatedItems[item.Id!]"
+            :item="relatedItems[item.Id!]!"
             :type="ImageType.Backdrop"
             :width="$vuetify.display.mdAndUp ? 256 : 128" />
         </div>

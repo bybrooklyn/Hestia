@@ -53,7 +53,8 @@ export abstract class BaseDb extends Dexie {
       const table = this.table(tableName);
 
       table.hook('reading', (obj) => {
-        const instance = new EntityClass(this);
+        const Ctor = EntityClass as unknown as new (db: BaseDb) => BaseDbEntity<BaseDb>;
+        const instance = new Ctor(this);
 
         return Object.assign(instance, obj);
       });

@@ -6,11 +6,10 @@
         v-slot="{ item }"
         :items="items"
         grid
-        :get-key="item => item.Id"
+        :get-key="(item: BaseItemDto) => item.Id"
         :class="useResponsiveClasses('card-grid-container')">
         <ItemCard
           :item="item"
-          link
           margin
           text
           overlay />
@@ -25,8 +24,7 @@
             :item="item"
             margin
             text
-            overlay
-            link />
+            overlay />
         </template>
       </div>
     </template>

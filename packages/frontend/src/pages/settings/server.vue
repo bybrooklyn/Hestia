@@ -26,8 +26,9 @@
           :items="culturesList" />
 
         <VCheckbox
-          v-model="serverSettings.QuickConnectAvailable"
-          :label="$t('enableQuickConnect')" />
+          :model-value="serverSettings.QuickConnectAvailable"
+          :label="$t('enableQuickConnect')"
+          @update:model-value="v => serverSettings!.QuickConnectAvailable = v ?? false" />
 
         <h3 class="uno-mb-2 uno-text-lg uno-font-bold">
           {{ $t('serverSettingsPaths') }}
@@ -50,8 +51,9 @@
           :label="$t('loginDisclaimer')" />
 
         <VCheckbox
-          v-model="brandingSettings.SplashscreenEnabled"
-          :label="$t('enableSplashScreen')" />
+          :model-value="brandingSettings.SplashscreenEnabled"
+          :label="$t('enableSplashScreen')"
+          @update:model-value="v => brandingSettings!.SplashscreenEnabled = v ?? false" />
 
         <VTextarea
           v-model="brandingSettings.CustomCss"
@@ -67,18 +69,25 @@
         </h3>
 
         <VTextField
-          v-model.number="serverSettings.LibraryScanFanoutConcurrency"
+          :model-value="serverSettings.LibraryScanFanoutConcurrency"
           :label="$t('parallelLibraryScanLimit')"
-          type="number" />
+          type="number"
+          @update:model-value="v => serverSettings!.LibraryScanFanoutConcurrency = Number(v) || 0" />
 
         <VTextField
-          v-model.number="serverSettings.ParallelImageEncodingLimit"
+          :model-value="serverSettings.ParallelImageEncodingLimit"
           :label="$t('parallelImageEncodingLimit')"
-          type="number" />
+          type="number"
+          @update:model-value="v => serverSettings!.ParallelImageEncodingLimit = Number(v) || 0" />
       </VCol>
     </template>
   </AdminSettingsLayout>
 </template>
+
+<route lang="yaml">
+meta:
+  admin: true
+</route>
 
 <script setup lang="ts">
 import { onScopeDispose, shallowRef, watch } from 'vue';

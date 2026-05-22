@@ -38,8 +38,8 @@ const emit = defineEmits<{
 
 const { t } = useTranslation();
 
-const allowRemoteAccess = ref(false);
-const enableUPNP = ref(false);
+const allowRemoteAccess = ref<boolean | null>(false);
+const enableUPNP = ref<boolean | null>(false);
 const loading = ref(false);
 
 /**
@@ -55,8 +55,8 @@ async function setRemoteAccess(): Promise<void> {
   try {
     await getStartupApi(api).setRemoteAccess({
       startupRemoteAccessDto: {
-        EnableRemoteAccess: allowRemoteAccess.value,
-        EnableAutomaticPortMapping: enableUPNP.value
+        EnableRemoteAccess: allowRemoteAccess.value ?? false,
+        EnableAutomaticPortMapping: enableUPNP.value ?? false
       }
     });
 

@@ -45,7 +45,6 @@
             :item="item"
             :shape="shape"
             text
-            link
             margin
             overlay />
         </SwiperSlide>

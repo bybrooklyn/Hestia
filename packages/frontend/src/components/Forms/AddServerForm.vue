@@ -34,7 +34,7 @@
             size="large"
             color="primary"
             variant="elevated"
-            type="submit">
+            @click="connectToServer">
             {{ $t('connect') }}
           </VBtn>
         </VCol>

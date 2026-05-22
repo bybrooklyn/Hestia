@@ -163,7 +163,7 @@ async function savePlaylist(): Promise<void> {
   const name = playlistName.value.trim();
   const ids = playbackManager.queue.value
     .map(item => item.Id)
-    .filter(Boolean);
+    .filter((id): id is string => Boolean(id));
 
   if (name === '' || ids.length === 0) {
     return;

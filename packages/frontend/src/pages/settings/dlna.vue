@@ -75,7 +75,18 @@ const [{ data: dlnaRaw }, { data: users }] = await Promise.all([
   useApi(getUserApi, 'getUsers')()
 ]);
 
-const dlna = shallowRef<DlnaOptions>(dlnaRaw.value as DlnaOptions);
+type DlnaForm = Omit<DlnaOptions, 'EnableServer' | 'EnablePlayTo' | 'AutoCreatePlayToProfiles' | 'BlastAliveMessages' | 'SendOnlyMatchedHost' | 'EnableDebugLog' | 'EnablePlayToTracing' | 'ClientDiscoveryIntervalSeconds' | 'AliveMessageIntervalSeconds'> & {
+  EnableServer?: boolean | null;
+  EnablePlayTo?: boolean | null;
+  AutoCreatePlayToProfiles?: boolean | null;
+  BlastAliveMessages?: boolean | null;
+  SendOnlyMatchedHost?: boolean | null;
+  EnableDebugLog?: boolean | null;
+  EnablePlayToTracing?: boolean | null;
+  ClientDiscoveryIntervalSeconds?: number | string;
+  AliveMessageIntervalSeconds?: number | string;
+};
+const dlna = shallowRef(dlnaRaw.value as DlnaForm);
 
 const userItems = computed(() =>
   users.value.map(u => ({ title: u.Name ?? '', value: u.Id ?? '' }))

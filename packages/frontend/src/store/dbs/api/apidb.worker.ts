@@ -6,6 +6,7 @@ import { isArray } from '@jellyfin-vue/shared/validation';
 import type { Arrayable } from 'type-fest';
 import { expose } from 'comlink';
 import { BaseDb } from '../base-db.ts';
+import type { BaseDbEntity } from '../base-entity.ts';
 import { ApiResponse } from './api-response.ts';
 import { Item } from './item.ts';
 
@@ -53,12 +54,13 @@ class ApiDatabase extends BaseDb {
   public readonly findItems = async (searchTerm: string): Promise<BaseItemDto[]> =>
     (await this.items.filter((item: Item) => {
       const search = searchTerm.toLowerCase();
+      const raw = item as unknown as BaseItemDto;
 
       return [
-        item.Name?.includes(search),
-        item.SortName?.includes(search),
-        item.Overview?.includes(search),
-        item.Taglines?.includes(search)
+        raw.Name?.includes(search),
+        raw.SortName?.includes(search),
+        raw.Overview?.includes(search),
+        raw.Taglines?.includes(search)
       ].some(Boolean);
     }).toArray()).map(i => i.__raw);
 
@@ -94,9 +96,9 @@ class ApiDatabase extends BaseDb {
     /**
      * Unique indexes (function and params are composite keys)
      */
-    super('api', new Map([
-      [ApiResponse, '&[function+params], *ids'],
-      [Item, '&Id']
+    super('api', new Map<typeof BaseDbEntity, string>([
+      [ApiResponse as unknown as typeof BaseDbEntity, '&[function+params], *ids'],
+      [Item as unknown as typeof BaseDbEntity, '&Id']
     ]));
   }
 }

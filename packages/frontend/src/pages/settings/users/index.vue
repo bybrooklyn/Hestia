@@ -12,10 +12,9 @@
         {{ t('newUser') }}
       </VBtn>
       <VBtn
+        v-bind="anchorAttrs"
         variant="elevated"
-        href="https://jellyfin.org/docs/general/server/users/adding-managing-users"
-        rel="noreferrer noopener"
-        target="_blank">
+        href="https://jellyfin.org/docs/general/server/users/adding-managing-users">
         {{ t('help') }}
       </VBtn>
     </template>
@@ -68,6 +67,8 @@ import { useDateFns } from '#/composables/use-datefns.ts';
 import { useApi } from '#/composables/apis.ts';
 
 const { t } = useTranslation();
+
+const anchorAttrs = { target: '_blank', rel: 'noreferrer noopener' } as Record<string, string>;
 
 const { data: users } = await useApi(getUserApi, 'getUsers')(() => ({}));
 </script>

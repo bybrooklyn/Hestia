@@ -168,7 +168,11 @@ const cardSubtitleLink = computed(() => {
     item.Type === BaseItemKind.MusicAlbum
     && item.AlbumArtists?.length
   ) {
-    return getItemDetailsLink(item.AlbumArtists[0], 'MusicArtist');
+    const artist = item.AlbumArtists[0];
+
+    if (artist) {
+      return getItemDetailsLink({ Id: artist.Id, Name: artist.Name }, 'MusicArtist');
+    }
   } else if (item.Type === BaseItemKind.Episode) {
     return getItemDetailsLink(item);
   }

@@ -4,9 +4,8 @@
       <VListItem
         v-for="linkItem in linkItems"
         :key="linkItem.name"
-        :href="linkItem.link"
-        rel="noreferrer noopener"
-        target="_blank">
+        v-bind="anchorAttrs"
+        :href="linkItem.link">
         <template #prepend>
           <VAvatar>
             <JIcon :class="linkItem.icon" />
@@ -31,6 +30,8 @@ import { computed } from 'vue';
 import { useTranslation } from 'i18next-vue';
 
 const { t } = useTranslation();
+
+const anchorAttrs = { target: '_blank', rel: 'noreferrer noopener' } as Record<string, string>;
 
 const linkItems = computed(() => {
   return [

@@ -1,6 +1,7 @@
 import type {
   NavigationGuardReturn,
-  RouteLocationNormalized
+  RouteLocationNormalized,
+  RouteLocationRaw
 } from 'vue-router';
 import type { RouteNamedMap } from 'vue-router/auto-routes';
 import { until } from '@vueuse/core';
@@ -69,7 +70,7 @@ export const loginGuard = async (
       return {
         name,
         replace: true
-      };
+      } as RouteLocationRaw;
     }
   } else if (shouldBlock) {
     useSnackbar(i18next.t('unauthorized'), 'error');

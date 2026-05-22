@@ -134,12 +134,13 @@
                 :cols="6"
                 class="text-right">
                 <VTextField
-                  v-model.number="playbackManager.audioOffset.value"
+                  :model-value="playbackManager.audioOffset.value"
                   type="number"
                   density="compact"
                   hide-details
                   variant="outlined"
-                  :step="50" />
+                  :step="50"
+                  @update:model-value="v => playbackManager.audioOffset.value = Number(v) || 0" />
               </VCol>
             </VRow>
             <VRow
@@ -152,12 +153,13 @@
                 :cols="6"
                 class="text-right">
                 <VTextField
-                  v-model.number="playbackManager.subtitleOffset.value"
+                  :model-value="playbackManager.subtitleOffset.value"
                   type="number"
                   density="compact"
                   hide-details
                   variant="outlined"
-                  :step="50" />
+                  :step="50"
+                  @update:model-value="v => playbackManager.subtitleOffset.value = Number(v) || 0" />
               </VCol>
             </VRow>
           </VCardText>

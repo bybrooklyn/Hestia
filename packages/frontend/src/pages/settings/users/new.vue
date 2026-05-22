@@ -5,10 +5,9 @@
     </template>
     <template #actions>
       <VBtn
+        v-bind="anchorAttrs"
         variant="elevated"
-        href="https://jellyfin.org/docs/general/server/users/"
-        rel="noreferrer noopener"
-        target="_blank">
+        href="https://jellyfin.org/docs/general/server/users/">
         {{ t('help') }}
       </VBtn>
     </template>
@@ -93,11 +92,13 @@ import { useRouter } from 'vue-router';
 import { remote } from '#/plugins/remote/index.ts';
 
 const { t } = useTranslation();
+
+const anchorAttrs = { target: '_blank', rel: 'noreferrer noopener' } as Record<string, string>;
 const router = useRouter();
 const name = ref('');
 const password = ref('');
-const canAccessAllLibraries = ref(true);
-const accessableLibraries = ref<string[]>([]);
+const canAccessAllLibraries = ref<boolean | null>(true);
+const accessableLibraries = ref<string[] | null>([]);
 const loading = ref(false);
 
 const libraries = (
@@ -123,9 +124,9 @@ async function createUser(): Promise<void> {
       userId: res.Id ?? '',
       userPolicy: {
         ...res.Policy!,
-        EnableAllFolders: canAccessAllLibraries.value,
+        EnableAllFolders: canAccessAllLibraries.value ?? false,
         ...(!canAccessAllLibraries.value && {
-          EnabledFolders: accessableLibraries.value
+          EnabledFolders: accessableLibraries.value ?? []
         })
       }
     });

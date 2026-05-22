@@ -88,8 +88,8 @@ export async function parseVttFile(src: string) {
         });
 
         dialogue.push({
-          start: parseTime(start!),
-          end: parseTime(end!),
+          start: parseTime(start as `${string}:${string}:${string}`),
+          end: parseTime(end as `${string}:${string}:${string}`),
           text: formattedText.trim()
         });
       } else {

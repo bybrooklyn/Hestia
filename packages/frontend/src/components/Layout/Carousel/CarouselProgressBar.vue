@@ -6,7 +6,7 @@
       :class="useResponsiveClasses('progress-bar uno-cursor-pointer')"
       @click.capture="emit('progressClicked', i - 1)">
       <div
-        :class="useResponsiveClasses(barClasses[i - 1])"
+        :class="useResponsiveClasses(barClasses[i - 1] ?? '')"
         @animationend="emit('animationEnd')" />
     </div>
   </div>

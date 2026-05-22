@@ -5,10 +5,9 @@
     </template>
     <template #actions>
       <VBtn
+        v-bind="anchorAttrs"
         variant="elevated"
-        href="https://jellyfin.org/docs/general/server/users/"
-        rel="noreferrer noopener"
-        target="_blank">
+        href="https://jellyfin.org/docs/general/server/users/">
         {{ t('help') }}
       </VBtn>
     </template>
@@ -332,14 +331,16 @@ interface CurrentUser {
   CurrentPassword: string;
   Password: string;
   ConfirmPassword: string;
-  CanAccessAllLibraries: boolean;
-  Folders: string[];
+  CanAccessAllLibraries: boolean | null;
+  Folders: string[] | null;
   maxParentalRating?: number;
-  BlockUnratedItems: UnratedItem[];
+  BlockUnratedItems: UnratedItem[] | null;
   BlockedTags: string[];
 }
 
 const { t } = useTranslation();
+
+const anchorAttrs = { target: '_blank', rel: 'noreferrer noopener' } as Record<string, string>;
 const route = useRoute('/settings/users/[id]');
 const router = useRouter();
 
@@ -435,7 +436,7 @@ async function saveAccess(): Promise<void> {
   loading.value = true;
   await remote.sdk.newUserApi(getUserApi).updateUserPolicy({
     userId: user.value.Id,
-    userPolicy: { ...user.value.Policy as UserPolicy, EnableAllFolders: model.value.CanAccessAllLibraries, EnabledFolders: model.value.Folders }
+    userPolicy: { ...user.value.Policy as UserPolicy, EnableAllFolders: model.value.CanAccessAllLibraries ?? false, EnabledFolders: model.value.Folders ?? [] }
   });
   await refreshData();
   loading.value = false;

@@ -12,6 +12,7 @@ export abstract class BaseDbEntity<T extends Dexie> implements Partial<Entity<T>
   protected abstract __dbKey: IndexableType;
   protected db?: T;
 
+  // @ts-expect-error - intentionally narrowed beyond Entity.table
   protected get table(): Table<this, IndexableType, this> | undefined {
     return this.db?.table((this.constructor as typeof BaseDbEntity).tableName);
   }
