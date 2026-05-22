@@ -225,6 +225,39 @@ class RemotePluginAuth extends BaseState<AuthState> {
   };
 
   /**
+   * Logs the user in using an existing token (e.g. from Quick Connect)
+   *
+   * @param user
+   * @param token
+   * @param rememberMe
+   */
+  public readonly loginWithToken = (
+    user: UserDto,
+    token: string,
+    rememberMe = true
+  ): void => {
+    if (!this.currentServer.value) {
+      throw new Error('There is no server in use');
+    }
+
+    this._state.value.rememberMe = rememberMe;
+
+    if (user.Id && token) {
+      this._state.value.accessTokens[user.Id] = token;
+
+      const existingIndex = this._state.value.users.findIndex(u => u.Id === user.Id);
+
+      if (existingIndex === -1) {
+        this._state.value.users.push(user);
+        this._state.value.currentUserIndex = this._state.value.users.indexOf(user);
+      } else {
+        this._state.value.users[existingIndex] = user;
+        this._state.value.currentUserIndex = existingIndex;
+      }
+    }
+  };
+
+  /**
    * Refreshes the current user infos, to fetch a new picture for instance
    */
   public readonly refreshCurrentUserInfo = async (): Promise<void> => {

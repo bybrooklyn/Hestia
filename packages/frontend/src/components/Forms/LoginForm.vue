@@ -61,12 +61,21 @@
             size="large"
             color="primary"
             variant="elevated"
-            type="submit">
+            @click="userLogin">
             {{ $t('signIn') }}
           </VBtn>
         </VCol>
       </VRow>
     </VForm>
+    <div class="uno-text-center uno-mt-4">
+      <VBtn
+        variant="text"
+        size="small"
+        to="/server/forgot-password"
+        class="text-caption !uno-text-slate-400 hover:!uno-text-primary transition-colors">
+        {{ $t('forgotPassword') }}
+      </VBtn>
+    </div>
   </div>
 </template>
 
@@ -87,7 +96,7 @@ defineEmits<{
 const { t } = useTranslation();
 
 const valid = shallowRef<boolean | null>(false);
-const login = ref({ username: '', password: '', rememberMe: true });
+const login = ref<{ username: string; password: string; rememberMe: boolean | null }>({ username: '', password: '', rememberMe: true });
 const showPassword = shallowRef(false);
 const loading = shallowRef(false);
 const rules = [
@@ -111,7 +120,7 @@ async function userLogin(): Promise<void> {
     await remote.auth.loginUser(
       login.value.username,
       login.value.password,
-      login.value.rememberMe
+      login.value.rememberMe ?? false
     );
 
     /**
