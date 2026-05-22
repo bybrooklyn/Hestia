@@ -20,7 +20,7 @@
         transition="slide-y-transition"
         location="top">
         <VList class="uno-overflow-hidden">
-          <VListSubheader>Primary Subtitle</VListSubheader>
+          <VListSubheader>{{ t('primarySubtitle') }}</VListSubheader>
           <VListItem
             v-for="track of tracks"
             :key="`primary-${track.Index}`"
@@ -35,7 +35,7 @@
             </template>
           </VListItem>
           <VDivider />
-          <VListSubheader>Secondary Subtitle</VListSubheader>
+          <VListSubheader>{{ t('secondarySubtitle') }}</VListSubheader>
           <VListItem
             v-for="track of tracks"
             :key="`secondary-${track.Index}`"

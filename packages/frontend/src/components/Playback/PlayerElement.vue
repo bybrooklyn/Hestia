@@ -90,7 +90,7 @@ const posterUrl = computed(() =>
 function detachHls(): void {
   if (hls) {
     hls.detachMedia();
-    hls.off(Events.ERROR, onHlsEror);
+    hls.off(Events.ERROR, onHlsError);
   }
 }
 
@@ -156,7 +156,7 @@ async function onLoadedData(): Promise<void> {
 /**
  * Callback for when HLS.js gets an error
  */
-function onHlsEror(_event: typeof Hls.Events.ERROR, data: ErrorData): void {
+function onHlsError(_event: typeof Hls.Events.ERROR, data: ErrorData): void {
   if (data.fatal && hls) {
     switch (data.type) {
       case ErrorTypes.NETWORK_ERROR: {
@@ -193,7 +193,7 @@ watch(mediaElementRef, () => {
 
     if (playbackManager.isVideo.value && hls) {
       hls.attachMedia(mediaEl);
-      hls.on(Events.ERROR, onHlsEror);
+      hls.on(Events.ERROR, onHlsError);
     }
 
     if (playbackManager.isAudio.value) {

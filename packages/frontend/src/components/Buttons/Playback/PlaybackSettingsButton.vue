@@ -128,7 +128,7 @@
               v-if="playbackManager.isVideo.value"
               align="center">
               <VCol :cols="6">
-                <label>Audio Delay (ms)</label>
+                <label>{{ t('audioDelay') }}</label>
               </VCol>
               <VCol
                 :cols="6"
@@ -147,7 +147,7 @@
               v-if="playbackManager.isVideo.value"
               align="center">
               <VCol :cols="6">
-                <label>Subtitle Delay (ms)</label>
+                <label>{{ t('subtitleDelay') }}</label>
               </VCol>
               <VCol
                 :cols="6"
