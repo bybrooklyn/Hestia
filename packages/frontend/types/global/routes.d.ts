@@ -101,6 +101,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/playlist/[itemId]': RouteRecordInfo<
+      '/playlist/[itemId]',
+      '/playlist/:itemId',
+      { itemId: ParamValue<true> },
+      { itemId: ParamValue<false> },
+      | never
+    >,
     '/search': RouteRecordInfo<
       '/search',
       '/search',
@@ -118,6 +125,13 @@ declare module 'vue-router/auto-routes' {
     '/server/add': RouteRecordInfo<
       '/server/add',
       '/server/add',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/server/forgot-password': RouteRecordInfo<
+      '/server/forgot-password',
+      '/server/forgot-password',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -157,9 +171,37 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/settings/backups': RouteRecordInfo<
+      '/settings/backups',
+      '/settings/backups',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/settings/dashboard': RouteRecordInfo<
+      '/settings/dashboard',
+      '/settings/dashboard',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/settings/devices': RouteRecordInfo<
       '/settings/devices',
       '/settings/devices',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/settings/display': RouteRecordInfo<
+      '/settings/display',
+      '/settings/display',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/settings/dlna': RouteRecordInfo<
+      '/settings/dlna',
+      '/settings/dlna',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -171,9 +213,44 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/settings/home': RouteRecordInfo<
+      '/settings/home',
+      '/settings/home',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/settings/logs-and-activity': RouteRecordInfo<
       '/settings/logs-and-activity',
       '/settings/logs-and-activity',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/settings/media-players': RouteRecordInfo<
+      '/settings/media-players',
+      '/settings/media-players',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/settings/networking': RouteRecordInfo<
+      '/settings/networking',
+      '/settings/networking',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/settings/notifications': RouteRecordInfo<
+      '/settings/notifications',
+      '/settings/notifications',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/settings/playback': RouteRecordInfo<
+      '/settings/playback',
+      '/settings/playback',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -227,18 +304,18 @@ declare module 'vue-router/auto-routes' {
       { tag: ParamValue<false> },
       | never
     >,
-    '/year/[year]': RouteRecordInfo<
-      '/year/[year]',
-      '/year/:year',
-      { year: ParamValue<true> },
-      { year: ParamValue<false> },
-      | never
-    >,
     '/wizard': RouteRecordInfo<
       '/wizard',
       '/wizard',
       Record<never, never>,
       Record<never, never>,
+      | never
+    >,
+    '/year/[year]': RouteRecordInfo<
+      '/year/[year]',
+      '/year/:year',
+      { year: ParamValue<true> },
+      { year: ParamValue<false> },
       | never
     >,
   }
@@ -314,6 +391,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/playlist/[itemId].vue': {
+      routes:
+        | '/playlist/[itemId]'
+      views:
+        | never
+    }
     'src/pages/search.vue': {
       routes:
         | '/search'
@@ -329,6 +412,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/server/add.vue': {
       routes:
         | '/server/add'
+      views:
+        | never
+    }
+    'src/pages/server/forgot-password.vue': {
+      routes:
+        | '/server/forgot-password'
       views:
         | never
     }
@@ -362,9 +451,33 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/settings/backups.vue': {
+      routes:
+        | '/settings/backups'
+      views:
+        | never
+    }
+    'src/pages/settings/dashboard.vue': {
+      routes:
+        | '/settings/dashboard'
+      views:
+        | never
+    }
     'src/pages/settings/devices.vue': {
       routes:
         | '/settings/devices'
+      views:
+        | never
+    }
+    'src/pages/settings/display.vue': {
+      routes:
+        | '/settings/display'
+      views:
+        | never
+    }
+    'src/pages/settings/dlna.vue': {
+      routes:
+        | '/settings/dlna'
       views:
         | never
     }
@@ -374,9 +487,39 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/settings/home.vue': {
+      routes:
+        | '/settings/home'
+      views:
+        | never
+    }
     'src/pages/settings/logs-and-activity.vue': {
       routes:
         | '/settings/logs-and-activity'
+      views:
+        | never
+    }
+    'src/pages/settings/media-players.vue': {
+      routes:
+        | '/settings/media-players'
+      views:
+        | never
+    }
+    'src/pages/settings/networking.vue': {
+      routes:
+        | '/settings/networking'
+      views:
+        | never
+    }
+    'src/pages/settings/notifications.vue': {
+      routes:
+        | '/settings/notifications'
+      views:
+        | never
+    }
+    'src/pages/settings/playback.vue': {
+      routes:
+        | '/settings/playback'
       views:
         | never
     }
@@ -422,15 +565,15 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/year/[year].vue': {
-      routes:
-        | '/year/[year]'
-      views:
-        | never
-    }
     'src/pages/wizard.vue': {
       routes:
         | '/wizard'
+      views:
+        | never
+    }
+    'src/pages/year/[year].vue': {
+      routes:
+        | '/year/[year]'
       views:
         | never
     }
