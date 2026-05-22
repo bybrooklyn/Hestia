@@ -251,8 +251,8 @@ Done when: the page works.
 Design: `pages/server/login.vue` gains a Quick Connect entry point (full and user-selector variants) that initiates the code, polls `getQuickConnectState`, and on success calls a new `remote.auth.loginWithToken` to install the externally-issued token into the rememberMe-aware session state without going through username/password.
 Done when: a user can sign in via a Quick Connect code.
 
-**`AUTH-2` — Quick Connect authorize (approve a code)** · Absent · `not started` · seq 24 · depends: —
-Design: settings UI to approve a pending Quick Connect code.
+**`AUTH-2` — Quick Connect authorize (approve a code)** · Absent · `done` · seq 24 · depends: —
+Design: `pages/settings/account.vue` has a "Quick Connect Authorize" section — a 6-character code field plus a button that calls `getQuickConnectApi.authorizeQuickConnect({ code })`. Surfaces success / failure via snackbar.
 Done when: a logged-in user can authorize a code.
 
 **`AUTH-3` — Forgot-password / PIN reset flow** · Absent · `done` · seq 25 · depends: —
@@ -267,8 +267,8 @@ Done when: the reset flow completes.
 
 ### Collections & Playlists
 
-**`COLL-1` — View a collection (BoxSet)** · Partial · `not started` · seq 9 · depends: — · **UNVERIFIED depth**
-Design: `pages/item/[itemId].vue` already renders BoxSet children via `CollectionTabs` — confirm full parity.
+**`COLL-1` — View a collection (BoxSet)** · Partial · `done` · seq 9 · depends: —
+Design: verified — `pages/item/[itemId].vue` mounts `CollectionTabs` for `Type === 'BoxSet'`, which now groups child items by `Type` into tabs and falls back to a centred empty state when the collection is empty. Items render via `ItemCard` with the standard `ItemMenu`; `COLL-3`'s remove action is available whenever a parent forwards `collectionId` to the menu (a small ItemCard prop-forwarding gap remains for the card-context case).
 Done when: a collection's contents are fully browsable.
 
 **`COLL-2` — Create a collection** · Absent · `done` · seq 10 · Design: new `components/Item/Collection/CreateCollectionDialog.vue` wraps `getCollectionApi.createCollection` with a name field (`required` rule mirrors the server validation) and an optional `seedItemIds` prop so a parent (`ITEM-3`'s `AddToCollectionDialog`) can create-and-populate in one round-trip. Emits `created` with the new collection id so the parent can chain. Auto-imported via the components registry — `ITEM-3` mounts it from the menu action. Done when: a collection can be created.
@@ -282,7 +282,7 @@ Done when: a collection's contents are fully browsable.
 
 **`MEDIA-1` — Photo viewer / slideshow** · Absent · seq 16 · Design: new viewer pages. Done when: photos view and slideshow.
 **`MEDIA-2` — Book / e-reader** · Absent · seq 17 · Design: an epub reader (large). Done when: a book is readable.
-**`MEDIA-3` — Audiobook playback parity** · Absent · `not started` · seq 18 · **UNVERIFIED** — confirm current audiobook handling in `playback-manager.ts`. Done when: audiobooks play with chapter support.
+**`MEDIA-3` — Audiobook playback parity** · Partial · `not started` · seq 18 · Verified: `AudioBook` items are in `canPlay`'s allowlist and play through the standard audio path, but `music.vue` has no chapter UI — the `Chapter` markers, click-to-seek (`AUD-5`), and `PreviousChapterButton` / `NextChapterButton` (`VID-16`) all live in `video.vue` only. Done when: audiobooks play with chapter support.
 
 ### Casting, remote & SyncPlay
 
