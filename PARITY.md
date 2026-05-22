@@ -209,8 +209,8 @@ Done when: chapters are listed and clickable.
 
 > Verified: search **works** — `pages/search.vue` has Movies/Shows/Albums/Songs/Books/People/Artists tabs, each an `ItemGrid`. Remaining gaps only:
 
-**`SRCH-1` — Result filters / scope** · Absent · `not started` · seq 15 · depends: —
-Design: add filter controls (genre/year/etc.) to `search.vue`.
+**`SRCH-1` — Result filters / scope** · Absent · `done` · seq 15 · depends: —
+Design: a filter toggle button in the search toolbar now expands a glassmorphic filter card above the results, letting users narrow the active query without leaving the search context.
 Done when: results can be filtered.
 
 **`SRCH-2` — Recent searches / suggestions** · Absent · `done` · seq 16 · depends: —
@@ -219,44 +219,44 @@ Done when: recent searches appear.
 
 ### User preferences
 
-**`PREF-1` — Playback settings page** · Surfaced · `not started` · seq 17 · depends: —
-Design: new `pages/settings/playback.vue` + `store/settings/playback.ts`; enable the disabled "Playback" settings-index row. Gateway for `PREF-3/4/5` and persisted quality/speed.
+**`PREF-1` — Playback settings page** · Surfaced · `done` · seq 17 · depends: —
+Design: new `pages/settings/playback.vue` + `store/settings/playback.ts` cover preferred audio/subtitle language, default quality, default speed, and forced-subtitle auto-enable; the "Playback" settings-index row in `use-user-settings-items.ts` now links to it.
 Done when: the page works and persists.
 
-**`PREF-2` — Display preferences page** · Absent · `not started` · seq 18 · depends: —
-Design: new `pages/settings/display.vue` consolidating theme/locale (today scattered in the app bar) and display options.
+**`PREF-2` — Display preferences page** · Absent · `done` · seq 18 · depends: —
+Design: new `pages/settings/display.vue` consolidates language + theme + typography (previously scattered between the app bar and the legacy locale picker); settings-index row added.
 Done when: a dedicated display-preferences page exists.
 
-**`PREF-3` — Preferred audio language** · Absent · `not started` · seq 19 · depends: `PREF-1`
-Design: preference in the playback store; applied during track selection in `playback-manager.ts`.
+**`PREF-3` — Preferred audio language** · Absent · `done` · seq 19 · depends: `PREF-1`
+Design: preference in `playbackSettings`; `playback-manager._selectDefaultTracks` runs on `currentMediaSource` changes and picks an audio track by ISO-639 language match (with default-track / first-track fallbacks).
 Done when: the preferred audio track is auto-selected when present.
 
-**`PREF-4` — Preferred subtitle language** · Absent · `not started` · seq 20 · depends: `PREF-1`
-Design: as `PREF-3`, for subtitles.
+**`PREF-4` — Preferred subtitle language** · Absent · `done` · seq 20 · depends: `PREF-1`
+Design: same `_selectDefaultTracks` path also picks a subtitle track by language, honouring a `none` sentinel for "off" and falling back to default/first when the preference is `any`.
 Done when: the preferred subtitle track is auto-selected when present.
 
-**`PREF-5` — Forced-subtitle auto-enable** · Absent · `not started` · seq 21 · depends: `PREF-1`
-Design: honour `MediaStream.IsForced` in `player-element.ts`, gated by a preference.
+**`PREF-5` — Forced-subtitle auto-enable** · Absent · `done` · seq 21 · depends: `PREF-1`
+Design: when `autoEnableForcedSubtitles` is on, the subtitle auto-selection prefers `MediaStream.IsForced` tracks that match the preferred language, then any forced track if none match.
 Done when: forced subtitles auto-enable per the preference.
 
-**`PREF-6` — Controls / media-players preferences page** · Surfaced · `not started` · seq 22 · depends: —
-Design: new page; enable the disabled "Media Players" settings-index row.
+**`PREF-6` — Controls / media-players preferences page** · Surfaced · `done` · seq 22 · depends: —
+Design: new `pages/settings/media-players.vue` + `store/settings/media-players.ts` with autoplay-next + configurable skip-forward/backward durations; settings-index row linked. `playback-manager` reads these for `skipForward`, `skipBackward`, and the `mediaControls.ended` → `setNextItem` hop.
 Done when: the page works.
 
 > *Subtitle appearance preferences are **done** (`pages/settings/subtitles.vue`).*
 
 ### Authentication
 
-**`AUTH-1` — Quick Connect sign-in (enter code)** · Absent · `not started` · seq 23 · depends: —
-Design: add a Quick Connect option to `pages/server/login.vue` using the Quick Connect API. (Verified: Quick Connect appears only in *admin* `server.vue`, not user-facing.)
+**`AUTH-1` — Quick Connect sign-in (enter code)** · Absent · `done` · seq 23 · depends: —
+Design: `pages/server/login.vue` gains a Quick Connect entry point (full and user-selector variants) that initiates the code, polls `getQuickConnectState`, and on success calls a new `remote.auth.loginWithToken` to install the externally-issued token into the rememberMe-aware session state without going through username/password.
 Done when: a user can sign in via a Quick Connect code.
 
 **`AUTH-2` — Quick Connect authorize (approve a code)** · Absent · `not started` · seq 24 · depends: —
 Design: settings UI to approve a pending Quick Connect code.
 Done when: a logged-in user can authorize a code.
 
-**`AUTH-3` — Forgot-password / PIN reset flow** · Absent · `not started` · seq 25 · depends: —
-Design: new flow under `pages/server/` (jellyfin-web `forgotpasswordpin`).
+**`AUTH-3` — Forgot-password / PIN reset flow** · Absent · `done` · seq 25 · depends: —
+Design: new `pages/server/forgot-password.vue` three-step flow (username → PIN entry → success) wired through the standard reset endpoints; `LoginForm.vue` exposes the "Forgot password?" link to it.
 Done when: the reset flow completes.
 
 ---
@@ -272,11 +272,11 @@ Design: `pages/item/[itemId].vue` already renders BoxSet children via `Collectio
 Done when: a collection's contents are fully browsable.
 
 **`COLL-2` — Create a collection** · Absent · `done` · seq 10 · Design: new `components/Item/Collection/CreateCollectionDialog.vue` wraps `getCollectionApi.createCollection` with a name field (`required` rule mirrors the server validation) and an optional `seedItemIds` prop so a parent (`ITEM-3`'s `AddToCollectionDialog`) can create-and-populate in one round-trip. Emits `created` with the new collection id so the parent can chain. Auto-imported via the components registry — `ITEM-3` mounts it from the menu action. Done when: a collection can be created.
-**`COLL-3` — Add / remove items in a collection** · Absent · seq 11 · depends: `COLL-2` · (paired with `ITEM-3`). Done when: collection membership is editable.
-**`COLL-4` — View a playlist** · Absent · `not started` · seq 12 · **UNVERIFIED** — confirm whether a `Playlist` item routes through the generic item/library page; if not, a dedicated view is needed. Done when: a playlist's contents are browsable.
+**`COLL-3` — Add / remove items in a collection** · Absent · `done` · seq 11 · depends: `COLL-2` · Design: add lands via `ITEM-3`'s `AddToCollectionDialog`; remove is exposed through `ItemMenu`'s `removeFromCollectionAction` (gated on a `collectionId` prop and calling `getCollectionApi.removeFromCollection`, then emitting `removed` so the collection view can refresh). Done when: collection membership is editable.
+**`COLL-4` — View a playlist** · Absent · `done` · seq 12 · Design: new `pages/playlist/[itemId].vue` lists the tracks via `getPlaylistsApi.getPlaylistItems`, surfaces the per-item menu actions, and provides a delete-playlist confirm dialog. Done when: a playlist's contents are browsable.
 **`COLL-5` — Create a playlist** · Absent · `done` · seq 13 · Design: new `components/Item/Collection/CreatePlaylistDialog.vue` mirrors `CreateCollectionDialog` but calls `getPlaylistsApi.createPlaylist` with a `CreatePlaylistDto` carrying `Name`, optional `Ids` seed list, and the current user. Accepts a `seedItemIds` prop so `ITEM-4`'s picker can create-and-populate in one round-trip. Emits `created` with the new playlist id. The existing playlist-create path from `QUE-1` (in `QueueButton.vue`) is unchanged — this is a separate entry point for the item context. Done when: a playlist can be created.
-**`COLL-6` — Edit / reorder a playlist** · Absent · seq 14 · depends: `COLL-4` · Design: reorder via the existing `DraggableQueue` pattern. Done when: playlists are editable.
-**`COLL-7` — Delete a collection / playlist** · Absent · seq 15 · depends: `COLL-1`,`COLL-4` · Done when: both can be deleted.
+**`COLL-6` — Edit / reorder a playlist** · Absent · `done` · seq 14 · depends: `COLL-4` · Design: `pages/playlist/[itemId].vue` drives drag-to-reorder through `getPlaylistsApi.moveItem`, with optimistic local-array updates and rollback on failure. Done when: playlists are editable.
+**`COLL-7` — Delete a collection / playlist** · Absent · `not started` · seq 15 · depends: `COLL-1`,`COLL-4` · Design: playlist delete already landed with `COLL-4`'s confirm dialog; collection delete is still missing. Done when: both can be deleted.
 
 ### Other media types
 
