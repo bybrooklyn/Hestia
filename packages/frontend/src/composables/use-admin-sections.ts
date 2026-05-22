@@ -112,7 +112,7 @@ export function useAdminSections(): ComputedRef<AdminSection[]> {
         icon: 'i-mdi:calendar-clock',
         name: t('scheduledTasks'),
         description: t('scheduledTasksSettingsDescription'),
-        link: undefined
+        link: '/settings/scheduled-tasks'
       },
       {
         icon: 'i-mdi:bell',

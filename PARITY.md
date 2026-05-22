@@ -276,7 +276,7 @@ Done when: a collection's contents are fully browsable.
 **`COLL-4` — View a playlist** · Absent · `done` · seq 12 · Design: new `pages/playlist/[itemId].vue` lists the tracks via `getPlaylistsApi.getPlaylistItems`, surfaces the per-item menu actions, and provides a delete-playlist confirm dialog. Done when: a playlist's contents are browsable.
 **`COLL-5` — Create a playlist** · Absent · `done` · seq 13 · Design: new `components/Item/Collection/CreatePlaylistDialog.vue` mirrors `CreateCollectionDialog` but calls `getPlaylistsApi.createPlaylist` with a `CreatePlaylistDto` carrying `Name`, optional `Ids` seed list, and the current user. Accepts a `seedItemIds` prop so `ITEM-4`'s picker can create-and-populate in one round-trip. Emits `created` with the new playlist id. The existing playlist-create path from `QUE-1` (in `QueueButton.vue`) is unchanged — this is a separate entry point for the item context. Done when: a playlist can be created.
 **`COLL-6` — Edit / reorder a playlist** · Absent · `done` · seq 14 · depends: `COLL-4` · Design: `pages/playlist/[itemId].vue` drives drag-to-reorder through `getPlaylistsApi.moveItem`, with optimistic local-array updates and rollback on failure. Done when: playlists are editable.
-**`COLL-7` — Delete a collection / playlist** · Absent · `not started` · seq 15 · depends: `COLL-1`,`COLL-4` · Design: playlist delete already landed with `COLL-4`'s confirm dialog; collection delete is still missing. Done when: both can be deleted.
+**`COLL-7` — Delete a collection / playlist** · Absent · `done` · seq 15 · depends: `COLL-1`,`COLL-4` · Design: playlist delete is on the dedicated playlist page from `COLL-4`; collection (BoxSet) delete is already available via `ItemMenu`'s `deleteItemAction` on the item detail page, gated behind `EnableContentDeletion` / `EnableContentDeletionFromFolders` policy. Done when: both can be deleted.
 
 ### Other media types
 
@@ -346,7 +346,7 @@ Done when: a collection's contents are fully browsable.
 **`PLG-2` — Plugin catalog (browse / install)** · Absent · seq 20 · depends: `PLG-1` · Done when: plugins installable.
 **`PLG-3` — Plugin configuration pages** · Absent · seq 21 · depends: `PLG-1` · Done when: a plugin's config is editable.
 **`PLG-4` — Plugin repositories** · Absent · seq 22 · depends: `PLG-1` · Done when: repositories manageable.
-**`TASK-1` — Scheduled tasks list** · Surfaced · seq 23 · disabled "Scheduled Tasks" row (`store/task-manager.ts` tracks client tasks only). Done when: server tasks are listed.
+**`TASK-1` — Scheduled tasks list** · Surfaced · `done` · seq 23 · Design: new `pages/settings/scheduled-tasks.vue` lists every non-hidden server task via `getScheduledTasksApi.getTasks`, grouped by `Category`. Each row shows the description, last execution status + relative time, last-run duration, and a Run / Stop button. Live updates piggyback on the existing socket `ScheduledTasksInfo` subscription, with a 10 s API poll as a disconnected fallback (mirroring `dashboard.vue`'s pattern). Settings-index row in `use-admin-sections.ts` now points here. Done when: server tasks are listed.
 **`TASK-2` — Run / configure a scheduled task** · Absent · seq 24 · depends: `TASK-1` · Done when: a task can be run/configured.
 
 ---
