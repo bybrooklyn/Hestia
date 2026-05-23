@@ -9,7 +9,6 @@ import { createApp } from 'vue';
 import { routes } from 'vue-router/auto-routes';
 import i18next from 'i18next';
 import I18NextVue from 'i18next-vue';
-import { getFontFaces } from '#/utils/data-manipulation.ts';
 import { hideDirective } from '#/plugins/directives.ts';
 import { createPlugin as createRemote } from '#/plugins/remote/index.ts';
 import { router } from '#/plugins/router/index.ts';
@@ -43,13 +42,10 @@ app.use(vuetify);
 app.directive('hide', hideDirective);
 
 /**
- * Ensure everything is fully loaded before mounting the app
+ * Wait for the router so the first paint resolves a real route, but do NOT
+ * block on font readiness — `font-display: swap` handles the FOUT.
  */
-await Promise.all([
-  router.isReady(),
-  ...getFontFaces().map(font => font.load())
-]);
-await document.fonts.ready;
+await router.isReady();
 
 /**
  * MOUNTING POINT
