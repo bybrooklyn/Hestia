@@ -28,9 +28,11 @@
       </VWindowItem>
     </VWindow>
   </div>
-  <div v-else class="uno-text-center uno-py-12">
-    <div class="uno-flex uno-justify-center uno-mb-4">
-      <div class="uno-bg-slate-800/50 uno-text-slate-400 uno-p-4 uno-rounded-full uno-border uno-border-slate-700/50">
+  <div
+    v-else
+    class="uno-py-12 uno-text-center">
+    <div class="uno-mb-4 uno-flex uno-justify-center">
+      <div class="uno-border uno-border-slate-700/50 uno-rounded-full uno-bg-slate-800/50 uno-p-4 uno-text-slate-400">
         <div class="i-mdi:folder-open-outline uno-text-4xl" />
       </div>
     </div>

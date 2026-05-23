@@ -7,6 +7,13 @@
       <VCol
         md="8"
         class="uno-pb-4 uno-pt-0">
+        <VAlert
+          v-if="loadError"
+          type="error"
+          variant="tonal"
+          class="uno-mb-4">
+          {{ t('errorLoadingSettingsPage') }}
+        </VAlert>
         <VCheckbox
           v-model="dlna.EnableServer"
           :label="t('enableDlnaServer')" />
@@ -65,15 +72,11 @@ import { getUserApi } from '@jellyfin/sdk/lib/utils/api/user-api';
 import { computed, onScopeDispose, shallowRef, watch } from 'vue';
 import { watchDeep } from '@vueuse/core';
 import { useTranslation } from 'i18next-vue';
+import { remote } from '#/plugins/remote/index.ts';
 import { useApi } from '#/composables/apis.ts';
 import { taskManager } from '#/store/task-manager.ts';
 
 const { t } = useTranslation();
-
-const [{ data: dlnaRaw }, { data: users }] = await Promise.all([
-  useApi(getConfigurationApi, 'getNamedConfiguration')(() => ({ key: 'dlna' })),
-  useApi(getUserApi, 'getUsers')()
-]);
 
 type DlnaForm = Omit<DlnaOptions, 'EnableServer' | 'EnablePlayTo' | 'AutoCreatePlayToProfiles' | 'BlastAliveMessages' | 'SendOnlyMatchedHost' | 'EnableDebugLog' | 'EnablePlayToTracing' | 'ClientDiscoveryIntervalSeconds' | 'AliveMessageIntervalSeconds'> & {
   EnableServer?: boolean | null;
@@ -86,7 +89,20 @@ type DlnaForm = Omit<DlnaOptions, 'EnableServer' | 'EnablePlayTo' | 'AutoCreateP
   ClientDiscoveryIntervalSeconds?: number | string;
   AliveMessageIntervalSeconds?: number | string;
 };
-const dlna = shallowRef(dlnaRaw.value as DlnaForm);
+
+const loadError = shallowRef<unknown>();
+const dlna = shallowRef<DlnaForm>({});
+
+try {
+  const { data } = await remote.sdk.newUserApi(getConfigurationApi).getNamedConfiguration({ key: 'dlna' });
+
+  dlna.value = data as DlnaForm;
+} catch (error) {
+  loadError.value = error;
+  console.error('[settings/dlna] failed to load dlna configuration', error);
+}
+
+const { data: users } = await useApi(getUserApi, 'getUsers')();
 
 const userItems = computed(() =>
   users.value.map(u => ({ title: u.Name ?? '', value: u.Id ?? '' }))

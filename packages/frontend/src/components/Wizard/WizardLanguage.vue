@@ -1,5 +1,12 @@
 <template>
   <div>
+    <VTextField
+      v-model="serverName"
+      :loading="loading"
+      variant="outlined"
+      :label="t('serverName')"
+      :rules="RequiredRule"
+      :disabled="loading" />
     <VSelect
       v-model="uiCulture"
       :loading="loading"
@@ -14,6 +21,7 @@
       color="primary"
       variant="elevated"
       :loading="loading"
+      :disabled="loading || !serverName.trim()"
       @click="setLanguage">
       {{ t('next') }}
     </VBtn>
@@ -27,6 +35,7 @@ import type {
 } from '@jellyfin/sdk/lib/generated-client';
 import { getLocalizationApi } from '@jellyfin/sdk/lib/utils/api/localization-api';
 import { getStartupApi } from '@jellyfin/sdk/lib/utils/api/startup-api';
+import { getSystemApi } from '@jellyfin/sdk/lib/utils/api/system-api';
 import { onMounted, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { SomeItemSelectedRule } from '@jellyfin-vue/shared/validation';
@@ -39,10 +48,14 @@ const emit = defineEmits<{
 
 const { t, i18next } = useTranslation();
 
+const serverName = ref('');
 const uiCulture = ref('en-US');
 const culturesList = ref<LocalizationOption[]>([]);
 const initialConfig = ref<StartupConfigurationDto>();
 const loading = ref(false);
+const RequiredRule = [
+  (v: string): boolean | string => !!v.trim() || t('required')
+];
 
 /**
  * Load the intiial server information
@@ -55,15 +68,20 @@ onMounted(async () => {
   );
 
   try {
-    initialConfig.value = (
-      await getStartupApi(api).getStartupConfiguration()
-    ).data;
+    const [
+      { data: config },
+      { data: systemInfo },
+      { data: localizationOptions }
+    ] = await Promise.all([
+      getStartupApi(api).getStartupConfiguration(),
+      getSystemApi(api).getPublicSystemInfo(),
+      getLocalizationApi(api).getLocalizationOptions()
+    ]);
 
+    initialConfig.value = config;
+    serverName.value = config.ServerName ?? systemInfo.ServerName ?? '';
     uiCulture.value = initialConfig.value.UICulture ?? 'en-US';
-
-    culturesList.value = (
-      await getLocalizationApi(api).getLocalizationOptions()
-    ).data;
+    culturesList.value = localizationOptions;
   } catch (error) {
     console.error(error);
   } finally {
@@ -86,6 +104,7 @@ async function setLanguage(): Promise<void> {
     await getStartupApi(api).updateInitialConfiguration({
       startupConfigurationDto: {
         ...initialConfig.value,
+        ServerName: serverName.value.trim(),
         UICulture: uiCulture.value
       }
     });

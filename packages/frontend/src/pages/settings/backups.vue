@@ -23,6 +23,13 @@
           class="uno-mb-4">
           {{ t('restoreInProgress') }}
         </VAlert>
+        <VAlert
+          v-if="loadError"
+          type="error"
+          variant="tonal"
+          class="uno-mb-4">
+          {{ t('errorLoadingSettingsPage') }}
+        </VAlert>
 
         <div
           v-if="backups.length === 0"
@@ -156,6 +163,7 @@ const getBackupApi = (api: Api): BackupApi =>
   new BackupApi(api.configuration, undefined, api.axiosInstance);
 
 const backups = shallowRef<BackupManifestDto[]>([]);
+const loadError = shallowRef<unknown>();
 
 /**
  * Pull the current backup list and sort newest-first — the server returns
@@ -169,7 +177,9 @@ async function refresh(): Promise<void> {
     backups.value = [...data].toSorted((a, b) =>
       (b.DateCreated ?? '').localeCompare(a.DateCreated ?? '')
     );
-  } catch {
+    loadError.value = undefined;
+  } catch (error) {
+    loadError.value = error;
     useSnackbar(t('backupListFailed'), 'error');
   }
 }

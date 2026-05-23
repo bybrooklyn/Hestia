@@ -34,7 +34,7 @@
               :complete="wizardStage > 3"
               :value="3"
               :editable="maxWizardStage > 2">
-              {{ t('preferredMetadataLanguage') }}
+              {{ t('libraries') }}
             </VStepperItem>
 
             <VDivider />
@@ -43,7 +43,25 @@
               :complete="wizardStage > 4"
               :value="4"
               :editable="maxWizardStage > 3">
+              {{ t('preferredMetadataLanguage') }}
+            </VStepperItem>
+
+            <VDivider />
+
+            <VStepperItem
+              :complete="wizardStage > 5"
+              :value="5"
+              :editable="maxWizardStage > 4">
               {{ t('remoteAccess') }}
+            </VStepperItem>
+
+            <VDivider />
+
+            <VStepperItem
+              :complete="wizardStage > 6"
+              :value="6"
+              :editable="maxWizardStage > 5">
+              {{ t('finish') }}
             </VStepperItem>
           </VStepperHeader>
 
@@ -68,7 +86,7 @@
             <VStepperWindowItem
               key="3-content"
               :value="3">
-              <WizardMetadata
+              <WizardLibrary
                 class="uno-pt-4"
                 @step-complete="nextStep"
                 @previous-step="previousStep" />
@@ -77,9 +95,26 @@
             <VStepperWindowItem
               key="4-content"
               :value="4">
+              <WizardMetadata
+                class="uno-pt-4"
+                @step-complete="nextStep"
+                @previous-step="previousStep" />
+            </VStepperWindowItem>
+
+            <VStepperWindowItem
+              key="5-content"
+              :value="5">
               <WizardRemoteAccess
                 class="uno-pt-4"
                 @step-complete="nextStep"
+                @previous-step="previousStep" />
+            </VStepperWindowItem>
+
+            <VStepperWindowItem
+              key="6-content"
+              :value="6">
+              <WizardFinish
+                class="uno-pt-4"
                 @previous-step="previousStep" />
             </VStepperWindowItem>
           </VStepperWindow>
@@ -96,50 +131,22 @@ meta:
 </route>
 
 <script setup lang="ts">
-import { getStartupApi } from '@jellyfin/sdk/lib/utils/api/startup-api';
 import { ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
-import { useRouter } from 'vue-router';
-import { useSnackbar } from '#/composables/use-snackbar.ts';
-import { remote } from '#/plugins/remote/index.ts';
 
 const { t } = useTranslation();
-const router = useRouter();
 
 const wizardStage = ref<number>(1);
 const maxWizardStage = ref<number>(1);
 
 /**
- * Completes server setup
+ * Advance the stepper. `completeWizard` now lives on the dedicated finish
+ * step (`WizardFinish`), so this just bumps the index. The final step's
+ * Finish button calls `getStartupApi(api).completeWizard()` directly.
  */
-async function completeWizard(): Promise<void> {
-  try {
-    const api = remote.sdk.oneTimeSetup(
-      remote.auth.currentServer.value?.PublicAddress ?? ''
-    );
+function nextStep(): void {
+  wizardStage.value += 1;
 
-    await getStartupApi(api).completeWizard();
-    // Redirect to setup complete page
-    await router.replace('/server/login');
-  } catch (error) {
-    console.error(error);
-    useSnackbar(t('completeError'), 'success');
-  }
-}
-
-/**
- * Change wizard step forward
- */
-async function nextStep(): Promise<void> {
-  const current: number = wizardStage.value;
-
-  if (current === 4) {
-    await completeWizard();
-  } else {
-    wizardStage.value = current + 1;
-  }
-
-  // This allows the return to previous steps, but not going forward past incomplete steps
   if (wizardStage.value > maxWizardStage.value) {
     maxWizardStage.value = wizardStage.value;
   }

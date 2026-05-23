@@ -279,6 +279,7 @@ const method = computed(() => methods.value[1]);
 /**
  * TODO: Improve the type situation of this statement
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const { loading, data: items } = await (useBaseItem as any)(api, method)(() => ({
   parentId: parentId.value,
   personTypes: viewType.value === 'Person' ? ['Actor'] : undefined,

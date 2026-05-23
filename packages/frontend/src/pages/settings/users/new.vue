@@ -12,68 +12,56 @@
       </VBtn>
     </template>
     <template #content>
-      <VCard
-        width="100%"
-        height="100%">
-        <VForm
-          class="uno-px-2 uno-py-5"
-          @submit.prevent="createUser">
-          <VRow>
-            <VCol>
-              <VTextField
-                v-model="name"
-                :label="t('name')" />
-            </VCol>
-          </VRow>
-          <VRow>
-            <VCol>
-              <VTextField
-                v-model="password"
-                :label="t('password')" />
-            </VCol>
-          </VRow>
-          <VRow>
-            <VCol>
-              <div class="text-subtitle-1 uno-font-medium uno-capitalize">
-                {{ t('libraryAccess') }}
-              </div>
-              <VCheckbox
-                v-model="canAccessAllLibraries"
-                :label="t('allLibraries')" />
-              <VCard
-                v-if="!canAccessAllLibraries"
-                :title="t('libraries')"
-                variant="tonal">
-                <VRow
-                  v-for="library in libraries?.Items"
-                  :key="library.Id">
-                  <VCol>
-                    <VCheckbox
-                      v-model="accessableLibraries"
-                      :label="library.Name!"
-                      :value="library.Id" />
-                  </VCol>
-                </VRow>
-                <div class="text-warning uno-ml-2">
-                  {{ t('libraryAccessNote') }}
-                </div>
-              </VCard>
-            </VCol>
-          </VRow>
-          <VRow>
-            <VCol>
-              <VBtn
-                color="primary"
-                variant="elevated"
-                :loading="loading"
-                class="uno-float-right"
-                @click="createUser">
-                {{ t('newUser') }}
-              </VBtn>
-            </VCol>
-          </VRow>
+      <VCol
+        md="10"
+        class="uno-pb-4 uno-pt-0">
+        <VForm @submit.prevent="createUser">
+          <VTextField
+            v-model="name"
+            variant="outlined"
+            :label="t('name')" />
+          <VTextField
+            v-model="password"
+            variant="outlined"
+            :label="t('password')"
+            type="password" />
+
+          <h3 class="uno-mb-2 uno-mt-4 uno-text-lg uno-font-bold">
+            {{ t('libraryAccess') }}
+          </h3>
+          <VCheckbox
+            v-model="canAccessAllLibraries"
+            :label="t('allLibraries')"
+            hide-details />
+          <VCard
+            v-if="!canAccessAllLibraries"
+            :title="t('libraries')"
+            variant="tonal"
+            class="uno-mt-2">
+            <VCheckbox
+              v-for="library in libraries?.Items"
+              :key="library.Id"
+              v-model="accessableLibraries"
+              :label="library.Name!"
+              :value="library.Id"
+              hide-details
+              class="uno-px-4" />
+            <div class="text-warning uno-px-4 uno-py-2">
+              {{ t('libraryAccessNote') }}
+            </div>
+          </VCard>
+
+          <div class="uno-mt-6 uno-flex uno-justify-end">
+            <VBtn
+              color="primary"
+              variant="elevated"
+              :loading="loading"
+              @click="createUser">
+              {{ t('newUser') }}
+            </VBtn>
+          </div>
         </VForm>
-      </VCard>
+      </VCol>
     </template>
   </AdminSettingsLayout>
 </template>
@@ -115,7 +103,8 @@ async function createUser(): Promise<void> {
     // Create the user
     const res = (await remote.sdk.newUserApi(getUserApi).createUserByName({
       createUserByName: {
-        Name: name.value
+        Name: name.value,
+        Password: password.value
       }
     })).data;
 

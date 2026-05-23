@@ -64,19 +64,28 @@ const countryOptions = ref<CountryInfo[]>([]);
 const loading = ref(false);
 
 onMounted(async () => {
+  loading.value = true;
+
   const api = remote.sdk.oneTimeSetup(
     remote.auth.currentServer.value?.PublicAddress ?? ''
   );
 
-  initialConfig.value = (
-    await getStartupApi(api).getStartupConfiguration()
-  ).data;
+  try {
+    initialConfig.value = (
+      await getStartupApi(api).getStartupConfiguration()
+    ).data;
 
-  metadataLanguage.value = initialConfig.value.MetadataCountryCode ?? '';
-  metadataCountry.value = initialConfig.value.PreferredMetadataLanguage ?? '';
+    metadataLanguage.value = initialConfig.value.PreferredMetadataLanguage ?? '';
+    metadataCountry.value = initialConfig.value.MetadataCountryCode ?? '';
 
-  cultureOptions.value = (await getLocalizationApi(api).getCultures()).data;
-  countryOptions.value = (await getLocalizationApi(api).getCountries()).data;
+    cultureOptions.value = (await getLocalizationApi(api).getCultures()).data;
+    countryOptions.value = (await getLocalizationApi(api).getCountries()).data;
+  } catch (error) {
+    console.error(error);
+    useSnackbar(t('setMetadataError'), 'error');
+  } finally {
+    loading.value = false;
+  }
 });
 
 /**
@@ -93,8 +102,8 @@ async function setMetadata(): Promise<void> {
     await getStartupApi(api).updateInitialConfiguration({
       startupConfigurationDto: {
         ...initialConfig.value,
-        MetadataCountryCode: metadataLanguage.value,
-        PreferredMetadataLanguage: metadataCountry.value
+        MetadataCountryCode: metadataCountry.value,
+        PreferredMetadataLanguage: metadataLanguage.value
       }
     });
 

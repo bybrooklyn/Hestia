@@ -80,7 +80,7 @@ Design: allow a second active track in `player-element.ts` rendering.
 Done when: two subtitle tracks render simultaneously.
 
 **`VID-14` — Mobile gesture controls** · Absent · `done` · seq 14 · depends: —
-Design: touch handlers in `video.vue` for seek / volume / brightness.
+Design: `useSwipe` in `video.vue` maps horizontal swipes to `skipForward`/`skipBackward` and vertical swipes to `volumeUp`/`volumeDown`. Brightness is intentionally out of scope — the browser has no stable Screen Brightness API; jellyfin-web's mobile brightness gesture relies on its Cordova/Capacitor shim, and a CSS-filter fake-out isn't worth the polish cost on the web target.
 Done when: gestures work on a touch device.
 
 **`VID-15` — Previous / next track buttons in the OSD** · Absent · `done` · seq 15 · depends: —
@@ -280,17 +280,17 @@ Done when: a collection's contents are fully browsable.
 
 ### Other media types
 
-**`MEDIA-1` — Photo viewer / slideshow** · Absent · seq 16 · Design: new viewer pages. Done when: photos view and slideshow.
-**`MEDIA-2` — Book / e-reader** · Absent · seq 17 · Design: an epub reader (large). Done when: a book is readable.
-**`MEDIA-3` — Audiobook playback parity** · Partial · `not started` · seq 18 · Verified: `AudioBook` items are in `canPlay`'s allowlist and play through the standard audio path, but `music.vue` has no chapter UI — the `Chapter` markers, click-to-seek (`AUD-5`), and `PreviousChapterButton` / `NextChapterButton` (`VID-16`) all live in `video.vue` only. Done when: audiobooks play with chapter support.
+**`MEDIA-1` — Photo viewer / slideshow** · Surfaced · `done` · seq 16 · Design: new `pages/photo/[itemId].vue` (`fullpage` layout) renders the photo full-bleed with a fade-out top bar (title + 1/N position + slideshow + info toggles), left/right nav arrows, an EXIF side panel (date taken, dimensions, camera, overview), and arrow-key / spacebar / Esc / `i` keyboard shortcuts. Sibling photos for prev/next come from `getItems({ parentId, includeItemTypes: ['Photo'], sortBy: ['SortName'] })`. Slideshow advances every 5 s and stops at the last photo. Discovery: `pages/item/[itemId].vue` now shows a "View photos" CTA in place of the normal `PlayButton` for `PhotoAlbum` and `Photo` items, pointing at the first child photo. Done when: photos view and slideshow.
+**`MEDIA-2` — Book / e-reader** · Absent · `deferred` · seq 17 · Design: an epub reader (large). Deferred this round — needs its own design / library pick. Done when: a book is readable.
+**`MEDIA-3` — Audiobook playback parity** · Surfaced · `done` · seq 18 · Design: `music.vue` now renders `PreviousChapterButton` / `NextChapterButton` between the track-skip buttons whenever the current item carries more than one chapter (the audiobook case + any music item with chapters). Chapter markers and click-to-seek on the scrubber were already handled by `TimeSlider` for any item with chapters. Done when: audiobooks play with chapter support.
 
 ### Casting, remote & SyncPlay
 
-**`CAST-1` — Cast to a remote Jellyfin session** · Surfaced · seq 19 · Design: `CastButton.vue` exists but is **commented out** in `AppBar.vue` — re-mount it and implement session control via `remote.socket`. Done when: playback can target a remote session.
-**`CAST-2` — SyncPlay: create / join a group** · Surfaced · seq 20 · depends: `CAST-1` · Done when: a group can be created/joined.
-**`CAST-3` — SyncPlay: synchronised playback** · Absent · seq 21 · depends: `CAST-2` · Design: sync via `remote.socket` + `playback-manager`. Done when: playback stays in sync across clients.
-**`CAST-4` — Google Cast (Chromecast)** · Surfaced · seq 22 · Design: Cast SDK integration (placeholder entry exists). Done when: casting to Chromecast works.
-**`CAST-5` — AirPlay target** · Surfaced · seq 23 · Done when: AirPlay target works.
+**`CAST-1` — Cast to a remote Jellyfin session** · Surfaced · `deferred` · seq 19 · Design: `CastButton.vue` exists but is **commented out** in `AppBar.vue` — re-mount it and implement session control via `remote.socket`. Deferred: large, depends on session-state sync work. Done when: playback can target a remote session.
+**`CAST-2` — SyncPlay: create / join a group** · Surfaced · `deferred` · seq 20 · depends: `CAST-1` · Deferred. Done when: a group can be created/joined.
+**`CAST-3` — SyncPlay: synchronised playback** · Absent · `deferred` · seq 21 · depends: `CAST-2` · Design: sync via `remote.socket` + `playback-manager`. Deferred. Done when: playback stays in sync across clients.
+**`CAST-4` — Google Cast (Chromecast)** · Surfaced · `deferred` · seq 22 · Design: Cast SDK integration (placeholder entry exists). Deferred — needs Cast SDK + Tauri-side wiring. Done when: casting to Chromecast works.
+**`CAST-5` — AirPlay target** · Surfaced · `deferred` · seq 23 · Deferred — Safari-/iOS-specific browser APIs. Done when: AirPlay target works.
 
 ---
 
@@ -300,12 +300,21 @@ Done when: a collection's contents are fully browsable.
 
 ### Verified already present (depth check only)
 
-**`SRV-1` — General server settings** · `done` · Design: `pages/settings/server.vue` covers name, language, Quick Connect, paths, branding fields, performance limits. Done when: confirmed at parity depth with jellyfin-web.
-**`LOG-1` — Server logs / activity log** · `done` · `pages/settings/logs-and-activity.vue`. Confirm depth.
-**`USR-1` — Users admin (list / add / edit / access / parental / password)** · `done` · Verified: `settings/users/*` with Profile/Access/Parental/Password tabs. Confirm depth.
+**`SRV-1` — General server settings** · `done` · Design: `pages/settings/server.vue` covers name, language, Quick Connect, paths, branding fields, performance limits. Depth audit 2026-05-22 against jellyfin-web `c25f76a`: the current upstream general-settings form covers the same persisted fields (`ServerName`, `UICulture`, `CachePath`, `MetadataPath`, `QuickConnectAvailable`, `LibraryScanFanoutConcurrency`, `ParallelImageEncodingLimit`); jellyfin-web's directory pickers are convenience UI over the same text fields. Done when: confirmed at parity depth with jellyfin-web.
+**`LOG-1` — Server logs / activity log** · `done` · `pages/settings/logs-and-activity.vue` lists server log files and recent activity. Depth audit 2026-05-22 against jellyfin-web `c25f76a` found missing log settings/detail and activity-table depth tracked as `LOG-2`, now closed.
+**`USR-1` — Users admin (list / add / edit / access / parental / password)** · `done` · Verified: `settings/users/*` has the expected list/add/edit tabs, and the 2026-05-22 depth pass fixed three basic functional bugs (new-user password submission, password-change current-password submission, blocked-tag persistence). Depth follow-ups `USR-2..4` now closed.
 **`KEY-1` — API keys** · `done` · `pages/settings/apikeys.vue`. Confirm depth.
-**`DEV-1` — Devices** · `done` · `pages/settings/devices.vue`. Confirm depth.
-**`WIZ-1` — First-run setup wizard** · `done` · `pages/wizard.vue` + `components/Wizard/*`. Confirm step-for-step parity.
+**`DEV-1` — Devices** · `done` · `pages/settings/devices.vue` lists remembered devices and deletes them. Depth audit 2026-05-22 against jellyfin-web `c25f76a` found missing custom-name editing tracked as `DEV-2`, now closed.
+**`WIZ-1` — First-run setup wizard** · `done` · `pages/wizard.vue` + `components/Wizard/*` covers server name/language, admin account, library setup, metadata defaults, remote access, and a final confirmation step. Follow-up `WIZ-2` now closed.
+
+### Depth-audit follow-ups
+
+**`USR-2` — User profile policy depth** · Surfaced · `done` · seq 25 · The Profile tab now hosts the full `UserPolicy` surface grouped into Permissions / Authentication provider / Media playback / Feature access / Management sections: admin/disabled/hidden flags, the auth + password-reset provider dropdowns (sourced from `getAuthProviders` / `getPasswordResetProviders`), remote-access + Live TV access/management toggles, the full transcoding/remuxing/force-transcode set, remote-client bitrate limit (Mbps in the UI, bps on the wire), SyncPlay access mode, content deletion/downloading, remote control + shared-device control, collection/subtitle/lyric management, login-attempt lockout, max active sessions, and a read-only invalid-login-attempt counter. Save now also hits `updateUserPolicy` alongside `updateUser`.
+**`USR-3` — User access depth** · Surfaced · `done` · seq 26 · The Access tab gained `EnableAllChannels` + per-channel checklist (sourced from `getChannels`) and `EnableAllDevices` + per-device checklist (sourced from `getDevicesApi.getDevices`). Device section is hidden when `IsAdministrator` is on, matching jellyfin-web. All three lists round-trip through `updateUserPolicy`.
+**`USR-4` — User parental-control depth** · Surfaced · `done` · seq 27 · The Parental tab gained `MaxParentalSubRating`, `AllowedTags` (mirrors the existing blocked-tag dialog), and `AccessSchedules` (add / remove rows with a `DynamicDayOfWeek` select + StartHour/EndHour number fields). Save includes all three.
+**`WIZ-2` — First-run library setup / finish steps** · Surfaced · `done` · seq 28 · `pages/wizard.vue` now has six steps. New `components/Wizard/WizardLibrary.vue` (step 3) lists existing virtual folders and exposes the same `addVirtualFolder` form used on the admin libraries page. New `components/Wizard/WizardFinish.vue` (step 6) shows a summary (server name, metadata language/country, library count) and owns the call to `getStartupApi.completeWizard()` plus the redirect to `/server/login`. The stepper-page driver collapsed to plain `nextStep`/`previousStep` now that completion lives on the dedicated finish step.
+**`LOG-2` — Logs and activity depth** · Surfaced · `done` · seq 29 · A top-of-page section toggles `EnableSlowResponseWarning` and edits `SlowResponseThresholdMs` (debounced auto-save via `updateConfiguration`, mirroring the server.vue / transcoding.vue pattern). Each log row in the file list opens an in-app dialog that fetches the file via `getLogFile`, renders it in a scrollable `<pre>`, and exposes copy-to-clipboard and download buttons. The activity panel has an All / User / System `VBtnToggle` driving the `hasUserId` parameter and prev/next pagination (25/page) driving `startIndex` + `limit`. "Watch" (live-tail) deferred — the SDK has no streaming endpoint for log tails, and the dashboard's other live-data subscriptions are WebSocket-driven; a future entry can layer this on if needed.
+**`DEV-2` — Device custom-name editing** · Surfaced · `done` · seq 30 · Each device row gets an Edit button beside Delete that opens a dialog with a `CustomName` text field (placeholder = device's reported `Name`). Save calls `updateDeviceOptions` with the trimmed value, then refreshes the list via `getDevices`. The Name column now shows `CustomName || Name`, so blanking the field reverts to the device's reported name.
 
 ### Dashboard home
 
@@ -324,9 +333,9 @@ Done when: a collection's contents are fully browsable.
 ### Libraries (admin)
 
 **`LIBA-1` — Library list / add / edit / delete** · Surfaced · `done` · seq 9 · Design: new `pages/settings/libraries.vue` lists every `VirtualFolder` (name, collection type, locations) and exposes add (`addVirtualFolder` with name + collection type + N paths), rename (`renameVirtualFolder`), delete (`removeVirtualFolder`, behind `useConfirmDialog`), and refresh (`getLibraryApi.refreshLibrary` — server-wide; per-library refresh isn't in the SDK today). Settings-index row now linked. Edit-options (`LIBA-2..4`) intentionally deferred — 42-field `LibraryOptions` warrants its own dialog. Done when: libraries are manageable.
-**`LIBA-2` — Library display settings** · Absent · `not started` · seq 10 · depends: `LIBA-1` · Design: a per-library options editor on the new `libraries.vue` (or a sub-route) carrying the display-related slice of `LibraryOptions` (display order, season-zero handling, image fetchers). Done when: display settings editable.
-**`LIBA-3` — Metadata settings** · Absent · `not started` · seq 11 · depends: `LIBA-1` · Design: same editor as `LIBA-2`, carrying the metadata-fetcher slice (preferred providers, savers, real-time monitor, language). Done when: metadata settings editable.
-**`LIBA-4` — NFO settings** · Absent · `not started` · seq 12 · depends: `LIBA-1` · Design: NFO-specific knobs from `LibraryOptions` (save NFO, image extraction, episode/season grouping). Done when: NFO settings editable.
+**`LIBA-2` — Library display settings** · Surfaced · `done` · seq 10 · depends: `LIBA-1` · Design: a per-library options dialog on `libraries.vue` opened from a gear icon, persisted via `updateLibraryOptions`. The "Display" tab carries the display-related slice of `LibraryOptions` (photos, season-zero name, automatic refresh interval, embedded titles/extras/episode info, chapter / trickplay image extraction, LUFS scan). Done when: display settings editable.
+**`LIBA-3` — Metadata settings** · Surfaced · `done` · seq 11 · depends: `LIBA-1` · Design: same dialog, "Metadata" tab — preferred language, country code, real-time monitor, automatic series grouping, automatic collection, subtitle-skip rules, perfect-match requirement, non-standard artist tag. Done when: metadata settings editable.
+**`LIBA-4` — NFO settings** · Surfaced · `done` · seq 12 · depends: `LIBA-1` · Design: same dialog, "NFO" tab — `SaveLocalMetadata`, plus the "save next to media" toggles for subtitles, lyrics, and trickplay. Done when: NFO settings editable.
 
 ### Playback (admin)
 
@@ -337,17 +346,17 @@ Done when: a collection's contents are fully browsable.
 
 ### Live TV / DVR (admin)
 
-**`LTVA-1` — Live TV / DVR setup** · Surfaced · seq 17 · disabled "Live TV" row. Done when: a DVR setup page exists.
-**`LTVA-2` — Tuner & guide-provider configuration** · Absent · seq 18 · depends: `LTVA-1` · Done when: tuners/guides configurable.
+**`LTVA-1` — Live TV / DVR setup** · Surfaced · `deferred` · seq 17 · disabled "Live TV" row. Deferred per the existing Live TV deferral — fork has no Live TV browsing surface either. Done when: a DVR setup page exists.
+**`LTVA-2` — Tuner & guide-provider configuration** · Absent · `deferred` · seq 18 · depends: `LTVA-1` · Deferred. Done when: tuners/guides configurable.
 
 ### Plugins, tasks (admin)
 
-**`PLG-1` — Installed plugins list** · Surfaced · seq 19 · disabled "Plugins" row. Done when: installed plugins listed.
-**`PLG-2` — Plugin catalog (browse / install)** · Absent · seq 20 · depends: `PLG-1` · Done when: plugins installable.
-**`PLG-3` — Plugin configuration pages** · Absent · seq 21 · depends: `PLG-1` · Done when: a plugin's config is editable.
-**`PLG-4` — Plugin repositories** · Absent · seq 22 · depends: `PLG-1` · Done when: repositories manageable.
+**`PLG-1` — Installed plugins list** · Surfaced · `done` · seq 19 · Design: new `pages/settings/plugins.vue` (admin) under `AdminSettingsLayout` with three tabs — Installed / Catalog / Repositories. "Installed" lists every `PluginInfo` from `getPlugins()` with name, version, status (mapped from `PluginStatus` to user-visible labels) and per-row Configure / Enable / Disable / Uninstall buttons. Uninstall goes through `useConfirmDialog`. The settings-index row in `use-admin-sections.ts` now points at `/settings/plugins`. Done when: installed plugins listed.
+**`PLG-2` — Plugin catalog (browse / install)** · Surfaced · `done` · seq 20 · depends: `PLG-1` · Design: same `plugins.vue`, "Catalog" tab calls `getPackages()` and groups results by category. Each row has the name / owner / latest version and an Install button → `installPackage({ name, assemblyGuid, version, repositoryUrl })`; rows already installed (cross-referenced by case-insensitive GUID against `getPlugins()`) show a disabled "Installed" pill. Done when: plugins installable.
+**`PLG-3` — Plugin configuration pages** · Surfaced · `done` · seq 21 · depends: `PLG-1` · Design: the Configure button on PLG-1 opens a 720-wide dialog that fetches `getPluginConfiguration({ pluginId })`, surfaces the raw payload in a JSON `VTextarea` with client-side parse validation, and saves back via `updatePluginConfiguration` (the body is passed through axios `options.data` since the generated wrapper doesn't expose a body parameter). Plugins without registered configuration fall through to a "no configuration" empty state. The generic JSON editor is intentional — plugin configs are plugin-defined and not in the OpenAPI surface, matching how `jellyfin-web` renders unknown configs. Done when: a plugin's config is editable.
+**`PLG-4` — Plugin repositories** · Surfaced · `done` · seq 22 · depends: `PLG-1` · Design: same `plugins.vue`, "Repositories" tab lists `getRepositories()` with name / URL / enabled checkbox, an Add-repository dialog (name + URL + enabled), and per-row delete. Every edit persists by sending the full list back through `setRepositories(RepositoryInfo[])` (replace, not patch) and re-pulls the catalog. Done when: repositories manageable.
 **`TASK-1` — Scheduled tasks list** · Surfaced · `done` · seq 23 · Design: new `pages/settings/scheduled-tasks.vue` lists every non-hidden server task via `getScheduledTasksApi.getTasks`, grouped by `Category`. Each row shows the description, last execution status + relative time, last-run duration, and a Run / Stop button. Live updates piggyback on the existing socket `ScheduledTasksInfo` subscription, with a 10 s API poll as a disconnected fallback (mirroring `dashboard.vue`'s pattern). Settings-index row in `use-admin-sections.ts` now points here. Done when: server tasks are listed.
-**`TASK-2` — Run / configure a scheduled task** · Absent · seq 24 · depends: `TASK-1` · Done when: a task can be run/configured.
+**`TASK-2` — Run / configure a scheduled task** · Surfaced · `done` · seq 24 · depends: `TASK-1` · Design: each row on `scheduled-tasks.vue` gets a trigger-editor dialog (open via gear) plus a summary column. The editor supports the four `TaskTriggerInfoType` variants (`DailyTrigger`, `WeeklyTrigger`, `IntervalTrigger`, `StartupTrigger`) with an optional `MaxRuntimeTicks` per trigger; intervals choose a minute/hour unit independently of the underlying ticks. Save replaces the full trigger list via `updateTask`. (Run-now was already in `TASK-1`.) Done when: a task can be run/configured.
 
 ---
 

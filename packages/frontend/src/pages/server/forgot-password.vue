@@ -7,8 +7,8 @@
         sm="8"
         md="6"
         lg="4">
-        <VCard class="!uno-bg-slate-900/80 !uno-backdrop-blur-md !uno-border !uno-border-slate-800 uno-rounded-xl uno-p-8">
-          <h1 class="text-h4 uno-text-center uno-font-bold uno-mb-6">
+        <VCard class="uno-rounded-xl uno-p-8 !uno-border !uno-border-slate-800 !uno-bg-slate-900/80 !uno-backdrop-blur-md">
+          <h1 class="text-h4 uno-mb-6 uno-text-center uno-font-bold">
             {{ t('resetPassword') }}
           </h1>
 
@@ -17,7 +17,7 @@
             v-if="step === 1"
             v-model="valid"
             @submit.prevent="requestReset">
-            <p class="uno-text-slate-300 uno-mb-6 uno-text-center">
+            <p class="uno-mb-6 uno-text-center uno-text-slate-300">
               {{ t('forgotPasswordHelp') }}
             </p>
             <VTextField
@@ -43,8 +43,7 @@
                   size="large"
                   color="primary"
                   :disabled="!valid"
-                  :loading="loading"
-                  >
+                  :loading="loading">
                   {{ t('submit') }}
                 </VBtn>
               </VCol>
@@ -56,7 +55,7 @@
             v-else-if="step === 2"
             v-model="validPin"
             @submit.prevent="submitPin">
-            <p class="uno-text-slate-300 uno-mb-4 uno-text-center">
+            <p class="uno-mb-4 uno-text-center uno-text-slate-300">
               {{ t('forgotPasswordPinHelp', { file: pinFile || 'passwordreset.txt' }) }}
             </p>
             <VTextField
@@ -82,8 +81,7 @@
                   size="large"
                   color="primary"
                   :disabled="!validPin"
-                  :loading="loading"
-                  >
+                  :loading="loading">
                   {{ t('submit') }}
                 </VBtn>
               </VCol>
@@ -94,12 +92,12 @@
           <div
             v-else-if="step === 3"
             class="uno-text-center">
-            <div class="uno-flex uno-justify-center uno-mb-4">
-              <div class="uno-bg-green-500/10 uno-text-green-500 uno-p-4 uno-rounded-full uno-border uno-border-green-500/20">
+            <div class="uno-mb-4 uno-flex uno-justify-center">
+              <div class="uno-border uno-border-green-500/20 uno-rounded-full uno-bg-green-500/10 uno-p-4 uno-text-green-500">
                 <div class="i-mdi:check-circle-outline uno-text-4xl" />
               </div>
             </div>
-            <p class="uno-text-slate-200 uno-mb-6">
+            <p class="uno-mb-6 uno-text-slate-200">
               {{ t('forgotPasswordSuccess') }}
             </p>
             <VBtn
@@ -115,12 +113,12 @@
           <div
             v-else-if="step === 'contact-admin'"
             class="uno-text-center">
-            <div class="uno-flex uno-justify-center uno-mb-4">
-              <div class="uno-bg-amber-500/10 uno-text-amber-500 uno-p-4 uno-rounded-full uno-border uno-border-amber-500/20">
+            <div class="uno-mb-4 uno-flex uno-justify-center">
+              <div class="uno-border uno-border-amber-500/20 uno-rounded-full uno-bg-amber-500/10 uno-p-4 uno-text-amber-500">
                 <div class="i-mdi:alert-circle-outline uno-text-4xl" />
               </div>
             </div>
-            <p class="uno-text-slate-200 uno-mb-6">
+            <p class="uno-mb-6 uno-text-slate-200">
               {{ t('forgotPasswordContactAdmin') }}
             </p>
             <VBtn
@@ -136,12 +134,12 @@
           <div
             v-else-if="step === 'in-network-required'"
             class="uno-text-center">
-            <div class="uno-flex uno-justify-center uno-mb-4">
-              <div class="uno-bg-red-500/10 uno-text-red-500 uno-p-4 uno-rounded-full uno-border uno-border-red-500/20">
+            <div class="uno-mb-4 uno-flex uno-justify-center">
+              <div class="uno-border uno-border-red-500/20 uno-rounded-full uno-bg-red-500/10 uno-p-4 uno-text-red-500">
                 <div class="i-mdi:wifi-off uno-text-4xl" />
               </div>
             </div>
-            <p class="uno-text-slate-200 uno-mb-6">
+            <p class="uno-mb-6 uno-text-slate-200">
               {{ t('forgotPasswordInNetworkRequired') }}
             </p>
             <VBtn

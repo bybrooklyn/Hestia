@@ -1,77 +1,52 @@
 <template>
   <div
     ref="videoContainerRef"
-    class="fill-height uno-flex uno-justify-center uno-bg-black !uno-h-screen"
+    class="fill-height uno-relative uno-flex uno-justify-center uno-bg-black !uno-h-screen"
     :class="{ 'uno-cursor-none': !overlay }"
     @mousemove.passive="handleMouseMove"
     @touchend.passive="handleMouseMove"
     @click="handleClick"
     @dblclick="handleDblClick">
     <JOverlay
-      class="uno-h-full uno-flex uno-flex-col uno-items-center uno-justify-between"
-      :style="{ opacity: overlay ? 1 : 0 }">
-      <div class="osd-top pt-s pl-s pr-s">
-        <div class="uno-flex uno-items-center uno-px-4 uno-py-2">
-          <div class="uno-flex">
-            <VBtn
-              icon
-              @click="playbackManager.stop">
-              <JIcon class="i-mdi:close" />
-            </VBtn>
-            <VBtn
-              icon
-              @click="playerElement.toggleFullscreenVideoPlayer">
-              <JIcon class="i-mdi:chevron-down" />
-            </VBtn>
-          </div>
-          <div class="uno-ml-auto uno-flex uno-items-center">
-            <PlaybackMethodBadge class="uno-mr-2" />
-            <VBtn
-              icon
-              @click="playbackStats = !playbackStats">
-              <JIcon class="i-mdi:chart-box-outline" />
-            </VBtn>
-            <CastButton />
-          </div>
-        </div>
-      </div>
-      <div
-        v-if="currentSegment"
-        class="skip-segment-container uno-absolute uno-bottom-40 uno-right-8 uno-z-50">
-        <VBtn
-          color="primary"
-          variant="elevated"
-          size="large"
-          @click.stop="skipSegment">
-          Skip {{ currentSegment.Type }}
-        </VBtn>
-      </div>
-      <div class="pl-s pr-s osd-bottom pb-s">
-        <div class="uno-p-4">
-          <TimeSlider />
-          <div
-            v-if="$vuetify.display.smAndUp"
-            class="osd-clockrow text--secondary text-subtitle-2 uno-mt-1 uno-flex uno-items-center uno-justify-between">
-            <span>{{ positionLabel }}</span>
-            <span v-if="endsAtLabel">{{ endsAtLabel }}</span>
-          </div>
-          <div
-            class="uno-relative uno-flex uno-items-stretch uno-justify-between">
+      class="video-osd"
+      :style="{ opacity: overlay ? 1 : 0, pointerEvents: overlay ? 'auto' : 'none' }">
+      <div class="osd-top">
+        <div class="osd-shell osd-header">
+          <div class="osd-header-left">
+            <JTooltip
+              position="bottom"
+              :text="$t('stop')">
+              <VBtn
+                icon
+                size="small"
+                @click="playbackManager.stop">
+                <JIcon class="i-mdi:close" />
+              </VBtn>
+            </JTooltip>
+            <JTooltip
+              position="bottom"
+              :text="$t('close')">
+              <VBtn
+                icon
+                size="small"
+                @click="playerElement.toggleFullscreenVideoPlayer">
+                <JIcon class="i-mdi:chevron-down" />
+              </VBtn>
+            </JTooltip>
             <div
-              v-if="$vuetify.display.mdAndUp"
-              class="video-title uno-mr-auto uno-flex uno-flex-col uno-items-start uno-justify-center">
+              v-if="$vuetify.display.smAndUp"
+              class="video-title">
               <template
                 v-if="
                   playbackManager.currentlyPlayingType.value ===
                     BaseItemKind.Episode
                 ">
-                <span class="text-subtitle-1 uno-mt-1 uno-truncate">
+                <span class="video-title-line text-subtitle-2">
                   {{ playbackManager.currentItem.value?.Name }}
                 </span>
-                <span class="text--secondary text-subtitle-2 uno-truncate">
+                <span class="video-title-line video-title-secondary text-caption">
                   {{ playbackManager.currentItem.value?.SeriesName }}
-                </span>
-                <span class="text-subtitle-2 text--secondary uno-truncate">
+                  ·
                   {{
                     $t('seasonEpisode', {
                       seasonNumber:
@@ -82,47 +57,135 @@
                 </span>
               </template>
               <template v-else>
-                <span>{{ playbackManager.currentItem.value?.Name }}</span>
+                <span class="video-title-line text-subtitle-2">
+                  {{ playbackManager.currentItem.value?.Name }}
+                </span>
               </template>
             </div>
-            <div
-              class="player-controls justify-md-center uno-flex uno-items-center uno-justify-start">
-              <PreviousChapterButton class="uno-mx-1" />
-              <PreviousTrackButton class="uno-mx-1" />
-              <RewindButton class="uno-mx-1" />
-              <PlayPauseButton class="uno-mx-1" />
-              <FastForwardButton class="uno-mx-1" />
-              <NextTrackButton class="uno-mx-1" />
-              <NextChapterButton class="uno-mx-1" />
-            </div>
-            <div class="ml-md-0 uno-ml-auto uno-flex uno-items-center">
-              <MuteButton />
+          </div>
+          <div class="osd-header-right">
+            <PlaybackMethodBadge
+              v-if="$vuetify.display.mdAndUp"
+              class="uno-mr-2" />
+            <CastButton />
+          </div>
+        </div>
+      </div>
+      <div
+        v-if="currentSegment"
+        class="skip-segment-container">
+        <VBtn
+          color="primary"
+          variant="elevated"
+          size="large"
+          @click.stop="skipSegment">
+          {{ skipSegmentLabel }}
+        </VBtn>
+      </div>
+      <div class="osd-bottom">
+        <div class="osd-shell osd-controls">
+          <TimeSlider class="osd-time-slider" />
+          <div
+            v-if="$vuetify.display.smAndUp && endsAtLabel"
+            class="osd-clockrow text-caption text--secondary">
+            <span>{{ endsAtLabel }}</span>
+          </div>
+          <div class="osd-control-row">
+            <div class="osd-control-side osd-control-left">
               <VolumeSlider
-                v-if="$vuetify.display.smAndUp"
-                class="uno-mr-2" />
-              <LikeButton
-                v-if="playbackManager.currentItem.value"
-                :key="playbackManager.currentItemId.value"
-                :item="playbackManager.currentItem.value"
-                size="default" />
-              <QueueButton close-on-click />
+                v-if="$vuetify.display.mdAndUp"
+                class="osd-volume" />
+              <MuteButton v-else />
+            </div>
+            <div class="osd-transport">
+              <PreviousTrackButton
+                v-if="$vuetify.display.lgAndUp && playbackManager.previousItem.value"
+                size="small" />
+              <PreviousChapterButton
+                v-if="$vuetify.display.lgAndUp && hasChapters"
+                size="small" />
+              <RewindButton size="small" />
+              <PlayPauseButton size="x-large" />
+              <FastForwardButton size="small" />
+              <NextChapterButton
+                v-if="$vuetify.display.lgAndUp && hasChapters"
+                size="small" />
+              <NextTrackButton
+                v-if="$vuetify.display.lgAndUp && playbackManager.nextItem.value"
+                size="small" />
+            </div>
+            <div class="osd-control-side osd-control-right">
+              <QueueButton
+                close-on-click
+                :size="$vuetify.display.smAndUp ? 32 : 82" />
               <SubtitleSelectionButton
                 v-if="$vuetify.display.smAndUp"
                 v-model="subtitleSelectionButtonOpened" />
               <PlaybackSettingsButton
                 v-model="playbackSettingsButtonOpened" />
-              <VBtn
-                v-if="mediaControls.supportsPictureInPicture"
-                class="uno-self-center"
-                icon
-                @click="mediaControls.togglePictureInPicture">
-                <JIcon class="i-mdi:picture-in-picture-bottom-right" />
-              </VBtn>
+              <JTooltip
+                position="top"
+                :text="$t('menu')">
+                <VBtn
+                  icon
+                  class="uno-self-center">
+                  <JIcon class="i-mdi:dots-horizontal" />
+                  <VMenu
+                    v-model="moreActionsOpened"
+                    :close-on-content-click="false"
+                    transition="slide-y-transition"
+                    location="top">
+                    <VCard min-width="260">
+                      <VList density="compact">
+                        <VListItem
+                          :title="$t('playbackStats')"
+                          :subtitle="playbackStats ? $t('enabled') : $t('disabled')"
+                          @click="togglePlaybackStats">
+                          <template #prepend>
+                            <JIcon class="i-mdi:chart-box-outline uno-w-10" />
+                          </template>
+                        </VListItem>
+                        <VListItem
+                          v-if="playbackManager.currentItem.value"
+                          :title="$t('favorite')">
+                          <template #prepend>
+                            <JIcon class="i-mdi:heart-outline uno-w-10" />
+                          </template>
+                          <template #append>
+                            <LikeButton
+                              :key="playbackManager.currentItemId.value"
+                              :item="playbackManager.currentItem.value"
+                              size="small" />
+                          </template>
+                        </VListItem>
+                        <VListItem
+                          v-if="mediaControls.supportsPictureInPicture"
+                          :title="$t('pictureInPicture')"
+                          @click="mediaControls.togglePictureInPicture">
+                          <template #prepend>
+                            <JIcon class="i-mdi:picture-in-picture-bottom-right uno-w-10" />
+                          </template>
+                        </VListItem>
+                        <VListItem
+                          v-if="playbackManager.playMethod.value && !$vuetify.display.mdAndUp"
+                          :title="$t('playback')">
+                          <template #prepend>
+                            <JIcon class="i-mdi:information-outline uno-w-10" />
+                          </template>
+                          <template #append>
+                            <PlaybackMethodBadge />
+                          </template>
+                        </VListItem>
+                      </VList>
+                    </VCard>
+                  </VMenu>
+                </VBtn>
+              </JTooltip>
               <JTooltip
                 position="top"
                 :text="$t('fullScreen')">
                 <VBtn
-                  v-if="fullscreen.isSupported"
+                  v-if="fullscreen.isSupported && $vuetify.display.smAndUp"
                   class="uno-self-center"
                   icon
                   @click="fullscreen.toggle">
@@ -153,9 +216,10 @@ meta:
 </route>
 
 <script setup lang="ts">
-import { BaseItemKind } from '@jellyfin/sdk/lib/generated-client';
+import { BaseItemKind, MediaSegmentType } from '@jellyfin/sdk/lib/generated-client';
 import { useTimeoutFn, useSwipe } from '@vueuse/core';
 import { computed, shallowRef, watch } from 'vue';
+import { useTranslation } from 'i18next-vue';
 import { playbackGuard } from '#/plugins/router/middlewares/playback.ts';
 import {
   hasFinePointer,
@@ -163,12 +227,14 @@ import {
 } from '#/store/index.ts';
 import { playbackManager } from '#/store/playback-manager.ts';
 import { playerElement, videoContainerRef } from '#/store/player-element.ts';
-import { formatTime, getEndsAtTime, msToTicks } from '#/utils/time.ts';
+import { getEndsAtTime, msToTicks } from '#/utils/time.ts';
 import { usePlayback } from '#/composables/use-playback.ts';
 
 defineOptions({
   beforeRouteEnter: playbackGuard
 });
+
+const { t } = useTranslation();
 
 const currentSegment = computed(() => {
   const timeInTicks = msToTicks(playbackManager.currentTime.value * 1000);
@@ -178,16 +244,20 @@ const currentSegment = computed(() => {
   );
 });
 
-/**
- * "0:34:21 / 1:42:15" — the running position alongside total runtime.
- * Mirrors jellyfin-web's scrubber-row layout so the user always has the
- * numeric counterpart to the slider.
- */
-const positionLabel = computed(() => {
-  const runtimeSecs = (playbackManager.currentItemRuntime.value ?? 0) / 1000;
-
-  return `${formatTime(playbackManager.currentTime.value)} / ${formatTime(runtimeSecs)}`;
+const skipSegmentLabel = computed(() => {
+  switch (currentSegment.value?.Type) {
+    case MediaSegmentType.Intro: { return t('skipIntro'); }
+    case MediaSegmentType.Outro: { return t('skipOutro'); }
+    case MediaSegmentType.Recap: { return t('skipRecap'); }
+    case MediaSegmentType.Preview: { return t('skipPreview'); }
+    case MediaSegmentType.Commercial: { return t('skipCommercial'); }
+    default: { return t('skipIntro'); }
+  }
 });
+
+const hasChapters = computed(() =>
+  (playbackManager.currentItem.value?.Chapters?.length ?? 0) > 1
+);
 
 /**
  * "Ends at 9:42 PM" — wall-clock time when playback will finish.
@@ -220,11 +290,13 @@ const { fullscreen } = usePlayback();
 const osd = shallowRef(true);
 const subtitleSelectionButtonOpened = shallowRef<boolean | undefined>(false);
 const playbackSettingsButtonOpened = shallowRef<boolean | undefined>(false);
+const moreActionsOpened = shallowRef<boolean | undefined>(false);
 const playbackStats = shallowRef(false);
 const staticOverlay = computed(() => [
   playbackManager.isPaused.value,
   subtitleSelectionButtonOpened.value,
-  playbackSettingsButtonOpened.value
+  playbackSettingsButtonOpened.value,
+  moreActionsOpened.value
 ].some(Boolean));
 
 const overlay = computed({
@@ -250,6 +322,14 @@ const timeout = useTimeoutFn(() => {
 function handleMouseMove(): void {
   overlay.value = true;
   timeout.start();
+}
+
+/**
+ * Toggles the diagnostics panel from the compact overflow menu.
+ */
+function togglePlaybackStats(): void {
+  playbackStats.value = !playbackStats.value;
+  moreActionsOpened.value = false;
 }
 
 /**
@@ -358,74 +438,175 @@ watch(staticOverlay, (val) => {
 </script>
 
 <style scoped>
-.osd-top,
-.osd-bottom {
-  width: 100%;
-  padding: 8px;
+.video-osd {
+  color: #fff;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
-.osd-bottom > div,
-.osd-top > div {
-  max-width: 175vh;
-  margin: auto;
+.osd-top,
+.osd-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+}
+
+.osd-shell {
+  width: min(100%, 1600px);
+  margin: 0 auto;
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-left: max(16px, env(safe-area-inset-left));
 }
 
 .osd-top {
-  padding-bottom: 5em;
-  background: linear-gradient(
-    to bottom,
-    rgb(var(--j-theme-color-background), 0.75) 0%,
-    rgb(var(--j-theme-color-background), 0.74) 8.1%,
-    rgb(var(--j-theme-color-background), 0.714) 15.5%,
-    rgb(var(--j-theme-color-background), 0.672) 22.5%,
-    rgb(var(--j-theme-color-background), 0.618) 29%,
-    rgb(var(--j-theme-color-background), 0.556) 35.3%,
-    rgb(var(--j-theme-color-background), 0.486) 41.2%,
-    rgb(var(--j-theme-color-background), 0.412) 47.1%,
-    rgb(var(--j-theme-color-background), 0.338) 52.9%,
-    rgb(var(--j-theme-color-background), 0.264) 58.8%,
-    rgb(var(--j-theme-color-background), 0.194) 64.7%,
-    rgb(var(--j-theme-color-background), 0.132) 71%,
-    rgb(var(--j-theme-color-background), 0.078) 77.5%,
-    rgb(var(--j-theme-color-background), 0.036) 84.5%,
-    rgb(var(--j-theme-color-background), 0.01) 91.9%,
-    rgb(var(--j-theme-color-background), 0) 100%
-  );
+  top: 0;
+  padding-top: max(10px, env(safe-area-inset-top));
+  padding-bottom: 4.5rem;
+  background: linear-gradient(180deg, rgb(0 0 0 / 0.78) 0%, rgb(0 0 0 / 0) 100%);
 }
 
 .osd-bottom {
-  padding-top: 6em;
-  background: linear-gradient(
-    to top,
-    rgb(var(--j-theme-color-background), 0.75) 0%,
-    rgb(var(--j-theme-color-background), 0.74) 8.1%,
-    rgb(var(--j-theme-color-background), 0.714) 15.5%,
-    rgb(var(--j-theme-color-background), 0.672) 22.5%,
-    rgb(var(--j-theme-color-background), 0.618) 29%,
-    rgb(var(--j-theme-color-background), 0.556) 35.3%,
-    rgb(var(--j-theme-color-background), 0.486) 41.2%,
-    rgb(var(--j-theme-color-background), 0.412) 47.1%,
-    rgb(var(--j-theme-color-background), 0.338) 52.9%,
-    rgb(var(--j-theme-color-background), 0.264) 58.8%,
-    rgb(var(--j-theme-color-background), 0.194) 64.7%,
-    rgb(var(--j-theme-color-background), 0.132) 71%,
-    rgb(var(--j-theme-color-background), 0.078) 77.5%,
-    rgb(var(--j-theme-color-background), 0.036) 84.5%,
-    rgb(var(--j-theme-color-background), 0.01) 91.9%,
-    rgb(var(--j-theme-color-background), 0) 100%
-  );
+  bottom: 0;
+  padding-top: 5rem;
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
+  background: linear-gradient(0deg, rgb(0 0 0 / 0.82) 0%, rgb(0 0 0 / 0) 100%);
 }
 
-.player-controls {
-  width: 100%;
-  height: 100%;
+.osd-header,
+.osd-header-left,
+.osd-header-right,
+.osd-control-row,
+.osd-control-side,
+.osd-transport {
+  display: flex;
+  align-items: center;
+}
+
+.osd-header {
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 40px;
+}
+
+.osd-header-left {
+  min-width: 0;
+  gap: 0.25rem;
+}
+
+.osd-header-right {
+  flex-shrink: 0;
+  gap: 0.25rem;
+}
+
+.osd-controls {
+  padding-top: 0;
+}
+
+.osd-time-slider {
+  margin-bottom: -0.4rem;
+}
+
+.osd-clockrow {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 1.25rem;
+  margin-top: -0.35rem;
+}
+
+.osd-control-row {
+  position: relative;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 44px;
+}
+
+.osd-control-side {
+  z-index: 1;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.osd-control-left {
+  justify-content: flex-start;
+}
+
+.osd-control-right {
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+
+.osd-transport {
   position: absolute;
-  top: 0;
-  left: 0;
+  left: 50%;
+  gap: 0.25rem;
+  transform: translateX(-50%);
+}
+
+.osd-volume {
+  width: min(13rem, 24vw);
+}
+
+.skip-segment-container {
+  position: absolute;
+  right: max(2rem, env(safe-area-inset-right));
+  bottom: 9rem;
+  z-index: 1;
 }
 
 .video-title {
-  max-width: 40vw;
-  height: 6em;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: min(42vw, 42rem);
+  margin-left: 0.5rem;
+  text-shadow: 0 1px 10px rgb(0 0 0 / 0.75);
+}
+
+.video-title-line {
+  overflow: hidden;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.video-title-secondary {
+  color: rgb(255 255 255 / 0.74);
+}
+
+@media (max-width: 959px) {
+  .osd-control-row {
+    gap: 0.25rem;
+  }
+
+  .osd-control-side {
+    flex-basis: auto;
+  }
+
+  .osd-transport {
+    position: static;
+    flex: 0 0 auto;
+    transform: none;
+  }
+}
+
+@media (max-width: 599px) {
+  .osd-shell {
+    padding-right: max(8px, env(safe-area-inset-right));
+    padding-left: max(8px, env(safe-area-inset-left));
+  }
+
+  .osd-bottom {
+    padding-top: 3.5rem;
+  }
+
+  .osd-control-right {
+    gap: 0;
+  }
+
+  .skip-segment-container {
+    right: 1rem;
+    bottom: 7.5rem;
+  }
 }
 </style>

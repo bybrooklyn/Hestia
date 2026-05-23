@@ -65,9 +65,13 @@
           </VBtn>
         </div>
 
-        <div class="uno-mt-10 uno-pt-10 uno-border-t uno-border-slate-800">
-          <h3 class="uno-text-2xl uno-mb-2">{{ t('quickConnectAuthorize') }}</h3>
-          <p class="uno-text-slate-400 uno-mb-4 uno-text-sm">{{ t('quickConnectAuthorizeHelp') }}</p>
+        <div class="uno-mt-10 uno-border-t uno-border-slate-800 uno-pt-10">
+          <h3 class="uno-mb-2 uno-text-2xl">
+            {{ t('quickConnectAuthorize') }}
+          </h3>
+          <p class="uno-mb-4 uno-text-sm uno-text-slate-400">
+            {{ t('quickConnectAuthorizeHelp') }}
+          </p>
           <VTextField
             v-model="quickConnectCode"
             v-bind="codeAttrs"

@@ -21,8 +21,10 @@
       </VBtn>
     </template>
     <template #content>
-      <VCol>
-        <VTable>
+      <VCol
+        md="10"
+        class="uno-pb-4 uno-pt-0">
+        <VTable density="comfortable">
           <thead>
             <tr>
               <th
@@ -75,7 +77,7 @@
           }
         " />
       <VDialog
-        width="auto"
+        width="420"
         :model-value="!isNil(confirmRevoke)"
         @update:model-value="confirmRevoke = undefined">
         <VCard>

@@ -7,6 +7,13 @@
       <VCol
         md="10"
         class="uno-pb-4 uno-pt-0">
+        <VAlert
+          v-if="loadError"
+          type="error"
+          variant="tonal"
+          class="uno-mb-4">
+          {{ t('errorLoadingSettingsPage') }}
+        </VAlert>
         <h3 class="uno-mb-2 uno-text-lg uno-font-bold">
           {{ t('notificationServices') }}
         </h3>
@@ -15,9 +22,7 @@
           class="uno-text-disabled uno-py-4">
           {{ t('noNotificationServices') }}
         </div>
-        <VList
-          v-else
-          density="compact">
+        <VList v-else>
           <VListItem
             v-for="s in services"
             :key="s.Id ?? s.Name ?? ''"
@@ -80,10 +85,15 @@ meta:
 <script setup lang="ts">
 import type { NameIdPair } from '@jellyfin/sdk/lib/generated-client';
 import type { NotificationTypeInfo } from '@jellyfin/sdk/lib/generated-client/models/notification-type-info';
+import { shallowRef } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { remote } from '#/plugins/remote/index.ts';
 
 const { t } = useTranslation();
+
+const loadError = shallowRef<unknown>();
+const services = shallowRef<NameIdPair[]>([]);
+const types = shallowRef<NotificationTypeInfo[]>([]);
 
 /**
  * The SDK ships `notifications-api.d.ts` but not its `.js` companion, so we
@@ -92,10 +102,17 @@ const { t } = useTranslation();
  * uses for `/MediaSegments`, the other endpoint missing from `utils/api/`.
  */
 const axios = remote.sdk.api?.axiosInstance;
-const [servicesRes, typesRes] = await Promise.all([
-  axios?.get<NameIdPair[]>('/Notifications/Services'),
-  axios?.get<NotificationTypeInfo[]>('/Notifications/Types')
-]);
-const services = servicesRes?.data ?? [];
-const types = typesRes?.data ?? [];
+
+try {
+  const [servicesRes, typesRes] = await Promise.all([
+    axios?.get<NameIdPair[]>('/Notifications/Services'),
+    axios?.get<NotificationTypeInfo[]>('/Notifications/Types')
+  ]);
+
+  services.value = servicesRes?.data ?? [];
+  types.value = typesRes?.data ?? [];
+} catch (error) {
+  loadError.value = error;
+  console.error('[settings/notifications] failed to load notification data', error);
+}
 </script>

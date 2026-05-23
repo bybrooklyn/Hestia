@@ -121,29 +121,39 @@
       v-model="showQuickConnectDialog"
       max-width="450"
       persistent>
-      <VCard class="!uno-bg-slate-900/80 !uno-backdrop-blur-md !uno-border !uno-border-slate-800 uno-rounded-xl uno-p-6">
-        <VCardTitle class="text-h5 uno-text-center uno-font-bold uno-mb-4">
+      <VCard class="uno-rounded-xl uno-p-6 !uno-border !uno-border-slate-800 !uno-bg-slate-900/80 !uno-backdrop-blur-md">
+        <VCardTitle class="text-h5 uno-mb-4 uno-text-center uno-font-bold">
           {{ t('quickConnect') }}
         </VCardTitle>
         <VCardText class="uno-text-center">
-          <div v-if="quickConnectLoading" class="uno-flex uno-flex-col uno-items-center uno-gap-4">
-            <VProgressCircular indeterminate color="primary" />
+          <div
+            v-if="quickConnectLoading"
+            class="uno-flex uno-flex-col uno-items-center uno-gap-4">
+            <VProgressCircular
+              indeterminate
+              color="primary" />
             <span class="uno-text-slate-300">{{ t('loading') }}</span>
           </div>
-          <div v-else class="uno-flex uno-flex-col uno-items-center uno-gap-4">
+          <div
+            v-else
+            class="uno-flex uno-flex-col uno-items-center uno-gap-4">
             <p class="text-body-1 uno-text-slate-300">
               {{ t('quickConnectInstructions') }}
             </p>
-            <div class="uno-bg-primary/10 uno-text-primary uno-text-4xl uno-font-mono uno-font-bold uno-tracking-widest uno-px-6 uno-py-3 uno-rounded-lg uno-border uno-border-primary/20">
+            <div class="uno-border uno-border-primary/20 uno-rounded-lg uno-bg-primary/10 uno-px-6 uno-py-3 uno-text-4xl uno-text-primary uno-font-bold uno-tracking-widest uno-font-mono">
               {{ quickConnectCode }}
             </div>
-            <div class="uno-flex uno-items-center uno-gap-2 uno-text-sm uno-text-slate-400 uno-mt-2">
-              <VProgressCircular indeterminate size="16" width="2" color="secondary" />
+            <div class="uno-mt-2 uno-flex uno-items-center uno-gap-2 uno-text-sm uno-text-slate-400">
+              <VProgressCircular
+                indeterminate
+                size="16"
+                width="2"
+                color="secondary" />
               <span>{{ t('quickConnectWaiting') }}</span>
             </div>
           </div>
         </VCardText>
-        <VCardActions class="uno-justify-center uno-mt-4">
+        <VCardActions class="uno-mt-4 uno-justify-center">
           <VBtn
             variant="tonal"
             color="error"

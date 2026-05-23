@@ -102,6 +102,7 @@ import { computed, defineAsyncComponent, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { getPlaylistsApi } from '@jellyfin/sdk/lib/utils/api/playlists-api';
 import { JTooltip } from '@jellyfin-vue/ui-toolkit/components';
+import { isStr } from '@jellyfin-vue/shared/validation';
 import { getTotalEndsAtTime } from '#/utils/time.ts';
 import { InitMode, playbackManager } from '#/store/playback-manager.ts';
 import { remote } from '#/plugins/remote/index.ts';
@@ -171,7 +172,7 @@ async function savePlaylist(): Promise<void> {
   const name = playlistName.value.trim();
   const ids = playbackManager.queue.value
     .map(item => item.Id)
-    .filter((id): id is string => Boolean(id));
+    .filter(isStr);
 
   if (name === '' || ids.length === 0) {
     return;

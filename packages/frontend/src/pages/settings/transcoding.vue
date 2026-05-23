@@ -7,6 +7,13 @@
       <VCol
         md="8"
         class="uno-pb-4 uno-pt-0">
+        <VAlert
+          v-if="loadError"
+          type="error"
+          variant="tonal"
+          class="uno-mb-4">
+          {{ t('errorLoadingSettingsPage') }}
+        </VAlert>
         <h3 class="uno-mb-2 uno-text-lg uno-font-bold">
           {{ t('transcoding') }}
         </h3>
@@ -208,35 +215,47 @@ meta:
 </route>
 
 <script setup lang="ts">
-import type { EncodingOptions, ServerConfiguration, TrickplayOptions } from '@jellyfin/sdk/lib/generated-client';
-import { EncoderPreset, HardwareAccelerationType } from '@jellyfin/sdk/lib/generated-client';
+import { type EncodingOptions, type ServerConfiguration, type TrickplayOptions, EncoderPreset, HardwareAccelerationType } from '@jellyfin/sdk/lib/generated-client';
 import { getConfigurationApi } from '@jellyfin/sdk/lib/utils/api/configuration-api';
 import { computed, onScopeDispose, shallowRef, watch } from 'vue';
 import { watchDeep } from '@vueuse/core';
 import { useTranslation } from 'i18next-vue';
+import { remote } from '#/plugins/remote/index.ts';
 import { useApi } from '#/composables/apis.ts';
 import { taskManager } from '#/store/task-manager.ts';
 
 const { t } = useTranslation();
+
+const loadError = shallowRef<unknown>();
+const encoding = shallowRef<EncodingOptions>({});
+const trickplay = shallowRef<TrickplayOptions>({});
+const serverSettings = shallowRef<ServerConfiguration>({});
 
 /**
  * Three named configurations drive this page:
  *   - `encoding`  → transcoding + streaming (per-server EncodingOptions)
  *   - `trickplay` → trickplay generation (per-server TrickplayOptions)
  * plus the server's main `ServerConfiguration` for resume thresholds.
+ *
+ * Fetched via direct axios + try/catch (rather than `useApi`) so that a
+ * server missing one of the configs doesn't strand the page on Suspense's
+ * previous tree — see `composables/apis.ts:449` (never-resolve on failure).
  */
-const [
-  { data: encodingRaw },
-  { data: trickplayRaw },
-  { data: serverSettings }
-] = await Promise.all([
-  useApi(getConfigurationApi, 'getNamedConfiguration')(() => ({ key: 'encoding' })),
-  useApi(getConfigurationApi, 'getNamedConfiguration')(() => ({ key: 'trickplay' })),
-  useApi(getConfigurationApi, 'getConfiguration')()
-]);
+try {
+  const api = remote.sdk.newUserApi(getConfigurationApi);
+  const [encodingRes, trickplayRes, serverRes] = await Promise.all([
+    api.getNamedConfiguration({ key: 'encoding' }),
+    api.getNamedConfiguration({ key: 'trickplay' }),
+    api.getConfiguration()
+  ]);
 
-const encoding = shallowRef(encodingRaw.value as EncodingOptions);
-const trickplay = shallowRef(trickplayRaw.value as TrickplayOptions);
+  encoding.value = encodingRes.data as EncodingOptions;
+  trickplay.value = trickplayRes.data as TrickplayOptions;
+  serverSettings.value = serverRes.data;
+} catch (error) {
+  loadError.value = error;
+  console.error('[settings/transcoding] failed to load configuration', error);
+}
 
 const hardwareAccelOptions = computed(() => Object.values(HardwareAccelerationType).map(value => ({
   title: value === 'none' ? t('none') : value.toUpperCase(),

@@ -59,7 +59,9 @@
 
       <!-- Playlist Tracks Table -->
       <div class="uno-mt-8">
-        <VCard v-if="playlistTracks.length > 0" class="!uno-bg-slate-900/60 !uno-backdrop-blur-md !uno-border !uno-border-slate-800 uno-rounded-xl">
+        <VCard
+          v-if="playlistTracks.length > 0"
+          class="uno-rounded-xl !uno-border !uno-border-slate-800 !uno-bg-slate-900/60 !uno-backdrop-blur-md">
           <VTable
             density="compact"
             class="playlist-table uno-select-none !uno-bg-transparent">
@@ -117,7 +119,7 @@
                         <span class="uno-font-semibold">{{ track.Name }}</span>
                         <div
                           v-if="track.Artists && track.Artists.length > 0"
-                          class="ml-3 uno-text-slate-400 uno-text-xs">
+                          class="ml-3 uno-text-xs uno-text-slate-400">
                           {{ track.Artists.join(', ') }}
                         </div>
                         <VSpacer />
@@ -128,7 +130,7 @@
                           @removed="onItemRemoved" />
                       </div>
                     </td>
-                    <td class="uno-truncate uno-max-w-xs uno-text-slate-400 uno-text-sm">
+                    <td class="uno-max-w-xs uno-truncate uno-text-sm uno-text-slate-400">
                       {{ track.Album || '—' }}
                     </td>
                     <td class="text-center uno-text-slate-400">
@@ -141,9 +143,11 @@
           </VTable>
         </VCard>
 
-        <div v-else class="uno-text-center uno-py-12">
-          <div class="uno-flex uno-justify-center uno-mb-4">
-            <div class="uno-bg-slate-800/50 uno-text-slate-400 uno-p-4 uno-rounded-full uno-border uno-border-slate-700/50">
+        <div
+          v-else
+          class="uno-py-12 uno-text-center">
+          <div class="uno-mb-4 uno-flex uno-justify-center">
+            <div class="uno-border uno-border-slate-700/50 uno-rounded-full uno-bg-slate-800/50 uno-p-4 uno-text-slate-400">
               <div class="i-mdi:playlist-music uno-text-4xl" />
             </div>
           </div>

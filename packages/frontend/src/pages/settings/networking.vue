@@ -7,6 +7,13 @@
       <VCol
         md="8"
         class="uno-pb-4 uno-pt-0">
+        <VAlert
+          v-if="loadError"
+          type="error"
+          variant="tonal"
+          class="uno-mb-4">
+          {{ t('errorLoadingSettingsPage') }}
+        </VAlert>
         <h3 class="uno-mb-2 uno-text-lg uno-font-bold">
           {{ t('publicAccess') }}
         </h3>
@@ -127,19 +134,12 @@ import { getConfigurationApi } from '@jellyfin/sdk/lib/utils/api/configuration-a
 import { computed, onScopeDispose, shallowRef, watch } from 'vue';
 import { watchDeep } from '@vueuse/core';
 import { useTranslation } from 'i18next-vue';
+import { remote } from '#/plugins/remote/index.ts';
 import { useApi } from '#/composables/apis.ts';
 import { taskManager } from '#/store/task-manager.ts';
 
 const { t } = useTranslation();
 
-/**
- * `getNamedConfiguration` is typed as returning `File` at the API surface,
- * but at runtime axios parses the JSON response. Cast through `unknown` to
- * silence the mismatch.
- */
-const { data } = await useApi(getConfigurationApi, 'getNamedConfiguration')(() => ({
-  key: 'network'
-}));
 type NetForm = Omit<NetworkConfiguration, 'EnableRemoteAccess' | 'AutoDiscovery' | 'EnableUPnP' | 'EnableIPv4' | 'EnableIPv6' | 'EnableHttps' | 'RequireHttps' | 'IsRemoteIPFilterBlacklist' | 'InternalHttpPort' | 'InternalHttpsPort' | 'PublicHttpPort' | 'PublicHttpsPort'> & {
   EnableRemoteAccess?: boolean | null;
   AutoDiscovery?: boolean | null;
@@ -154,7 +154,18 @@ type NetForm = Omit<NetworkConfiguration, 'EnableRemoteAccess' | 'AutoDiscovery'
   PublicHttpPort?: number | string;
   PublicHttpsPort?: number | string;
 };
-const net = shallowRef(data.value as NetForm);
+
+const loadError = shallowRef<unknown>();
+const net = shallowRef<NetForm>({});
+
+try {
+  const { data } = await remote.sdk.newUserApi(getConfigurationApi).getNamedConfiguration({ key: 'network' });
+
+  net.value = data as unknown as NetForm;
+} catch (error) {
+  loadError.value = error;
+  console.error('[settings/networking] failed to load network configuration', error);
+}
 
 /**
  * Auto-save mirrors server.vue's pattern: the first edit flips the signal,

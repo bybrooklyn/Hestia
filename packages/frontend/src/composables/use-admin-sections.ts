@@ -106,7 +106,7 @@ export function useAdminSections(): ComputedRef<AdminSection[]> {
         icon: 'i-mdi:puzzle',
         name: t('plugins'),
         description: t('pluginsSettingsDescription'),
-        link: undefined
+        link: '/settings/plugins'
       },
       {
         icon: 'i-mdi:calendar-clock',

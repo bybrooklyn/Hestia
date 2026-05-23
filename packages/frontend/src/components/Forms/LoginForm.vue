@@ -67,12 +67,12 @@
         </VCol>
       </VRow>
     </VForm>
-    <div class="uno-text-center uno-mt-4">
+    <div class="uno-mt-4 uno-text-center">
       <VBtn
         variant="text"
         size="small"
         to="/server/forgot-password"
-        class="text-caption !uno-text-slate-400 hover:!uno-text-primary transition-colors">
+        class="text-caption transition-colors !uno-text-slate-400 hover:!uno-text-primary">
         {{ $t('forgotPassword') }}
       </VBtn>
     </div>

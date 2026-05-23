@@ -265,7 +265,9 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
         }
 
         /**
-         * video_width works better with ultrawide monitors
+         * video_width works better with ultrawide monitors. `resampling` is
+         * a real assjs option but is not exposed in its published typings,
+         * so the cast is needed to keep TS happy.
          */
         this._asssub = new ASSSUBClass(
           subtitleTrackPayload[trackSrc],
@@ -273,6 +275,7 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
           {
             resampling: 'video_width',
             timeOffset: (playbackManager.subtitleOffset.value ?? 0) / 1000
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any
         );
 
