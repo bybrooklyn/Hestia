@@ -17,6 +17,7 @@
     "analyze:cycles": "vite build --mode analyze:cycles --configLoader runner",
     "build": "vite build --configLoader runner",
     "check": "pnpm lint && pnpm check:types",
+    "check:budget": "node --experimental-strip-types --no-warnings scripts/initial-budget.ts",
     "check:types": "vue-tsc",
     "clean": "git clean -fxd",
     "lint": "eslint .",

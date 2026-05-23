@@ -1,6 +1,7 @@
 import { basename, resolve, join } from 'node:path';
-import { globSync } from 'node:fs';
+import { globSync, readFileSync } from 'node:fs';
 import { lstat, rename, rm } from 'node:fs/promises';
+import { brotliCompressSync, gzipSync } from 'node:zlib';
 import type { LiteralUnion } from 'type-fest';
 import prettyBytes from 'pretty-bytes';
 import Sonda from 'sonda/rollup';
@@ -172,8 +173,22 @@ export function JBundleChunking(): Plugin {
 export function JBundleSizeReport(): Plugin {
   const files = new Map<string, number>();
   const sizes = new Map<string, number>();
+  /**
+   * Compressed-size totals per file extension. JS/CSS are the ones that
+   * dominate the wire-time budget — raw size hides that, since uncompressed
+   * `.js` is typically ~3× the gzip number.
+   */
+  const gzipSizes = new Map<string, number>();
+  const brotliSizes = new Map<string, number>();
+  /**
+   * Only compress the file types where it actually matters. Skipping
+   * fonts/images/JSON keeps the report fast on multi-hundred-file builds.
+   */
+  const compressibleExtensions = new Set(['js', 'css', 'html', 'svg', 'json']);
   let outDir: string;
   let totalSize = 0;
+  let totalGzip = 0;
+  let totalBrotli = 0;
   const convert = (bytes: number) => prettyBytes(bytes, { minimumFractionDigits: 2 });
 
   return {
@@ -193,18 +208,36 @@ export function JBundleSizeReport(): Plugin {
           files.set(extension!, filenum + 1);
           sizes.set(extension!, size + stat.size);
           totalSize += stat.size;
+
+          if (compressibleExtensions.has(extension!)) {
+            const buf = readFileSync(file);
+            const gz = gzipSync(buf).length;
+            const br = brotliCompressSync(buf).length;
+
+            gzipSizes.set(extension!, (gzipSizes.get(extension!) ?? 0) + gz);
+            brotliSizes.set(extension!, (brotliSizes.get(extension!) ?? 0) + br);
+            totalGzip += gz;
+            totalBrotli += br;
+          }
         }
       }
 
       for (const [key, val] of sizes) {
         const num = files.get(key)!;
+        const gz = gzipSizes.get(key);
+        const br = brotliSizes.get(key);
+        const compressed = gz !== undefined && br !== undefined
+          ? ` — gzip ${convert(gz)}, brotli ${convert(br)}`
+          : '';
 
         console.info(
-          `There are ${num} ${key} ${num > 1 ? 'files' : 'file'} (${convert(val)})`
+          `There are ${num} ${key} ${num > 1 ? 'files' : 'file'} (${convert(val)})${compressed}`
         );
       }
 
-      console.info(`Total size of the bundle: ${convert(totalSize)}`);
+      console.info(
+        `Total size of the bundle: ${convert(totalSize)} — gzip ${convert(totalGzip)}, brotli ${convert(totalBrotli)}`
+      );
     },
     configResolved: (config) => {
       outDir = normalizePath(config.build.outDir);
