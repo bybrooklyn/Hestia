@@ -1,10 +1,11 @@
 <template>
   <template v-if="src">
     <link
-      v-if="!shown"
+      v-if="priority && !shown"
       rel="preload"
       as="image"
       :href="src"
+      v-bind="{ fetchpriority: 'high' }"
       @load.passive="onLoad"
       @error.passive="onError">
     <JTransition
@@ -15,11 +16,31 @@
         :src="src"
         :alt="alt"
         class="uno-w-full uno-h-full uno-object-cover"
-        decoding="sync"
+        :loading="priority ? 'eager' : 'lazy'"
+        :fetchpriority="priority ? 'high' : 'auto'"
+        decoding="async"
         v-bind="getBaseProps($attrs)">
       <JOverlay
         v-else
         v-bind="$attrs">
+        <!--
+          Hidden lazy/eager loader drives the @load -> shown flip without
+          injecting an eager preload. When `priority` is false, the browser
+          only fetches once this element scrolls into view (native
+          loading="lazy"), so off-screen grid cards no longer compete with
+          critical resources on cold load.
+        -->
+        <img
+          v-if="!priority"
+          :src="src"
+          :alt="alt"
+          aria-hidden="true"
+          class="uno-absolute uno-w-px uno-h-px uno-opacity-0 uno-pointer-events-none"
+          loading="lazy"
+          fetchpriority="auto"
+          decoding="async"
+          @load.passive="onLoad"
+          @error.passive="onError">
         <slot
           v-if="$slots.placeholder?.({}).length"
           name="placeholder" />
@@ -47,11 +68,19 @@
 <script setup lang="ts">
 /**
  * @component
- * In this component, we use a link element for image preload.
- * The link element is the browser standard for resource prefetching and we can use it everytime, regardless the
- * underlying element type being used.
+ * Two load paths:
  *
- * Given the img at loading is v-show'ed to false (display: none), the load events doesn't trigger either
+ * - `priority` images inject a `<link rel="preload" as="image">` with
+ *   `fetchpriority="high"` (LCP candidates: hero/backdrop, item-detail
+ *   poster). The link's `@load` flips `shown` so the visible <img> mounts
+ *   from cache.
+ * - Non-priority images render a hidden 1px <img loading="lazy"> inside the
+ *   placeholder slot. Browser-native lazy loading defers the fetch until the
+ *   placeholder scrolls near the viewport; once it loads, `shown` flips and
+ *   the visible <img loading="lazy"> mounts (cached, same URL).
+ *
+ * Visible <img> always uses `decoding="async"` so image decode can't block
+ * the main thread during scroll.
  */
 import { computed, shallowRef, watch } from 'vue';
 import { isObj } from '@jellyfin-vue/shared/validation';
@@ -69,7 +98,7 @@ defineOptions({
   inheritAttrs: false
 });
 
-const { src, alt, once, transitionProps = true } = defineProps<{
+const { src, alt, once, priority, transitionProps = true } = defineProps<{
   src?: string;
   alt: string;
   /**
@@ -77,6 +106,12 @@ const { src, alt, once, transitionProps = true } = defineProps<{
    * updated in place without showing any of the slots.
    */
   once?: boolean;
+  /**
+   * Hero/LCP images that should bypass lazy loading. Adds a high-priority
+   * preload hint, sets `loading="eager"`, and uses `fetchpriority="high"`.
+   * Off by default — most grid/list cards should stay lazy.
+   */
+  priority?: boolean;
   /**
    * Transition between the non-default slot and the image. Uses JTransition with its
    * default values (which you can override by passing this prop). If passed false, disables de transition completely.

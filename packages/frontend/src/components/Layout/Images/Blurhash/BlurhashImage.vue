@@ -4,6 +4,7 @@
       class="uno-h-full uno-w-full"
       :src="imageUrl"
       :alt="item.Name ?? $t('unknown')"
+      :priority="priority"
       v-bind="$attrs">
       <template #placeholder>
         <JOverlay>
@@ -36,12 +37,24 @@ import {
 import { computed } from 'vue';
 import { getBlurhash, getImageInfo } from '#/utils/images.ts';
 
-const { item, width, height, punch, type = ImageType.Primary } = defineProps<{
+const { item, width, height, punch, type = ImageType.Primary, imageWidth, priority } = defineProps<{
   item: BaseItemDto | BaseItemPerson;
+  /** Blurhash canvas pixel width (NOT the requested server image width). */
   width?: number;
+  /** Blurhash canvas pixel height. */
   height?: number;
   punch?: number;
   type?: ImageType;
+  /**
+   * Hint the server-side image width. Caps the URL so card-sized images
+   * don't download full-resolution masters. Passed through to `getImageInfo`.
+   */
+  imageWidth?: number;
+  /**
+   * Forward to `JImg`. Use for hero/backdrop callers; default off so grid
+   * cards stay lazy.
+   */
+  priority?: boolean;
 }>();
 
 const imageUrl = computed(() => getImageInfo(item, {
@@ -49,7 +62,8 @@ const imageUrl = computed(() => getImageInfo(item, {
   preferBanner: type === ImageType.Banner,
   preferLogo: type === ImageType.Logo,
   preferBackdrop: type === ImageType.Backdrop,
-  inheritThumb: false
+  inheritThumb: false,
+  width: imageWidth
 }).url);
 const hash = computed(() => getBlurhash(item, type));
 </script>

@@ -5,7 +5,7 @@
     @on-slide-change="onSlideChange">
     <template #slides>
       <SwiperSlide
-        v-for="item in items"
+        v-for="(item, index) in items"
         :key="item.Id"
         :virtual-index="item.Id">
         <div
@@ -16,7 +16,9 @@
             :key="`${item.Id}-image`"
             :item="relatedItems[item.Id!]!"
             :type="ImageType.Backdrop"
-            :width="$vuetify.display.mdAndUp ? 256 : 128" />
+            :width="$vuetify.display.mdAndUp ? 256 : 128"
+            :image-width="$vuetify.display.mdAndUp ? 1280 : 640"
+            :priority="index === 0" />
         </div>
         <div :class="useResponsiveClasses('slide-content')">
           <VContainer

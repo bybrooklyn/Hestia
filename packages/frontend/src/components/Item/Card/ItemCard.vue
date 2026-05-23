@@ -9,7 +9,9 @@
     <template #image>
       <BlurhashImage
         :item="item"
-        :type="getImageType" />
+        :type="getImageType"
+        :image-width="imageWidth"
+        :priority="priority" />
     </template>
     <template #upper-content>
       <JProgressCircular
@@ -85,12 +87,18 @@ import {
 } from '#/utils/items.ts';
 import { taskManager } from '#/store/task-manager.ts';
 
-const { item, shape, overlay, text, margin } = defineProps<{
+const { item, shape, overlay, text, margin, priority } = defineProps<{
   item: BaseItemDto;
   shape?: CardShapes;
   overlay?: boolean;
   text?: boolean;
   margin?: boolean;
+  /**
+   * Mark this card's image as a hero / LCP candidate. Forwarded to
+   * `BlurhashImage` → `JImg` so the browser fetches it eagerly with
+   * `fetchpriority="high"`. Use sparingly — only above-the-fold heroes.
+   */
+  priority?: boolean;
 }>();
 
 const { t } = useTranslation();
@@ -185,6 +193,25 @@ const progress = computed(
 const getImageType = computed(() =>
   cardType.value === CardShapes.Thumb ? ImageType.Thumb : ImageType.Primary
 );
+
+/**
+ * Cap the requested server image width per card shape so grids don't pull
+ * full-resolution masters. Numbers chosen to cover 2x DPR for typical card
+ * widths (~160px portrait/square, ~240px thumb, ~480px banner).
+ */
+const imageWidth = computed(() => {
+  switch (shape ?? cardType.value) {
+    case CardShapes.Banner: {
+      return 480;
+    }
+    case CardShapes.Thumb: {
+      return 480;
+    }
+    default: {
+      return 320;
+    }
+  }
+});
 
 /**
  * Gets the library update progress

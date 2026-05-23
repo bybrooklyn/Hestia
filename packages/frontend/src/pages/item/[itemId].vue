@@ -7,7 +7,9 @@
         <VCol
           cols="6"
           md="3">
-          <ItemCard :item="item" />
+          <ItemCard
+            :item="item"
+            priority />
         </VCol>
         <VCol
           cols="12"
@@ -49,7 +51,26 @@
               'uno-justify-center': !$vuetify.display.mdAndUp,
               'uno-ml-0': $vuetify.display.mdAndUp
             }">
+            <VBtn
+              v-if="item.Type === 'PhotoAlbum' && firstPhoto"
+              class="uno-mr-2"
+              color="primary"
+              variant="elevated"
+              :to="`/photo/${firstPhoto.Id}`">
+              <JIcon class="i-mdi:image uno-mr-2" />
+              {{ $t('viewPhotos') }}
+            </VBtn>
+            <VBtn
+              v-else-if="item.Type === 'Photo'"
+              class="uno-mr-2"
+              color="primary"
+              variant="elevated"
+              :to="`/photo/${item.Id}`">
+              <JIcon class="i-mdi:image uno-mr-2" />
+              {{ $t('viewPhotos') }}
+            </VBtn>
             <PlayButton
+              v-else
               class="uno-mr-2"
               :item="item"
               :media-source-index="currentSourceIndex"
@@ -510,6 +531,15 @@ const [
 ]);
 
 const remoteTrailers = computed(() => item.value.RemoteTrailers ?? []);
+
+/**
+ * For PhotoAlbum items, the first photo is the entry point for the
+ * viewer / slideshow. The album page itself stays as a folder listing —
+ * the new button drives users into the dedicated viewer route instead.
+ */
+const firstPhoto = computed(() =>
+  childItems.value.find(child => child.Type === 'Photo')
+);
 
 const { data: currentSeries } = await useBaseItem(getUserLibraryApi, 'getItem')(() => ({
   itemId: item.value.SeriesId ?? ''
