@@ -30,7 +30,7 @@ export default defineConfig({
     }),
     VueRouter({
       dts: resolve(import.meta.dirname, 'types/global/routes.d.ts'),
-      importMode: 'sync',
+      importMode: 'async',
       routeBlockLang: 'yaml',
       routesFolder: [
         {
