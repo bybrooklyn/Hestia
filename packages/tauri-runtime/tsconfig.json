@@ -15,6 +15,7 @@
     "coverage"
   ],
   "include": [
-    "**/*.ts"
+    "**/*.ts",
+    "../frontend/types/**/*.d.ts"
   ]
 }
