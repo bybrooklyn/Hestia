@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, defineAsyncComponent, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { getPlaylistsApi } from '@jellyfin/sdk/lib/utils/api/playlists-api';
 import { JTooltip } from '@jellyfin-vue/ui-toolkit/components';
@@ -113,6 +113,14 @@ const { size = 40, closeOnClick } = defineProps<{
 }>();
 
 const { t } = useTranslation();
+
+/**
+ * DraggableQueue pulls sortablejs (~37 KiB). Wrap it async so the dependency
+ * loads when the queue menu first opens, not on every player chrome render.
+ */
+const DraggableQueue = defineAsyncComponent(() =>
+  import('#/components/Playback/DraggableQueue.vue')
+);
 
 const menuModel = ref(false);
 const listWidth = computed(() => `${size}vw`);

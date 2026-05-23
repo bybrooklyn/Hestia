@@ -4,9 +4,8 @@
  * In the other part, playbackManager is suited to handle the playback state in
  * an agnostic way, regardless of where the media is being played (remotely or locally)
  */
-import ASSSUB from 'assjs';
-import { PgsRenderer } from 'libpgs';
-import pgssubWorker from 'libpgs/dist/libpgs.worker.js?url';
+import type ASSSUBType from 'assjs';
+import type { PgsRenderer as PgsRendererType } from 'libpgs';
 import { computed, nextTick, shallowRef, watch } from 'vue';
 import { SubtitleDeliveryMethod } from '@jellyfin/sdk/lib/generated-client/models/subtitle-delivery-method';
 import { computedAsync, useFullscreen } from '@vueuse/core';
@@ -63,8 +62,42 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
    */
   private readonly _fullscreenVideoRoute = '/playback/video';
   private readonly _cleanups = new Set<() => void>();
-  private _asssub: ASSSUB | undefined;
-  private _pgssub: PgsRenderer | undefined;
+  private _asssub: ASSSUBType | undefined;
+  private _pgssub: PgsRendererType | undefined;
+  /**
+   * Lazy-loaded subtitle renderer constructors / worker URL. These chunks
+   * (assjs ~34 KiB, libpgs ~63 KiB + worker) only enter the graph when a
+   * track of the matching codec is actually applied.
+   */
+  private _ASSSUBClass: typeof ASSSUBType | undefined;
+  private _PgsRendererClass: typeof PgsRendererType | undefined;
+  private _pgsWorkerUrl: string | undefined;
+  private _assInitPromise: Promise<void> | undefined;
+  private _pgsInitPromise: Promise<void> | undefined;
+
+  private readonly _ensureAss = async (): Promise<void> => {
+    this._assInitPromise ??= (async () => {
+      const mod = await import('assjs');
+
+      this._ASSSUBClass = mod.default;
+    })();
+
+    return this._assInitPromise;
+  };
+
+  private readonly _ensurePgs = async (): Promise<void> => {
+    this._pgsInitPromise ??= (async () => {
+      const [mod, workerMod] = await Promise.all([
+        import('libpgs'),
+        import('libpgs/dist/libpgs.worker.js?url')
+      ]);
+
+      this._PgsRendererClass = mod.PgsRenderer;
+      this._pgsWorkerUrl = workerMod.default;
+    })();
+
+    return this._pgsInitPromise;
+  };
 
   /**
    * Logic for applying custom subtitle track.
@@ -223,10 +256,18 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
       const subtitleTrackPayload = await this._fetchSubtitleTrack(trackSrc);
 
       if (subtitleTrackPayload[trackSrc]) {
+        await this._ensureAss();
+
+        const ASSSUBClass = this._ASSSUBClass;
+
+        if (!ASSSUBClass) {
+          return;
+        }
+
         /**
          * video_width works better with ultrawide monitors
          */
-        this._asssub = new ASSSUB(
+        this._asssub = new ASSSUBClass(
           subtitleTrackPayload[trackSrc],
           mediaElementRef.value,
           {
@@ -243,7 +284,7 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
     }
   };
 
-  private readonly _applyPgsSubtitles = (): void => {
+  private readonly _applyPgsSubtitles = async (): Promise<void> => {
     const trackSrc = this.currentExternalSubtitleTrack.value?.src;
 
     if (trackSrc) {
@@ -252,10 +293,16 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
         && mediaElementRef.value instanceof HTMLVideoElement
         && this.currentExternalSubtitleTrack.value
       ) {
-        this._pgssub = new PgsRenderer({
+        await this._ensurePgs();
+
+        if (!this._PgsRendererClass || !this._pgsWorkerUrl) {
+          return;
+        }
+
+        this._pgssub = new this._PgsRendererClass({
           video: mediaElementRef.value,
           subUrl: trackSrc,
-          workerUrl: pgssubWorker
+          workerUrl: this._pgsWorkerUrl
         });
 
         this._cleanups.add(() => {
@@ -327,7 +374,7 @@ class PlayerElementStore extends CommonStore<PlayerElementState, 'fitMode' | 'cu
      */
     if (this.currentExternalSubtitleTrack.value) {
       if (this._usingPgs.value) {
-        this._applyPgsSubtitles();
+        await this._applyPgsSubtitles();
       } else if (this._usingVtt.value) {
         this._applyVttSubtitles();
       } else if (this._usingAss.value) {

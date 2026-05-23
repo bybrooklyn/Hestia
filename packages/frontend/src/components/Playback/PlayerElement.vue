@@ -42,8 +42,12 @@
 </template>
 
 <script setup lang="ts">
-import Hls, { ErrorTypes, Events, type ErrorData } from 'hls.js';
-import HlsWorkerUrl from 'hls.js/dist/hls.worker.js?url';
+import type {
+  default as HlsType,
+  ErrorData,
+  ErrorTypes as HlsErrorTypesEnum,
+  Events as HlsEventsEnum
+} from 'hls.js';
 import { computed, nextTick, onScopeDispose, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { isNil } from '@jellyfin-vue/shared/validation';
@@ -60,12 +64,54 @@ import { subtitleSettings } from '#/store/settings/subtitle.ts';
 
 const { t } = useTranslation();
 const webAudioQueue = new PromiseQueue();
-const hls = Hls.isSupported()
-  ? new Hls({
-      testBandwidth: false,
-      workerPath: HlsWorkerUrl
-    })
-  : undefined;
+
+let HlsEvents: typeof HlsEventsEnum | undefined;
+let HlsErrorTypes: typeof HlsErrorTypesEnum | undefined;
+let hls: HlsType | undefined;
+let hlsInitPromise: Promise<void> | undefined;
+
+/**
+ * Lazy-load hls.js + its worker URL on first need so direct-play sources and
+ * the unauthenticated startup graph never pay for ~500 KiB of HLS code.
+ * Idempotent — the first call kicks off the load; subsequent calls await it.
+ */
+async function ensureHls(): Promise<void> {
+  hlsInitPromise ??= (async () => {
+    const [mod, workerMod] = await Promise.all([
+      import('hls.js'),
+      import('hls.js/dist/hls.worker.js?url')
+    ]);
+
+    HlsEvents = mod.Events;
+    HlsErrorTypes = mod.ErrorTypes;
+
+    if (mod.default.isSupported()) {
+      hls = new mod.default({
+        testBandwidth: false,
+        workerPath: workerMod.default
+      });
+    }
+  })();
+
+  return hlsInitPromise;
+}
+
+/**
+ * Attaches the (lazy-constructed) HLS instance to the current media element
+ * if one is mounted and we're in a video playback state. Safe to call at any
+ * point — it no-ops until both the HLS module and an element are present.
+ */
+function attachHlsIfReady(): void {
+  if (
+    hls
+    && HlsEvents
+    && mediaElementRef.value instanceof HTMLVideoElement
+    && playbackManager.isVideo.value
+  ) {
+    hls.attachMedia(mediaElementRef.value);
+    hls.on(HlsEvents.ERROR, onHlsError);
+  }
+}
 
 const mediaElementType = computed<'audio' | 'video' | undefined>(() => {
   if (playbackManager.isAudio.value) {
@@ -90,7 +136,10 @@ const posterUrl = computed(() =>
 function detachHls(): void {
   if (hls) {
     hls.detachMedia();
-    hls.off(Events.ERROR, onHlsError);
+
+    if (HlsEvents) {
+      hls.off(HlsEvents.ERROR, onHlsError);
+    }
   }
 }
 
@@ -156,30 +205,32 @@ async function onLoadedData(): Promise<void> {
 /**
  * Callback for when HLS.js gets an error
  */
-function onHlsError(_event: typeof Hls.Events.ERROR, data: ErrorData): void {
-  if (data.fatal && hls) {
-    switch (data.type) {
-      case ErrorTypes.NETWORK_ERROR: {
-        // Try to recover network error
-        useSnackbar(t('networkError'), 'error');
-        console.error('fatal network error encountered, try to recover');
-        hls.startLoad();
-        break;
-      }
-      case ErrorTypes.MEDIA_ERROR: {
-        useSnackbar(t('mediaError'), 'error');
-        console.error('fatal media error encountered, try to recover');
-        hls.recoverMediaError();
-        break;
-      }
-      default: {
-        /**
-         * Can't recover from unknown errors
-         */
-        useSnackbar(t('cantPlayItem'), 'error');
-        playbackManager.stop();
-        break;
-      }
+function onHlsError(_event: string, data: ErrorData): void {
+  if (!data.fatal || !hls || !HlsErrorTypes) {
+    return;
+  }
+
+  switch (data.type) {
+    case HlsErrorTypes.NETWORK_ERROR: {
+      // Try to recover network error
+      useSnackbar(t('networkError'), 'error');
+      console.error('fatal network error encountered, try to recover');
+      hls.startLoad();
+      break;
+    }
+    case HlsErrorTypes.MEDIA_ERROR: {
+      useSnackbar(t('mediaError'), 'error');
+      console.error('fatal media error encountered, try to recover');
+      hls.recoverMediaError();
+      break;
+    }
+    default: {
+      /**
+       * Can't recover from unknown errors
+       */
+      useSnackbar(t('cantPlayItem'), 'error');
+      playbackManager.stop();
+      break;
     }
   }
 }
@@ -191,10 +242,7 @@ watch(mediaElementRef, () => {
   if (mediaElementRef.value) {
     const mediaEl = mediaElementRef.value;
 
-    if (playbackManager.isVideo.value && hls) {
-      hls.attachMedia(mediaEl);
-      hls.on(Events.ERROR, onHlsError);
-    }
+    attachHlsIfReady();
 
     if (playbackManager.isAudio.value) {
       void webAudioQueue.add(() => attachWebAudio(mediaEl));
@@ -212,6 +260,25 @@ watch(playbackManager.currentSourceUrl,
      * Ensure element is mounted before setting the source.
      */
     await nextTick();
+
+    /**
+     * Only pay for hls.js on sources the server can't direct-play. Native
+     * HLS (Safari iOS) and direct-play sources keep going through plain
+     * `<video src>` and never load the HLS module.
+     */
+    const needsHls = !!newUrl
+      && playbackManager.isVideo.value
+      && !playbackManager.currentMediaSource.value?.SupportsDirectPlay;
+
+    if (needsHls) {
+      const beforeInit = !!hls;
+
+      await ensureHls();
+
+      if (hls && !beforeInit) {
+        attachHlsIfReady();
+      }
+    }
 
     if (
       mediaElementRef.value

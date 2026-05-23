@@ -17,11 +17,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, defineAsyncComponent } from 'vue';
 import { remote } from './plugins/remote/index.ts';
 import { themeSettings } from '#/store/settings/theme.ts';
 import { useLoading } from '#/composables/use-loading.ts';
 import { useServerCustomCss } from '#/composables/use-server-custom-css.ts';
+
+/**
+ * Lazy so playback code (hls.js / assjs / libpgs / playback store) stays out
+ * of the initial graph until a user is authenticated and the component is
+ * actually mounted.
+ */
+const PlayerElement = defineAsyncComponent(() =>
+  import('#/components/Playback/PlayerElement.vue')
+);
 
 useServerCustomCss();
 

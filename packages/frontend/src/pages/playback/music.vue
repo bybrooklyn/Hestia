@@ -60,12 +60,11 @@
                 </h1>
               </VRow>
               <VRow>
-                <span class="text-subtitle">
+                <span class="text-subtitle-1">
                   {{ artistString }}
                 </span>
               </VRow>
             </VCol>
-            <!-- TODO: Fix alignment with the end time of TimeSlider -->
             <VCol class="uno-flex uno-justify-end">
               <LikeButton
                 v-if="playbackManager.currentItem.value"
@@ -79,7 +78,13 @@
           <VRow class="uno-items-center uno-justify-center">
             <ShuffleButton size="x-large" />
             <PreviousTrackButton size="x-large" />
+            <PreviousChapterButton
+              v-if="hasChapters"
+              size="x-large" />
             <PlayPauseButton size="x-large" />
+            <NextChapterButton
+              v-if="hasChapters"
+              size="x-large" />
             <NextTrackButton size="x-large" />
             <RepeatButton size="x-large" />
           </VRow>
@@ -103,7 +108,7 @@ import type SwiperType from 'swiper';
 import 'swiper/css';
 import { A11y, EffectCoverflow, Virtual } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/vue';
-import { computed, shallowRef, watchEffect, onMounted } from 'vue';
+import { computed, defineAsyncComponent, shallowRef, watchEffect, onMounted } from 'vue';
 import { isNil } from '@jellyfin-vue/shared/validation';
 import { router } from '#/plugins/router/index.ts';
 import { playbackGuard } from '#/plugins/router/middlewares/playback.ts';
@@ -117,14 +122,21 @@ defineOptions({
 });
 
 /**
- * Handles back navigation to the previous page or playback source route.
+ * Visualizer pulls audiomotion-analyzer (~30 KiB) only when the user toggles
+ * into the visualizer view, instead of on every music playback route mount.
+ */
+const MusicVisualizer = defineAsyncComponent(() =>
+  import('#/components/Playback/MusicVisualizer.vue')
+);
+
+/**
+ * Return the user to the page they pressed play from, mirroring the
+ * stop / queue-empty behaviour in `use-playback.ts`. `router.replace`
+ * (rather than `push`) avoids leaving the music page in history so a
+ * subsequent browser back doesn't loop right back into playback.
  */
 function goBack(): void {
-  if (playbackManager.sourceRoute.value) {
-    void router.push(playbackManager.sourceRoute.value);
-  } else {
-    void router.push('/');
-  }
+  void router.replace(playbackManager.sourceRoute.value ?? '/');
 }
 
 usePlayback();
@@ -148,6 +160,17 @@ const viewModes: { value: ViewMode; icon: string }[] = [
 const viewMode = shallowRef<ViewMode>('cover');
 const artistString = computed(() =>
   playbackManager.currentItem.value?.Artists?.join(', ')
+);
+
+/**
+ * Show chapter controls when the current item carries a chapter list — the
+ * common case is audiobooks (`Type === 'AudioBook'`), but any audio item
+ * with usable chapters is fair game. `TimeSlider` already renders the
+ * chapter markers and handles click-to-seek for any item with chapters,
+ * so this just gates the prev/next-chapter OSD buttons.
+ */
+const hasChapters = computed(() =>
+  (playbackManager.currentItem.value?.Chapters?.length ?? 0) > 1
 );
 
 const swiperInstance = shallowRef<SwiperType>();

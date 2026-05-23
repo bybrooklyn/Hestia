@@ -160,7 +160,7 @@
 import { ref, watch, useTemplateRef, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTranslation } from 'i18next-vue';
-import Sortable from 'sortablejs';
+import type SortableType from 'sortablejs';
 import type { BaseItemDto } from '@jellyfin/sdk/lib/generated-client';
 import { getPlaylistsApi } from '@jellyfin/sdk/lib/utils/api/playlists-api';
 import { getUserLibraryApi } from '@jellyfin/sdk/lib/utils/api/user-library-api';
@@ -208,7 +208,7 @@ useItemPageTitle(item);
 useItemBackdrop(item);
 
 // Sortable setup
-let sortable: Sortable | undefined;
+let sortable: SortableType | undefined;
 const tableBody = useTemplateRef('tableBody');
 
 /**
@@ -221,11 +221,20 @@ function destroySortable() {
   }
 }
 
-watch(tableBody, () => {
+watch(tableBody, async (el) => {
   destroySortable();
 
-  if (tableBody.value) {
-    sortable = new Sortable(tableBody.value, {
+  if (el) {
+    const { default: Sortable } = await import('sortablejs');
+
+    /**
+     * The element may have been unmounted while sortablejs was loading.
+     */
+    if (tableBody.value !== el) {
+      return;
+    }
+
+    sortable = new Sortable(el, {
       animation: 300,
       handle: '.playlist-row',
       dragoverBubble: true,
