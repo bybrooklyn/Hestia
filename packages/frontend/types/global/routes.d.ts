@@ -87,6 +87,13 @@ declare module 'vue-router/auto-routes' {
       { itemId: ParamValue<false> },
       | never
     >,
+    '/photo/[itemId]': RouteRecordInfo<
+      '/photo/[itemId]',
+      '/photo/:itemId',
+      { itemId: ParamValue<true> },
+      { itemId: ParamValue<false> },
+      | never
+    >,
     '/playback/music': RouteRecordInfo<
       '/playback/music',
       '/playback/music',
@@ -220,6 +227,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/settings/libraries': RouteRecordInfo<
+      '/settings/libraries',
+      '/settings/libraries',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/settings/logs-and-activity': RouteRecordInfo<
       '/settings/logs-and-activity',
       '/settings/logs-and-activity',
@@ -255,6 +269,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/settings/plugins': RouteRecordInfo<
+      '/settings/plugins',
+      '/settings/plugins',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/settings/scheduled-tasks': RouteRecordInfo<
+      '/settings/scheduled-tasks',
+      '/settings/scheduled-tasks',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/settings/server': RouteRecordInfo<
       '/settings/server',
       '/settings/server',
@@ -265,6 +293,13 @@ declare module 'vue-router/auto-routes' {
     '/settings/subtitles': RouteRecordInfo<
       '/settings/subtitles',
       '/settings/subtitles',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/settings/transcoding': RouteRecordInfo<
+      '/settings/transcoding',
+      '/settings/transcoding',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -331,247 +366,277 @@ declare module 'vue-router/auto-routes' {
    * @internal
    */
   export interface _RouteFileInfoMap {
-    'src/pages/index.vue': {
+    '../frontend/src/pages/index.vue': {
       routes:
         | '/'
       views:
         | never
     }
-    'src/pages/artist/[itemId].vue': {
+    '../frontend/src/pages/artist/[itemId].vue': {
       routes:
         | '/artist/[itemId]'
       views:
         | never
     }
-    'src/pages/genre/[itemId].vue': {
+    '../frontend/src/pages/genre/[itemId].vue': {
       routes:
         | '/genre/[itemId]'
       views:
         | never
     }
-    'src/pages/item/[itemId].vue': {
+    '../frontend/src/pages/item/[itemId].vue': {
       routes:
         | '/item/[itemId]'
       views:
         | never
     }
-    'src/pages/library/[itemId].vue': {
+    '../frontend/src/pages/library/[itemId].vue': {
       routes:
         | '/library/[itemId]'
       views:
         | never
     }
-    'src/pages/metadata.vue': {
+    '../frontend/src/pages/metadata.vue': {
       routes:
         | '/metadata'
       views:
         | never
     }
-    'src/pages/musicalbum/[itemId].vue': {
+    '../frontend/src/pages/musicalbum/[itemId].vue': {
       routes:
         | '/musicalbum/[itemId]'
       views:
         | never
     }
-    'src/pages/person/[itemId].vue': {
+    '../frontend/src/pages/person/[itemId].vue': {
       routes:
         | '/person/[itemId]'
       views:
         | never
     }
-    'src/pages/playback/music.vue': {
+    '../frontend/src/pages/photo/[itemId].vue': {
+      routes:
+        | '/photo/[itemId]'
+      views:
+        | never
+    }
+    '../frontend/src/pages/playback/music.vue': {
       routes:
         | '/playback/music'
       views:
         | never
     }
-    'src/pages/playback/video.vue': {
+    '../frontend/src/pages/playback/video.vue': {
       routes:
         | '/playback/video'
       views:
         | never
     }
-    'src/pages/playlist/[itemId].vue': {
+    '../frontend/src/pages/playlist/[itemId].vue': {
       routes:
         | '/playlist/[itemId]'
       views:
         | never
     }
-    'src/pages/search.vue': {
+    '../frontend/src/pages/search.vue': {
       routes:
         | '/search'
       views:
         | never
     }
-    'src/pages/series/[itemId].vue': {
+    '../frontend/src/pages/series/[itemId].vue': {
       routes:
         | '/series/[itemId]'
       views:
         | never
     }
-    'src/pages/server/add.vue': {
+    '../frontend/src/pages/server/add.vue': {
       routes:
         | '/server/add'
       views:
         | never
     }
-    'src/pages/server/forgot-password.vue': {
+    '../frontend/src/pages/server/forgot-password.vue': {
       routes:
         | '/server/forgot-password'
       views:
         | never
     }
-    'src/pages/server/login.vue': {
+    '../frontend/src/pages/server/login.vue': {
       routes:
         | '/server/login'
       views:
         | never
     }
-    'src/pages/server/select.vue': {
+    '../frontend/src/pages/server/select.vue': {
       routes:
         | '/server/select'
       views:
         | never
     }
-    'src/pages/settings/index.vue': {
+    '../frontend/src/pages/settings/index.vue': {
       routes:
         | '/settings/'
       views:
         | never
     }
-    'src/pages/settings/account.vue': {
+    '../frontend/src/pages/settings/account.vue': {
       routes:
         | '/settings/account'
       views:
         | never
     }
-    'src/pages/settings/apikeys.vue': {
+    '../frontend/src/pages/settings/apikeys.vue': {
       routes:
         | '/settings/apikeys'
       views:
         | never
     }
-    'src/pages/settings/backups.vue': {
+    '../frontend/src/pages/settings/backups.vue': {
       routes:
         | '/settings/backups'
       views:
         | never
     }
-    'src/pages/settings/dashboard.vue': {
+    '../frontend/src/pages/settings/dashboard.vue': {
       routes:
         | '/settings/dashboard'
       views:
         | never
     }
-    'src/pages/settings/devices.vue': {
+    '../frontend/src/pages/settings/devices.vue': {
       routes:
         | '/settings/devices'
       views:
         | never
     }
-    'src/pages/settings/display.vue': {
+    '../frontend/src/pages/settings/display.vue': {
       routes:
         | '/settings/display'
       views:
         | never
     }
-    'src/pages/settings/dlna.vue': {
+    '../frontend/src/pages/settings/dlna.vue': {
       routes:
         | '/settings/dlna'
       views:
         | never
     }
-    'src/pages/settings/experimental.vue': {
+    '../frontend/src/pages/settings/experimental.vue': {
       routes:
         | '/settings/experimental'
       views:
         | never
     }
-    'src/pages/settings/home.vue': {
+    '../frontend/src/pages/settings/home.vue': {
       routes:
         | '/settings/home'
       views:
         | never
     }
-    'src/pages/settings/logs-and-activity.vue': {
+    '../frontend/src/pages/settings/libraries.vue': {
+      routes:
+        | '/settings/libraries'
+      views:
+        | never
+    }
+    '../frontend/src/pages/settings/logs-and-activity.vue': {
       routes:
         | '/settings/logs-and-activity'
       views:
         | never
     }
-    'src/pages/settings/media-players.vue': {
+    '../frontend/src/pages/settings/media-players.vue': {
       routes:
         | '/settings/media-players'
       views:
         | never
     }
-    'src/pages/settings/networking.vue': {
+    '../frontend/src/pages/settings/networking.vue': {
       routes:
         | '/settings/networking'
       views:
         | never
     }
-    'src/pages/settings/notifications.vue': {
+    '../frontend/src/pages/settings/notifications.vue': {
       routes:
         | '/settings/notifications'
       views:
         | never
     }
-    'src/pages/settings/playback.vue': {
+    '../frontend/src/pages/settings/playback.vue': {
       routes:
         | '/settings/playback'
       views:
         | never
     }
-    'src/pages/settings/server.vue': {
+    '../frontend/src/pages/settings/plugins.vue': {
+      routes:
+        | '/settings/plugins'
+      views:
+        | never
+    }
+    '../frontend/src/pages/settings/scheduled-tasks.vue': {
+      routes:
+        | '/settings/scheduled-tasks'
+      views:
+        | never
+    }
+    '../frontend/src/pages/settings/server.vue': {
       routes:
         | '/settings/server'
       views:
         | never
     }
-    'src/pages/settings/subtitles.vue': {
+    '../frontend/src/pages/settings/subtitles.vue': {
       routes:
         | '/settings/subtitles'
       views:
         | never
     }
-    'src/pages/settings/users/index.vue': {
+    '../frontend/src/pages/settings/transcoding.vue': {
+      routes:
+        | '/settings/transcoding'
+      views:
+        | never
+    }
+    '../frontend/src/pages/settings/users/index.vue': {
       routes:
         | '/settings/users/'
       views:
         | never
     }
-    'src/pages/settings/users/[id].vue': {
+    '../frontend/src/pages/settings/users/[id].vue': {
       routes:
         | '/settings/users/[id]'
       views:
         | never
     }
-    'src/pages/settings/users/new.vue': {
+    '../frontend/src/pages/settings/users/new.vue': {
       routes:
         | '/settings/users/new'
       views:
         | never
     }
-    'src/pages/studio/[itemId].vue': {
+    '../frontend/src/pages/studio/[itemId].vue': {
       routes:
         | '/studio/[itemId]'
       views:
         | never
     }
-    'src/pages/tag/[tag].vue': {
+    '../frontend/src/pages/tag/[tag].vue': {
       routes:
         | '/tag/[tag]'
       views:
         | never
     }
-    'src/pages/wizard.vue': {
+    '../frontend/src/pages/wizard.vue': {
       routes:
         | '/wizard'
       views:
         | never
     }
-    'src/pages/year/[year].vue': {
+    '../frontend/src/pages/year/[year].vue': {
       routes:
         | '/year/[year]'
       views:
