@@ -585,15 +585,26 @@ export interface IndexPageQueries {
 }
 
 /**
- * Fetches all the items that are needed to populate the default layout
- * (like libraries, which are necessary for the drawer).
- *
- * This is here so this function can be invoked from the login page as well,
- * so when it resolves all the content is already loaded without further delay.
+ * Fetches only the user's library views — what the default-layout nav drawer
+ * needs. Split out from `fetchIndexPage()` so that non-home routes don't wait
+ * for the full home-page bundle (resume / next-up / favorites) just to render
+ * the drawer.
  */
-export async function fetchIndexPage(): Promise<IndexPageQueries> {
-  const latestPerLibrary = new Map<BaseItemDto['Id'], ComputedRef<BaseItemDto[]>>();
+export async function fetchLibraryViews(): Promise<ComputedRef<BaseItemDto[]>> {
   const { data: views } = await useBaseItem(getUserViewsApi, 'getUserViews')();
+
+  return views;
+}
+
+/**
+ * Fetches the home-page sections (everything except `views`), given the
+ * pre-resolved library views. Intended to be composed after `fetchLibraryViews`
+ * so the views ref can be shared between the layout drawer and the home page.
+ */
+export async function fetchIndexPageSections(
+  views: ComputedRef<BaseItemDto[]>
+): Promise<Omit<IndexPageQueries, 'views'>> {
+  const latestPerLibrary = new Map<BaseItemDto['Id'], ComputedRef<BaseItemDto[]>>();
   const latestItems = views.value.map((view) => {
     return (async () => {
       const { data } = await useBaseItem(getUserLibraryApi, 'getLatestMedia')(() => ({
@@ -652,7 +663,6 @@ export async function fetchIndexPage(): Promise<IndexPageQueries> {
   ]))[0];
 
   return {
-    views,
     resumeVideo: results[0]!.data,
     carousel: results[1]!.data,
     nextUp: results[2]!.data,
@@ -662,4 +672,16 @@ export async function fetchIndexPage(): Promise<IndexPageQueries> {
     favoriteSongs: results[6]!.data,
     latestPerLibrary
   };
+}
+
+/**
+ * Orchestrates the full home-page query bundle by composing
+ * `fetchLibraryViews()` + `fetchIndexPageSections()`. Existing callers
+ * (`useIndexPage`, the login-page warmup) keep the original shape.
+ */
+export async function fetchIndexPage(): Promise<IndexPageQueries> {
+  const views = await fetchLibraryViews();
+  const sections = await fetchIndexPageSections(views);
+
+  return { views, ...sections };
 }

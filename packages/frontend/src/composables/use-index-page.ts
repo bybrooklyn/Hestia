@@ -14,7 +14,8 @@
  * for explicit re-fetch (e.g., after the WebSocket `LibraryChanged` event
  * already watched by `store/dbs/api/index.ts`).
  */
-import { fetchIndexPage, type IndexPageQueries } from '#/utils/items.ts';
+import { fetchIndexPageSections, type IndexPageQueries } from '#/utils/items.ts';
+import { useLibraryViews } from '#/composables/use-library-views.ts';
 import { remote } from '#/plugins/remote/index.ts';
 
 let cached: Promise<IndexPageQueries> | undefined;
@@ -24,11 +25,17 @@ remote.auth.onBeforeLogout(() => {
 });
 
 /**
- * Returns the cached `fetchIndexPage` Promise, kicking off the fetch on
- * first call. Multiple callers within a session share the same Promise.
+ * Returns the cached full home-page query bundle, kicking off the fetch on
+ * first call. Shares the library-views Promise with `useLibraryViews()` so
+ * the drawer and the home page never duplicate `getUserViews`.
  */
 export function useIndexPage(): Promise<IndexPageQueries> {
-  cached ??= fetchIndexPage();
+  cached ??= (async () => {
+    const views = await useLibraryViews();
+    const sections = await fetchIndexPageSections(views);
+
+    return { views, ...sections };
+  })();
 
   return cached;
 }

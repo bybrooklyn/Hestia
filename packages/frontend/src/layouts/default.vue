@@ -22,12 +22,16 @@ import { useDisplay } from 'vuetify';
 import type { DrawerItem } from '#/components/Layout/Navigation/NavigationDrawer.vue';
 import { playbackManager } from '#/store/playback-manager.ts';
 import { getLibraryIcon } from '#/utils/items.ts';
-import { useIndexPage } from '#/composables/use-index-page.ts';
+import { useLibraryViews } from '#/composables/use-library-views.ts';
 
 const display = useDisplay();
 const navDrawer = ref(!display.mobile.value);
 
-const { views } = await useIndexPage();
+/**
+ * Drawer only needs library views — full home bundle (resume / next-up /
+ * favorites) is fetched by `pages/index.vue` via `useIndexPage()`.
+ */
+const views = await useLibraryViews();
 
 const drawerItems = computed<DrawerItem[]>(() => {
   return views.value.map((view: BaseItemDto) => {
