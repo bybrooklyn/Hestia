@@ -1,0 +1,89 @@
+name: Server Binary 🧳
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/workflows/build_binary.yml
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - packages/**
+      - packaging/binary/**
+  pull_request:
+    paths:
+      - .github/workflows/build_binary.yml
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - packages/**
+      - packaging/binary/**
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Linux static server binaries
+    runs-on: ubuntu-latest
+    permissions:
+      attestations: write
+      artifact-metadata: write
+      contents: read
+      id-token: write
+    env:
+      OUTPUT_DIR: dist/binary
+
+    steps:
+      - name: Checkout ⬇️
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          show-progress: false
+
+      - name: Setup node environment ⚙️
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          check-latest: true
+
+      - name: Install dependencies 📦
+        run: corepack pnpm ci
+
+      - name: Build frontend 🛠️
+        run: corepack pnpm -C packages/frontend build
+
+      - name: Prepare embedded assets 📁
+        run: |
+          rm -rf packaging/binary/dist "$OUTPUT_DIR"
+          mkdir -p packaging/binary/dist "$OUTPUT_DIR"
+          cp -R packages/frontend/dist/. packaging/binary/dist/
+
+      - name: Build server binaries 🧳
+        run: |
+          corepack pnpm dlx @yao-pkg/pkg@6.19.0 packaging/binary --out-path "$OUTPUT_DIR"
+          mv "$OUTPUT_DIR/jellyfin-vue-x64" "$OUTPUT_DIR/jellyfin-vue-linux-x86_64"
+          mv "$OUTPUT_DIR/jellyfin-vue-arm64" "$OUTPUT_DIR/jellyfin-vue-linux-aarch64"
+          chmod +x "$OUTPUT_DIR"/jellyfin-vue-linux-*
+          sha256sum "$OUTPUT_DIR"/jellyfin-vue-linux-* > "$OUTPUT_DIR/SHA256SUMS"
+
+      - name: Upload server binaries ⬆️
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        id: artifact
+        with:
+          compression-level: 0
+          name: jellyfin-vue-server-linux-static
+          path: ${{ env.OUTPUT_DIR }}
+
+      - name: Create provenance attestation 🔏
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        continue-on-error: true
+        with:
+          subject-name: jellyfin-vue-server-linux-static
+          subject-digest: sha256:${{ steps.artifact.outputs.artifact-digest }}

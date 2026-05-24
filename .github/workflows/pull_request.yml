@@ -70,7 +70,6 @@ jobs:
     if: ${{ always() && !cancelled() }}
     uses: ./.github/workflows/__quality_checks.yml
     permissions: {}
-    secrets: {}
     with:
       commit: ${{ github.event.pull_request.head.sha }}
 
@@ -81,7 +80,6 @@ jobs:
     permissions:
       contents: read
       security-events: write
-    secrets: {}
     with:
       commit: ${{ github.event.pull_request.head.sha }}
 

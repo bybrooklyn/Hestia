@@ -1,0 +1,17 @@
+{
+  "name": "jellyfin-vue",
+  "private": true,
+  "bin": "server.cjs",
+  "pkg": {
+    "assets": [
+      "dist/**/*"
+    ],
+    "bytecode": false,
+    "compress": "GZip",
+    "public": true,
+    "targets": [
+      "node24-linuxstatic-x64",
+      "node24-linuxstatic-arm64"
+    ]
+  }
+}

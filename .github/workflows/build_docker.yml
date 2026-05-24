@@ -1,0 +1,126 @@
+name: Docker Image 🐳
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      push:
+        description: Push the multi-arch image to GHCR
+        required: false
+        type: boolean
+        default: false
+      tag:
+        description: Image tag to use for manual runs
+        required: false
+        type: string
+        default: manual
+  push:
+    branches:
+      - master
+    paths:
+      - .github/workflows/build_docker.yml
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - packages/**
+      - packaging/docker/**
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  DOCKER_BUILD_RECORD_UPLOAD: false
+  PLATFORMS: linux/amd64,linux/arm64
+
+jobs:
+  build:
+    name: Build linux/amd64 and linux/arm64
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout ⬇️
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          show-progress: false
+
+      - name: Configure QEMU ⚙️
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
+
+      - name: Configure Docker Buildx ⚙️
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+        with:
+          cleanup: false
+          version: latest
+
+      - name: Prepare image metadata 🏷️
+        id: meta
+        env:
+          INPUT_TAG: ${{ inputs.tag || '' }}
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY,,}"
+          sha="${GITHUB_SHA::7}"
+          tag="$INPUT_TAG"
+
+          if [[ -z "$tag" || "$tag" == "manual" ]]; then
+            ref="${GITHUB_REF_NAME:-manual}"
+            tag="${ref//\//-}-$sha"
+          fi
+
+          {
+            echo "image=$image"
+            echo "tags<<EOF"
+            echo "$image:$tag"
+            echo "$image:sha-$sha"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Login to GitHub Container Registry 🔑
+        if: ${{ github.event_name == 'push' || inputs.push }}
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image artifact 🛠️
+        if: ${{ github.event_name != 'push' && !inputs.push }}
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        with:
+          context: .
+          file: packaging/docker/Dockerfile
+          platforms: ${{ env.PLATFORMS }}
+          outputs: type=oci,dest=/tmp/jellyfin-vue-image.tar
+          build-args: |
+            COMMIT_HASH=${{ github.sha }}
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+
+      - name: Upload image artifact ⬆️
+        if: ${{ github.event_name != 'push' && !inputs.push }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          compression-level: 0
+          name: jellyfin-vue-oci-image-linux-amd64-arm64
+          path: /tmp/jellyfin-vue-image.tar
+
+      - name: Build and push image 🛠️⬆️
+        if: ${{ github.event_name == 'push' || inputs.push }}
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        with:
+          context: .
+          file: packaging/docker/Dockerfile
+          platforms: ${{ env.PLATFORMS }}
+          push: true
+          provenance: mode=max
+          sbom: true
+          build-args: |
+            COMMIT_HASH=${{ github.sha }}
+          tags: |
+            ${{ steps.meta.outputs.tags }}
