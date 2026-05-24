@@ -3,6 +3,16 @@
     <template #title>
       {{ t('networking') }}
     </template>
+    <template #actions>
+      <VBtn
+        color="primary"
+        :loading="saving"
+        :disabled="!!validationMessage"
+        @click="saveNetworking">
+        <JIcon class="i-mdi:content-save uno-mr-2" />
+        {{ t('save') }}
+      </VBtn>
+    </template>
     <template #content>
       <VCol
         md="8"
@@ -13,6 +23,20 @@
           variant="tonal"
           class="uno-mb-4">
           {{ t('errorLoadingSettingsPage') }}
+        </VAlert>
+        <VAlert
+          v-if="validationMessage"
+          type="error"
+          variant="tonal"
+          class="uno-mb-4">
+          {{ validationMessage }}
+        </VAlert>
+        <VAlert
+          v-if="hasBindAddresses"
+          type="warning"
+          variant="tonal"
+          class="uno-mb-4">
+          {{ t('networkBindAddressWarning') }}
         </VAlert>
         <h3 class="uno-mb-2 uno-text-lg uno-font-bold">
           {{ t('publicAccess') }}
@@ -98,8 +122,22 @@
           rows="3"
           variant="outlined" />
         <VTextarea
+          v-model="localNetworkAddressesText"
+          :label="t('localNetworkAddresses')"
+          :hint="t('oneEntryPerLine')"
+          persistent-hint
+          rows="3"
+          variant="outlined" />
+        <VTextarea
           v-model="knownProxiesText"
           :label="t('knownProxies')"
+          :hint="t('oneEntryPerLine')"
+          persistent-hint
+          rows="3"
+          variant="outlined" />
+        <VTextarea
+          v-model="publishedServerUriBySubnetText"
+          :label="t('publishedServerUriBySubnet')"
           :hint="t('oneEntryPerLine')"
           persistent-hint
           rows="3"
@@ -131,12 +169,11 @@ meta:
 <script setup lang="ts">
 import type { NetworkConfiguration } from '@jellyfin/sdk/lib/generated-client';
 import { getConfigurationApi } from '@jellyfin/sdk/lib/utils/api/configuration-api';
-import { computed, onScopeDispose, shallowRef, watch } from 'vue';
-import { watchDeep } from '@vueuse/core';
+import { computed, shallowRef } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { remote } from '#/plugins/remote/index.ts';
-import { useApi } from '#/composables/apis.ts';
-import { taskManager } from '#/store/task-manager.ts';
+import { useSnackbar } from '#/composables/use-snackbar.ts';
+import { useConfirmDialog } from '#/composables/use-confirm-dialog.ts';
 
 const { t } = useTranslation();
 
@@ -156,6 +193,7 @@ type NetForm = Omit<NetworkConfiguration, 'EnableRemoteAccess' | 'AutoDiscovery'
 };
 
 const loadError = shallowRef<unknown>();
+const saving = shallowRef(false);
 const net = shallowRef<NetForm>({});
 
 try {
@@ -166,43 +204,6 @@ try {
   loadError.value = error;
   console.error('[settings/networking] failed to load network configuration', error);
 }
-
-/**
- * Auto-save mirrors server.vue's pattern: the first edit flips the signal,
- * and from then on each change triggers updateNamedConfiguration.
- */
-const tasks = new Map<number, string>();
-const signal = shallowRef(false);
-
-const { loading } = await useApi(
-  getConfigurationApi,
-  () => signal.value ? 'updateNamedConfiguration' : undefined,
-  { skipCache: { request: true }, globalLoading: false }
-)(() => ({
-  key: 'network',
-  body: JSON.stringify(net.value)
-}));
-
-watch(loading, (l) => {
-  if (l && !tasks.has(0)) {
-    tasks.set(0, taskManager.startConfigSync());
-  } else if (!l) {
-    const id = tasks.get(0);
-
-    if (id) {
-      taskManager.finishTask(id);
-      tasks.delete(0);
-    }
-  }
-});
-
-watchDeep(net, () => signal.value = true, { once: true });
-
-onScopeDispose(() => {
-  for (const [, id] of tasks) {
-    taskManager.finishTask(id);
-  }
-});
 
 /**
  * The DTO stores arrays of strings; the UI edits them as newline-separated
@@ -225,12 +226,109 @@ const localNetworkSubnetsText = computed({
   get: () => asLines(net.value.LocalNetworkSubnets),
   set: (v) => { net.value = { ...net.value, LocalNetworkSubnets: fromLines(v) }; }
 });
+const localNetworkAddressesText = computed({
+  get: () => asLines(net.value.LocalNetworkAddresses),
+  set: (v) => { net.value = { ...net.value, LocalNetworkAddresses: fromLines(v) }; }
+});
 const knownProxiesText = computed({
   get: () => asLines(net.value.KnownProxies),
   set: (v) => { net.value = { ...net.value, KnownProxies: fromLines(v) }; }
+});
+const publishedServerUriBySubnetText = computed({
+  get: () => asLines(net.value.PublishedServerUriBySubnet),
+  set: (v) => { net.value = { ...net.value, PublishedServerUriBySubnet: fromLines(v) }; }
 });
 const remoteIpFilterText = computed({
   get: () => asLines(net.value.RemoteIPFilter),
   set: (v) => { net.value = { ...net.value, RemoteIPFilter: fromLines(v) }; }
 });
+
+const hasBindAddresses = computed(() => (net.value.LocalNetworkAddresses ?? []).length > 0);
+
+const validationMessage = computed(() => {
+  const publicHttpPort = String(net.value.PublicHttpPort ?? '');
+  const publicHttpsPort = String(net.value.PublicHttpsPort ?? '');
+  const internalHttpPort = String(net.value.InternalHttpPort ?? '');
+  const internalHttpsPort = String(net.value.InternalHttpsPort ?? '');
+
+  if (publicHttpPort && publicHttpsPort && publicHttpPort === publicHttpsPort) {
+    return t('publicHttpHttpsPortsMustDiffer');
+  }
+
+  if (internalHttpPort && internalHttpsPort && internalHttpPort === internalHttpsPort) {
+    return t('internalHttpHttpsPortsMustDiffer');
+  }
+
+  if (!net.value.EnableIPv4 && !net.value.EnableIPv6) {
+    return t('ipv4OrIpv6Required');
+  }
+
+  if (net.value.EnableHttps && !net.value.CertificatePath?.trim()) {
+    return t('httpsRequiresCertificatePath');
+  }
+});
+
+/**
+ * Normalize form state to the payload shape expected by the server config API.
+ */
+function normalizedNetworkConfiguration(): NetworkConfiguration {
+  return {
+    ...net.value,
+    EnableRemoteAccess: net.value.EnableRemoteAccess ?? false,
+    AutoDiscovery: net.value.AutoDiscovery ?? false,
+    EnableUPnP: net.value.EnableUPnP ?? false,
+    EnableIPv4: net.value.EnableIPv4 ?? false,
+    EnableIPv6: net.value.EnableIPv6 ?? false,
+    EnableHttps: net.value.EnableHttps ?? false,
+    RequireHttps: net.value.RequireHttps ?? false,
+    IsRemoteIPFilterBlacklist: net.value.IsRemoteIPFilterBlacklist ?? false,
+    InternalHttpPort: Number(net.value.InternalHttpPort) || 0,
+    InternalHttpsPort: Number(net.value.InternalHttpsPort) || 0,
+    PublicHttpPort: Number(net.value.PublicHttpPort) || 0,
+    PublicHttpsPort: Number(net.value.PublicHttpsPort) || 0
+  };
+}
+
+/**
+ * Persist the current network configuration.
+ */
+async function persistNetworking(): Promise<void> {
+  saving.value = true;
+
+  try {
+    await remote.sdk.newUserApi(getConfigurationApi).updateNamedConfiguration({
+      key: 'network',
+      body: JSON.stringify(normalizedNetworkConfiguration())
+    });
+    useSnackbar(t('saved'), 'success');
+  } catch {
+    useSnackbar(t('unexpectedError'), 'error');
+  } finally {
+    saving.value = false;
+  }
+}
+
+/**
+ * Save networking settings, prompting when bind-address edits are present.
+ */
+async function saveNetworking(): Promise<void> {
+  if (validationMessage.value) {
+    useSnackbar(validationMessage.value, 'error');
+
+    return;
+  }
+
+  if (hasBindAddresses.value) {
+    await useConfirmDialog(persistNetworking, {
+      title: t('networkBindAddressWarningTitle'),
+      text: t('networkBindAddressWarning'),
+      confirmText: t('save'),
+      confirmColor: 'primary'
+    });
+
+    return;
+  }
+
+  await persistNetworking();
+}
 </script>

@@ -91,6 +91,138 @@
             </tr>
           </tbody>
         </VTable>
+
+        <VCard
+          variant="outlined"
+          class="uno-mt-6">
+          <VCardTitle>{{ t('globalLibraryDisplaySettings') }}</VCardTitle>
+          <VCardText>
+            <VSelect
+              v-model="dateAddedBehavior"
+              variant="outlined"
+              :items="dateAddedBehaviorItems"
+              item-title="title"
+              item-value="value"
+              :label="t('dateAddedBehavior')" />
+            <VCheckbox
+              :model-value="serverSettings.EnableFolderView"
+              :label="t('displayFolderView')"
+              hide-details
+              @update:model-value="v => serverSettings.EnableFolderView = v ?? false" />
+            <VCheckbox
+              :model-value="serverSettings.DisplaySpecialsWithinSeasons"
+              :label="t('displaySpecialsWithinSeasons')"
+              hide-details
+              @update:model-value="v => serverSettings.DisplaySpecialsWithinSeasons = v ?? false" />
+            <VCheckbox
+              :model-value="serverSettings.EnableGroupingMoviesIntoCollections"
+              :label="t('groupMoviesIntoCollections')"
+              hide-details
+              @update:model-value="v => serverSettings.EnableGroupingMoviesIntoCollections = v ?? false" />
+            <VCheckbox
+              :model-value="serverSettings.EnableGroupingShowsIntoCollections"
+              :label="t('groupShowsIntoCollections')"
+              hide-details
+              @update:model-value="v => serverSettings.EnableGroupingShowsIntoCollections = v ?? false" />
+            <VCheckbox
+              :model-value="serverSettings.EnableExternalContentInSuggestions"
+              :label="t('enableExternalContentInSuggestions')"
+              hide-details
+              @update:model-value="v => serverSettings.EnableExternalContentInSuggestions = v ?? false" />
+          </VCardText>
+          <VCardActions>
+            <VSpacer />
+            <VBtn
+              color="primary"
+              :loading="savingGlobalDisplay"
+              @click="saveGlobalDisplay">
+              {{ t('save') }}
+            </VBtn>
+          </VCardActions>
+        </VCard>
+
+        <VCard
+          variant="outlined"
+          class="uno-mt-6">
+          <VCardTitle>{{ t('globalMetadataDefaults') }}</VCardTitle>
+          <VCardText>
+            <VSelect
+              v-model="serverSettings.PreferredMetadataLanguage"
+              variant="outlined"
+              :items="cultureItems"
+              item-title="title"
+              item-value="value"
+              :label="t('optPreferredMetadataLanguage')" />
+            <VSelect
+              v-model="serverSettings.MetadataCountryCode"
+              variant="outlined"
+              :items="countryItems"
+              item-title="title"
+              item-value="value"
+              :label="t('optMetadataCountryCode')" />
+            <VTextField
+              :model-value="serverSettings.DummyChapterDuration"
+              type="number"
+              variant="outlined"
+              :label="t('dummyChapterDuration')"
+              @update:model-value="v => serverSettings.DummyChapterDuration = Number(v) || 0" />
+            <VSelect
+              v-model="serverSettings.ChapterImageResolution"
+              variant="outlined"
+              :items="chapterResolutionItems"
+              item-title="title"
+              item-value="value"
+              :label="t('chapterImageResolution')" />
+          </VCardText>
+          <VCardActions>
+            <VSpacer />
+            <VBtn
+              color="primary"
+              :loading="savingGlobalMetadata"
+              @click="saveGlobalMetadata">
+              {{ t('save') }}
+            </VBtn>
+          </VCardActions>
+        </VCard>
+
+        <VCard
+          variant="outlined"
+          class="uno-mt-6">
+          <VCardTitle>{{ t('globalNfoSettings') }}</VCardTitle>
+          <VCardText>
+            <VSelect
+              v-model="nfoConfig.UserId"
+              variant="outlined"
+              :items="userItems"
+              item-title="title"
+              item-value="value"
+              :label="t('kodiMetadataUser')" />
+            <VCheckbox
+              :model-value="nfoConfig.SaveImagePathsInNfo"
+              :label="t('saveImagePathsInNfo')"
+              hide-details
+              @update:model-value="v => nfoConfig.SaveImagePathsInNfo = v ?? false" />
+            <VCheckbox
+              :model-value="nfoConfig.EnablePathSubstitution"
+              :label="t('enablePathSubstitution')"
+              hide-details
+              @update:model-value="v => nfoConfig.EnablePathSubstitution = v ?? false" />
+            <VCheckbox
+              :model-value="nfoConfig.EnableExtraThumbsDuplication"
+              :label="t('enableExtraThumbsDuplication')"
+              hide-details
+              @update:model-value="v => nfoConfig.EnableExtraThumbsDuplication = v ?? false" />
+          </VCardText>
+          <VCardActions>
+            <VSpacer />
+            <VBtn
+              color="primary"
+              :loading="savingGlobalNfo"
+              @click="saveGlobalNfo">
+              {{ t('save') }}
+            </VBtn>
+          </VCardActions>
+        </VCard>
       </VCol>
 
       <!-- Add library -->
@@ -343,9 +475,18 @@ meta:
 </route>
 
 <script setup lang="ts">
-import { type LibraryOptions, type VirtualFolderInfo, CollectionTypeOptions } from '@jellyfin/sdk/lib/generated-client';
+import { type LibraryOptions, type VirtualFolderInfo, CollectionTypeOptions, ImageResolution } from '@jellyfin/sdk/lib/generated-client';
+import type { CountryInfo } from '@jellyfin/sdk/lib/generated-client/models/country-info';
+import type { CultureDto } from '@jellyfin/sdk/lib/generated-client/models/culture-dto';
+import type { MetadataConfiguration } from '@jellyfin/sdk/lib/generated-client/models/metadata-configuration';
+import type { ServerConfiguration } from '@jellyfin/sdk/lib/generated-client/models/server-configuration';
+import type { UserDto } from '@jellyfin/sdk/lib/generated-client/models/user-dto';
+import type { XbmcMetadataOptions } from '@jellyfin/sdk/lib/generated-client/models/xbmc-metadata-options';
 import { getLibraryStructureApi } from '@jellyfin/sdk/lib/utils/api/library-structure-api';
 import { getLibraryApi } from '@jellyfin/sdk/lib/utils/api/library-api';
+import { getConfigurationApi } from '@jellyfin/sdk/lib/utils/api/configuration-api';
+import { getLocalizationApi } from '@jellyfin/sdk/lib/utils/api/localization-api';
+import { getUserApi } from '@jellyfin/sdk/lib/utils/api/user-api';
 import { computed, reactive, ref, shallowRef } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { remote } from '#/plugins/remote/index.ts';
@@ -356,6 +497,15 @@ const { t } = useTranslation();
 
 const libraries = shallowRef<VirtualFolderInfo[]>([]);
 const loadError = shallowRef<unknown>();
+const serverSettings = ref<ServerConfiguration>({});
+const metadataConfig = ref<MetadataConfiguration>({});
+const nfoConfig = ref<XbmcMetadataOptions>({});
+const cultures = shallowRef<CultureDto[]>([]);
+const countries = shallowRef<CountryInfo[]>([]);
+const users = shallowRef<UserDto[]>([]);
+const savingGlobalDisplay = shallowRef(false);
+const savingGlobalMetadata = shallowRef(false);
+const savingGlobalNfo = shallowRef(false);
 
 /**
  * Pull the current library list. Sorted by name for stable display.
@@ -372,7 +522,43 @@ async function refetch(): Promise<void> {
   }
 }
 
-await refetch();
+/**
+ * Load global library, metadata, NFO, localization, and user options.
+ */
+async function refetchGlobalSettings(): Promise<void> {
+  try {
+    const configurationApi = remote.sdk.newUserApi(getConfigurationApi);
+    const localizationApi = remote.sdk.newUserApi(getLocalizationApi);
+    const userApi = remote.sdk.newUserApi(getUserApi);
+    const [
+      serverRes,
+      metadataRes,
+      nfoRes,
+      culturesRes,
+      countriesRes,
+      usersRes
+    ] = await Promise.all([
+      configurationApi.getConfiguration(),
+      configurationApi.getNamedConfiguration({ key: 'metadata' }),
+      configurationApi.getNamedConfiguration({ key: 'xbmcmetadata' }),
+      localizationApi.getCultures(),
+      localizationApi.getCountries(),
+      userApi.getUsers({})
+    ]);
+
+    serverSettings.value = serverRes.data;
+    metadataConfig.value = metadataRes.data as unknown as MetadataConfiguration;
+    nfoConfig.value = nfoRes.data as unknown as XbmcMetadataOptions;
+    cultures.value = culturesRes.data;
+    countries.value = countriesRes.data;
+    users.value = usersRes.data;
+  } catch (error) {
+    loadError.value = error;
+    useSnackbar(t('unexpectedError'), 'error');
+  }
+}
+
+await Promise.all([refetch(), refetchGlobalSettings()]);
 
 const collectionTypeItems = computed(() => [
   { title: t('mixed'), value: undefined },
@@ -381,6 +567,111 @@ const collectionTypeItems = computed(() => [
     value
   }))
 ]);
+
+const dateAddedBehavior = computed<string>({
+  get: () => metadataConfig.value.UseFileCreationTimeForDateAdded ? 'file' : 'import',
+  set: (value) => {
+    metadataConfig.value.UseFileCreationTimeForDateAdded = value === 'file';
+  }
+});
+
+const dateAddedBehaviorItems = computed(() => [
+  { title: t('dateAddedImportTime'), value: 'import' },
+  { title: t('dateAddedFileTime'), value: 'file' }
+]);
+
+const cultureItems = computed(() => [
+  { title: t('none'), value: '' },
+  ...cultures.value.map(culture => ({
+    title: culture.DisplayName ?? culture.Name ?? culture.TwoLetterISOLanguageName ?? '',
+    value: culture.TwoLetterISOLanguageName ?? culture.Name ?? ''
+  }))
+]);
+
+const countryItems = computed(() => [
+  { title: t('none'), value: '' },
+  ...countries.value.map(country => ({
+    title: country.DisplayName ?? country.Name ?? country.TwoLetterISORegionName ?? '',
+    value: country.TwoLetterISORegionName ?? ''
+  }))
+]);
+
+const chapterResolutionItems = computed(() => Object.values(ImageResolution).map(value => ({
+  title: value,
+  value
+})));
+
+const userItems = computed(() => [
+  { title: t('none'), value: '' },
+  ...users.value.map(user => ({
+    title: user.Name ?? user.Id ?? '',
+    value: user.Id ?? ''
+  }))
+]);
+
+/**
+ * Save global library display options split across server and metadata config.
+ */
+async function saveGlobalDisplay(): Promise<void> {
+  savingGlobalDisplay.value = true;
+
+  try {
+    const api = remote.sdk.newUserApi(getConfigurationApi);
+
+    await Promise.all([
+      api.updateConfiguration({ serverConfiguration: serverSettings.value }),
+      api.updateNamedConfiguration({
+        key: 'metadata',
+        body: JSON.stringify(metadataConfig.value)
+      })
+    ]);
+    useSnackbar(t('saved'), 'success');
+  } catch {
+    useSnackbar(t('unexpectedError'), 'error');
+  } finally {
+    savingGlobalDisplay.value = false;
+  }
+}
+
+/**
+ * Save global metadata defaults stored on server configuration.
+ */
+async function saveGlobalMetadata(): Promise<void> {
+  savingGlobalMetadata.value = true;
+
+  try {
+    await remote.sdk.newUserApi(getConfigurationApi).updateConfiguration({
+      serverConfiguration: serverSettings.value
+    });
+    useSnackbar(t('saved'), 'success');
+  } catch {
+    useSnackbar(t('unexpectedError'), 'error');
+  } finally {
+    savingGlobalMetadata.value = false;
+  }
+}
+
+/**
+ * Save global Kodi/NFO metadata writer options.
+ */
+async function saveGlobalNfo(): Promise<void> {
+  savingGlobalNfo.value = true;
+
+  try {
+    await remote.sdk.newUserApi(getConfigurationApi).updateNamedConfiguration({
+      key: 'xbmcmetadata',
+      body: JSON.stringify({
+        ...nfoConfig.value,
+        ReleaseDateFormat: nfoConfig.value.ReleaseDateFormat ?? 'yyyy-MM-dd'
+      })
+    });
+    useSnackbar(t('saved'), 'success');
+  } catch {
+    useSnackbar(t('unexpectedError'), 'error');
+  } finally {
+    savingGlobalNfo.value = false;
+  }
+}
 
 // == Add ==
 const addDialog = ref(false);

@@ -27,6 +27,108 @@
           :label="t('hardwareAcceleration')"
           @update:model-value="v => encoding!.HardwareAccelerationType = v" />
 
+        <VTextField
+          v-if="encoding.HardwareAccelerationType === HardwareAccelerationType.Vaapi"
+          :model-value="encoding.VaapiDevice ?? ''"
+          variant="outlined"
+          :label="t('vaapiDevice')"
+          :hint="t('vaapiDeviceHint')"
+          persistent-hint
+          @update:model-value="v => encoding!.VaapiDevice = v || null" />
+
+        <VTextField
+          v-if="encoding.HardwareAccelerationType === HardwareAccelerationType.Qsv"
+          :model-value="encoding.QsvDevice ?? ''"
+          variant="outlined"
+          :label="t('qsvDevice')"
+          :hint="t('qsvDeviceHint')"
+          persistent-hint
+          @update:model-value="v => encoding!.QsvDevice = v || null" />
+
+        <template v-if="isHardwareAccelerationEnabled">
+          <h4 class="uno-mb-2 uno-mt-4 uno-text-base uno-font-bold">
+            {{ t('hardwareDecoding') }}
+          </h4>
+          <VCheckbox
+            v-for="codec in availableCodecs"
+            :key="codec.codec"
+            :model-value="enabledHardwareCodecs.includes(codec.codec)"
+            :label="codec.name"
+            hide-details
+            @update:model-value="v => setHardwareCodec(codec.codec, v ?? false)" />
+          <VCheckbox
+            v-if="supportsHevcVp9Depth"
+            :model-value="encoding.EnableDecodingColorDepth10Hevc"
+            label="HEVC 10-bit"
+            hide-details
+            @update:model-value="v => encoding!.EnableDecodingColorDepth10Hevc = v ?? false" />
+          <VCheckbox
+            v-if="supportsHevcVp9Depth"
+            :model-value="encoding.EnableDecodingColorDepth10Vp9"
+            label="VP9 10-bit"
+            hide-details
+            @update:model-value="v => encoding!.EnableDecodingColorDepth10Vp9 = v ?? false" />
+          <VCheckbox
+            v-if="supportsHevcRext"
+            :model-value="encoding.EnableDecodingColorDepth10HevcRext"
+            label="HEVC RExt 8/10-bit"
+            hide-details
+            @update:model-value="v => encoding!.EnableDecodingColorDepth10HevcRext = v ?? false" />
+          <VCheckbox
+            v-if="supportsHevcRext"
+            :model-value="encoding.EnableDecodingColorDepth12HevcRext"
+            label="HEVC RExt 12-bit"
+            hide-details
+            @update:model-value="v => encoding!.EnableDecodingColorDepth12HevcRext = v ?? false" />
+          <VCheckbox
+            v-if="encoding.HardwareAccelerationType === HardwareAccelerationType.Nvenc"
+            :model-value="encoding.EnableEnhancedNvdecDecoder"
+            :label="t('enableEnhancedNvdecDecoder')"
+            hide-details
+            @update:model-value="v => encoding!.EnableEnhancedNvdecDecoder = v ?? false" />
+          <VCheckbox
+            v-if="encoding.HardwareAccelerationType === HardwareAccelerationType.Qsv"
+            :model-value="encoding.PreferSystemNativeHwDecoder"
+            :label="t('preferSystemNativeHwDecoder')"
+            hide-details
+            @update:model-value="v => encoding!.PreferSystemNativeHwDecoder = v ?? false" />
+
+          <h4 class="uno-mb-2 uno-mt-4 uno-text-base uno-font-bold">
+            {{ t('hardwareEncoding') }}
+          </h4>
+          <VCheckbox
+            :model-value="encoding.EnableHardwareEncoding"
+            :label="t('enableHardwareEncoding')"
+            hide-details
+            @update:model-value="v => encoding!.EnableHardwareEncoding = v ?? false" />
+          <VCheckbox
+            v-if="supportsIntelLowPowerEncoding"
+            :model-value="encoding.EnableIntelLowPowerH264HwEncoder"
+            :label="t('enableIntelLowPowerH264HwEncoder')"
+            hide-details
+            @update:model-value="v => encoding!.EnableIntelLowPowerH264HwEncoder = v ?? false" />
+          <VCheckbox
+            v-if="supportsIntelLowPowerEncoding"
+            :model-value="encoding.EnableIntelLowPowerHevcHwEncoder"
+            :label="t('enableIntelLowPowerHevcHwEncoder')"
+            hide-details
+            @update:model-value="v => encoding!.EnableIntelLowPowerHevcHwEncoder = v ?? false" />
+        </template>
+
+        <h4 class="uno-mb-2 uno-mt-4 uno-text-base uno-font-bold">
+          {{ t('encodingFormatOptions') }}
+        </h4>
+        <VCheckbox
+          :model-value="encoding.AllowHevcEncoding"
+          :label="t('allowHevcEncoding')"
+          hide-details
+          @update:model-value="v => encoding!.AllowHevcEncoding = v ?? false" />
+        <VCheckbox
+          :model-value="encoding.AllowAv1Encoding"
+          :label="t('allowAv1Encoding')"
+          hide-details
+          @update:model-value="v => encoding!.AllowAv1Encoding = v ?? false" />
+
         <VSelect
           :model-value="encoding.EncoderPreset"
           variant="outlined"
@@ -91,6 +193,13 @@
         <h3 class="uno-mb-2 uno-mt-6 uno-text-lg uno-font-bold">
           {{ t('streaming') }}
         </h3>
+
+        <VTextField
+          :model-value="remoteClientBitrateLimitMbps"
+          variant="outlined"
+          type="number"
+          :label="t('remoteBitrateLimit')"
+          @update:model-value="v => remoteClientBitrateLimitMbps = Number(v) || 0" />
 
         <VCheckbox
           :model-value="encoding.EnableThrottling"
@@ -180,11 +289,39 @@
           @update:model-value="v => trickplay!.EnableHwAcceleration = v ?? false" />
 
         <VCheckbox
+          :model-value="trickplay.EnableHwEncoding"
+          :label="t('trickplayEnableHwEncoding')"
+          @update:model-value="v => trickplay!.EnableHwEncoding = v ?? false" />
+
+        <VCheckbox
           :model-value="trickplay.EnableKeyFrameOnlyExtraction"
           :label="t('trickplayKeyFrameOnly')"
           :hint="t('trickplayKeyFrameOnlyHint')"
           persistent-hint
           @update:model-value="v => trickplay!.EnableKeyFrameOnlyExtraction = v ?? false" />
+
+        <VRow class="uno-mt-2">
+          <VCol cols="6">
+            <VSelect
+              :model-value="trickplay.ScanBehavior"
+              variant="outlined"
+              :items="trickplayScanBehaviorOptions"
+              item-title="title"
+              item-value="value"
+              :label="t('trickplayScanBehavior')"
+              @update:model-value="v => trickplay!.ScanBehavior = v" />
+          </VCol>
+          <VCol cols="6">
+            <VSelect
+              :model-value="trickplay.ProcessPriority"
+              variant="outlined"
+              :items="processPriorityOptions"
+              item-title="title"
+              item-value="value"
+              :label="t('processPriority')"
+              @update:model-value="v => trickplay!.ProcessPriority = v" />
+          </VCol>
+        </VRow>
 
         <VRow class="uno-mt-2">
           <VCol cols="6">
@@ -204,6 +341,52 @@
               @update:model-value="v => trickplay!.JpegQuality = Number(v) || 0" />
           </VCol>
         </VRow>
+
+        <VTextField
+          :model-value="trickplay.WidthResolutions?.join(',') ?? ''"
+          variant="outlined"
+          :label="t('trickplayWidthResolutions')"
+          :hint="t('commaSeparatedNumbers')"
+          persistent-hint
+          @update:model-value="v => trickplay!.WidthResolutions = numberList(v)" />
+
+        <VRow class="uno-mt-2">
+          <VCol cols="6">
+            <VTextField
+              :model-value="trickplay.TileWidth"
+              variant="outlined"
+              type="number"
+              :label="t('trickplayTileWidth')"
+              @update:model-value="v => trickplay!.TileWidth = Number(v) || 0" />
+          </VCol>
+          <VCol cols="6">
+            <VTextField
+              :model-value="trickplay.TileHeight"
+              variant="outlined"
+              type="number"
+              :label="t('trickplayTileHeight')"
+              @update:model-value="v => trickplay!.TileHeight = Number(v) || 0" />
+          </VCol>
+        </VRow>
+
+        <VRow>
+          <VCol cols="6">
+            <VTextField
+              :model-value="trickplay.Qscale"
+              variant="outlined"
+              type="number"
+              :label="t('trickplayQscale')"
+              @update:model-value="v => trickplay!.Qscale = Number(v) || 0" />
+          </VCol>
+          <VCol cols="6">
+            <VTextField
+              :model-value="trickplay.ProcessThreads"
+              variant="outlined"
+              type="number"
+              :label="t('trickplayThreads')"
+              @update:model-value="v => trickplay!.ProcessThreads = Number(v) || 0" />
+          </VCol>
+        </VRow>
       </VCol>
     </template>
   </AdminSettingsLayout>
@@ -215,9 +398,9 @@ meta:
 </route>
 
 <script setup lang="ts">
-import { type EncodingOptions, type ServerConfiguration, type TrickplayOptions, EncoderPreset, HardwareAccelerationType } from '@jellyfin/sdk/lib/generated-client';
+import { type EncodingOptions, type ServerConfiguration, type TrickplayOptions, EncoderPreset, HardwareAccelerationType, ProcessPriorityClass, TrickplayScanBehavior } from '@jellyfin/sdk/lib/generated-client';
 import { getConfigurationApi } from '@jellyfin/sdk/lib/utils/api/configuration-api';
-import { computed, onScopeDispose, shallowRef, watch } from 'vue';
+import { computed, onScopeDispose, ref, shallowRef, watch } from 'vue';
 import { watchDeep } from '@vueuse/core';
 import { useTranslation } from 'i18next-vue';
 import { remote } from '#/plugins/remote/index.ts';
@@ -226,10 +409,40 @@ import { taskManager } from '#/store/task-manager.ts';
 
 const { t } = useTranslation();
 
+interface HardwareCodec {
+  name: string;
+  codec: string;
+  types: HardwareAccelerationType[];
+}
+
+const CODECS: HardwareCodec[] = [
+  { name: 'H264', codec: 'h264', types: [HardwareAccelerationType.Amf, HardwareAccelerationType.Nvenc, HardwareAccelerationType.Qsv, HardwareAccelerationType.Vaapi, HardwareAccelerationType.Rkmpp, HardwareAccelerationType.Videotoolbox, HardwareAccelerationType.V4l2m2m] },
+  { name: 'HEVC', codec: 'hevc', types: [HardwareAccelerationType.Amf, HardwareAccelerationType.Nvenc, HardwareAccelerationType.Qsv, HardwareAccelerationType.Vaapi, HardwareAccelerationType.Rkmpp, HardwareAccelerationType.Videotoolbox] },
+  { name: 'MPEG1', codec: 'mpeg1video', types: [HardwareAccelerationType.Rkmpp] },
+  { name: 'MPEG2', codec: 'mpeg2video', types: [HardwareAccelerationType.Amf, HardwareAccelerationType.Nvenc, HardwareAccelerationType.Qsv, HardwareAccelerationType.Vaapi, HardwareAccelerationType.Rkmpp] },
+  { name: 'MPEG4', codec: 'mpeg4', types: [HardwareAccelerationType.Nvenc, HardwareAccelerationType.Rkmpp] },
+  { name: 'VC1', codec: 'vc1', types: [HardwareAccelerationType.Amf, HardwareAccelerationType.Nvenc, HardwareAccelerationType.Qsv, HardwareAccelerationType.Vaapi] },
+  { name: 'VP8', codec: 'vp8', types: [HardwareAccelerationType.Nvenc, HardwareAccelerationType.Qsv, HardwareAccelerationType.Vaapi, HardwareAccelerationType.Rkmpp, HardwareAccelerationType.Videotoolbox] },
+  { name: 'VP9', codec: 'vp9', types: [HardwareAccelerationType.Amf, HardwareAccelerationType.Nvenc, HardwareAccelerationType.Qsv, HardwareAccelerationType.Vaapi, HardwareAccelerationType.Rkmpp, HardwareAccelerationType.Videotoolbox] },
+  { name: 'AV1', codec: 'av1', types: [HardwareAccelerationType.Amf, HardwareAccelerationType.Nvenc, HardwareAccelerationType.Qsv, HardwareAccelerationType.Vaapi, HardwareAccelerationType.Rkmpp, HardwareAccelerationType.Videotoolbox] }
+];
+const HEVC_VP9_HW_DECODING_TYPES = new Set<HardwareAccelerationType>([
+  HardwareAccelerationType.Amf,
+  HardwareAccelerationType.Nvenc,
+  HardwareAccelerationType.Qsv,
+  HardwareAccelerationType.Vaapi,
+  HardwareAccelerationType.Rkmpp
+]);
+const HEVC_REXT_DECODING_TYPES = new Set<HardwareAccelerationType>([
+  HardwareAccelerationType.Nvenc,
+  HardwareAccelerationType.Qsv,
+  HardwareAccelerationType.Vaapi
+]);
+
 const loadError = shallowRef<unknown>();
-const encoding = shallowRef<EncodingOptions>({});
-const trickplay = shallowRef<TrickplayOptions>({});
-const serverSettings = shallowRef<ServerConfiguration>({});
+const encoding = ref<EncodingOptions>({});
+const trickplay = ref<TrickplayOptions>({});
+const serverSettings = ref<ServerConfiguration>({});
 
 /**
  * Three named configurations drive this page:
@@ -249,9 +462,9 @@ try {
     api.getConfiguration()
   ]);
 
-  encoding.value = encodingRes.data as EncodingOptions;
-  trickplay.value = trickplayRes.data as TrickplayOptions;
   serverSettings.value = serverRes.data;
+  encoding.value = encodingRes.data as EncodingOptions;
+  trickplay.value = serverRes.data.TrickplayOptions ?? trickplayRes.data as TrickplayOptions;
 } catch (error) {
   loadError.value = error;
   console.error('[settings/transcoding] failed to load configuration', error);
@@ -266,6 +479,74 @@ const encoderPresetOptions = computed(() => Object.values(EncoderPreset).map(val
   title: value.charAt(0).toUpperCase() + value.slice(1),
   value
 })));
+
+const hardwareAccelerationType = computed(() =>
+  encoding.value.HardwareAccelerationType ?? HardwareAccelerationType.None
+);
+const isHardwareAccelerationEnabled = computed(() =>
+  hardwareAccelerationType.value !== HardwareAccelerationType.None
+);
+const availableCodecs = computed(() =>
+  CODECS.filter(codec => codec.types.includes(hardwareAccelerationType.value))
+);
+const enabledHardwareCodecs = computed(() =>
+  encoding.value.HardwareDecodingCodecs ?? []
+);
+const supportsHevcVp9Depth = computed(() =>
+  HEVC_VP9_HW_DECODING_TYPES.has(hardwareAccelerationType.value)
+);
+const supportsHevcRext = computed(() =>
+  HEVC_REXT_DECODING_TYPES.has(hardwareAccelerationType.value)
+);
+const supportsIntelLowPowerEncoding = computed(() =>
+  hardwareAccelerationType.value === HardwareAccelerationType.Qsv
+  || hardwareAccelerationType.value === HardwareAccelerationType.Vaapi
+);
+const remoteClientBitrateLimitMbps = computed({
+  get: () => (serverSettings.value.RemoteClientBitrateLimit ?? 0) / 1_000_000,
+  set: (value: number) => {
+    serverSettings.value.RemoteClientBitrateLimit = Math.max(0, value) * 1_000_000;
+  }
+});
+const trickplayScanBehaviorOptions = computed(() => Object.values(TrickplayScanBehavior).map(value => ({
+  title: t(value === TrickplayScanBehavior.Blocking ? 'blockingScan' : 'nonBlockingScan'),
+  value
+})));
+const processPriorityOptions = computed(() => Object.values(ProcessPriorityClass)
+  .filter(value => value !== ProcessPriorityClass.RealTime)
+  .map(value => ({
+    title: value,
+    value
+  })));
+
+/**
+ * Toggle one codec inside the hardware decoding codec list.
+ */
+function setHardwareCodec(codec: string, enabled: boolean): void {
+  const codecs = new Set<string>();
+
+  for (const value of encoding.value.HardwareDecodingCodecs ?? []) {
+    codecs.add(value);
+  }
+
+  if (enabled) {
+    codecs.add(codec);
+  } else {
+    codecs.delete(codec);
+  }
+
+  encoding.value.HardwareDecodingCodecs = [...codecs];
+}
+
+/**
+ * Parse comma-separated positive numbers for trickplay resolution lists.
+ */
+function numberList(value: string): number[] {
+  return value
+    .split(',')
+    .map(v => Number(v.trim()))
+    .filter(v => Number.isFinite(v) && v > 0);
+}
 
 const tasks = new Map<number, string>();
 const signal = shallowRef(false);
@@ -284,7 +565,7 @@ const { loading: l3 } = await useApi(
   getConfigurationApi,
   () => signal.value ? 'updateConfiguration' : undefined,
   { skipCache: { request: true }, globalLoading: false }
-)(() => ({ serverConfiguration: serverSettings.value }));
+)(() => ({ serverConfiguration: { ...serverSettings.value, TrickplayOptions: trickplay.value } }));
 
 watch([l1, l2, l3], (newvals) => {
   for (let idx = 0; idx < newvals.length; idx++) {
