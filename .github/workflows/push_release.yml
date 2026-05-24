@@ -11,7 +11,7 @@ on:
       - prereleased
   push:
     branches:
-      - master
+      - develop
     paths-ignore:
       - '**/*.md'
 

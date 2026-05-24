@@ -19,7 +19,7 @@ on:
         default: manual
   push:
     branches:
-      - master
+      - develop
     paths:
       - .github/workflows/build_docker.yml
       - package.json

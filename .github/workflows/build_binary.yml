@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
+      - develop
     paths:
       - .github/workflows/build_binary.yml
       - package.json
