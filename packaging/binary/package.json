@@ -11,7 +11,9 @@
     "public": true,
     "targets": [
       "node24-linuxstatic-x64",
-      "node24-linuxstatic-arm64"
+      "node24-linuxstatic-arm64",
+      "node24-macos-x64",
+      "node24-macos-arm64"
     ]
   }
 }
