@@ -59,6 +59,7 @@ jobs:
       id-token: write
     defaults:
       run:
+        shell: bash
         working-directory: packaging/tauri
     env:
       OUTPUT_DIR: dist/tauri
@@ -210,6 +211,7 @@ jobs:
       - name: Publish GitHub release 🚀
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           RELEASE_TITLE: ${{ steps.release.outputs.title }}
           TAG_NAME: ${{ steps.release.outputs.tag }}
         run: |
