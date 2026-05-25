@@ -46,7 +46,7 @@ The goal of this fork is a fuller, daily-driver browser client for Jellyfin: bro
 ![](https://raw.githubusercontent.com/jellyfin/jellyfin.org/refs/heads/master/blog/2023/04-03-vue_vue3/vue-homepage.png)
 
 > [!NOTE]
-> Hestia is not an official Jellyfin project. It is based on Jellyfin Vue and keeps upstream Jellyfin compatibility as a core constraint.
+> Hestia is not an official Jellyfin project. It is based on Jellyfin Vue.
 
 # Usage instructions for end users 👨‍👩‍👧‍👦
 
@@ -55,9 +55,9 @@ There are no stable Hestia releases yet.*
 
 ## Try it 🌍
 
-There is not a separate hosted Hestia instance documented in this repository yet. For a hosted upstream Jellyfin Vue build, use [jf-vue.pages.dev](https://jf-vue.pages.dev/) and enter your Jellyfin server address when prompted. If you do not have a Jellyfin server, try the Jellyfin demo server: `https://demo.jellyfin.org/stable`
+There is not a separate hosted Hestia instance documented in this repository yet.
 
-⚠️ **This only works for Jellyfin servers that [are behind a reverse proxy and have HTTPS set up correctly](https://jellyfin.org/docs/general/networking/#running-jellyfin-behind-a-reverse-proxy)**. If your server runs over HTTP, you must host it yourself.
+__⚠️ **This only works for Jellyfin servers that [are behind a reverse proxy and have HTTPS set up correctly](https://jellyfin.org/docs/general/networking/#running-jellyfin-behind-a-reverse-proxy)**. If your server runs over HTTP, you must host it yourself.__
 
 The upstream hosted instance is provided by the upstream Jellyfin Vue project, not this fork.
 
@@ -82,6 +82,20 @@ Common runtime configuration variables for the Docker and server-binary paths:
 - `DEFAULT_SERVERS`: comma-separated Jellyfin server URLs
 - `DISABLE_SERVER_SELECTION`: set to `1` to hide server selection
 - `HISTORY_ROUTER_MODE`: set to `0` for hash routing; otherwise history routing is used
+
+## Desktop app 🖥️
+
+Hestia ships an experimental Tauri desktop build for Linux, macOS, and Windows. Grab the latest from the [Tauri Desktop workflow releases](https://github.com/bybrooklyn/Hestia/releases?q=tauri-snapshot).
+
+### macOS
+
+The macOS build is signed ad-hoc, not notarized, so Gatekeeper flags it on first download. After moving `Hestia.app` into `/Applications`, strip the quarantine attribute:
+
+```sh
+xattr -dr com.apple.quarantine /Applications/Hestia.app
+```
+
+Alternatively, right-click `Hestia.app` and pick **Open** the first time.
 
 ## Project status 🧭
 

@@ -24,9 +24,9 @@
     "beforeDevCommand": "corepack pnpm --filter @jellyfin-vue/tauri-runtime start",
     "devUrl": "http://127.0.0.1:3000"
   },
-  "productName": "jellyfin-vue",
+  "productName": "Hestia",
   "version": "../../packages/frontend/package.json",
-  "identifier": "org.jellyfin.vue.tauri",
+  "identifier": "io.github.bybrooklyn.hestia",
   "plugins": {},
   "app": {
     "security": {
@@ -44,7 +44,7 @@
     },
     "windows": [
       {
-        "title": "Jellyfin Vue"
+        "title": "Hestia"
       }
     ]
   }

@@ -1,13 +1,13 @@
 [package]
-name = "jellyfin-vue-tauri"
+name = "hestia"
 version = "0.0.0"
-description = "Jellyfin Tauri client"
+description = "Hestia desktop client (Jellyfin Vue fork)"
 authors = [
-  "jellyfin-vue Contributors (https://github.com/jellyfin/jellyfin-vue/graphs/contributors)"
+  "bybrooklyn <brooklyn.halmstad@proton.me>"
 ]
 license = "GPL-3.0-only"
-repository = "https://github.com/jellyfin/jellyfin-vue"
-default-run = "jellyfin-vue-tauri"
+repository = "https://github.com/bybrooklyn/Hestia"
+default-run = "hestia"
 build = "src/build.rs"
 edition = "2021"
 

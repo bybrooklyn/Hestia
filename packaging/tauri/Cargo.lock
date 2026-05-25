@@ -1526,7 +1526,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "jellyfin-vue-tauri"
+name = "hestia"
 version = "0.0.0"
 dependencies = [
  "tauri",
