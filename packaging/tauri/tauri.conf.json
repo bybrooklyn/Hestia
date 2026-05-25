@@ -16,6 +16,9 @@
       "appimage": {
         "bundleMediaFramework": true
       }
+    },
+    "macOS": {
+      "signingIdentity": "-"
     }
   },
   "build": {

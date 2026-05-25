@@ -95,14 +95,6 @@ jobs:
       - name: Build Tauri desktop app 🛠️
         run: corepack pnpm build
 
-      - name: Ad-hoc codesign macOS bundle 🔏
-        if: ${{ matrix.platform == 'macos' }}
-        run: |
-          APP_PATH="$(find target/release/bundle/macos -maxdepth 2 -name '*.app' -print -quit)"
-          DMG_PATH="$(find target/release/bundle/dmg -maxdepth 1 -name '*.dmg' -print -quit)"
-          codesign -s - --force --deep "$APP_PATH"
-          [ -n "$DMG_PATH" ] && codesign -s - --force "$DMG_PATH" || true
-
       - name: Prepare Tauri artifacts 📦
         env:
           PLATFORM: ${{ matrix.platform }}
